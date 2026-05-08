@@ -1,0 +1,28 @@
+<svg width="100%" viewBox="0 0 380 485" xmlns="http://www.w3.org/2000/svg" style="display:block">
+      <ellipse cx="190" cy="185" rx="138" ry="135" fill="#0d1019" stroke="#5a6490" stroke-width="2"></ellipse>
+      <ellipse cx="190" cy="185" rx="124" ry="121" fill="none" stroke="#3a4468" stroke-width="1" stroke-dasharray="5 4" opacity="0.6"></ellipse>
+      <line x1="158" y1="88" x2="179.9747467334932" y2="154.6109510359012" stroke="#374151" stroke-width="2.5" stroke-dasharray="4 3" opacity="0.55"></line>
+      <circle cx="190" cy="185" r="30" fill="#0f131c" stroke="#3b82f6" stroke-width="1.5" opacity="0.9"></circle>
+      <text x="190" y="177" text-anchor="middle" dominant-baseline="central" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">CE-01</text>
+      <text x="190" y="193" text-anchor="middle" dominant-baseline="central" fill="#7a85a3" font-size="8" font-family="'IBM Plex Mono',monospace">24F</text>
+      
+        <circle cx="158" cy="88" r="24" fill="none" stroke="#374151" stroke-width="1.5" opacity="0.4"></circle>
+        <circle cx="158" cy="88" r="20" fill="#374151" stroke="#fff" stroke-width="2"></circle>
+        <circle cx="158" cy="88" r="11" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.35)" stroke-width="1"></circle>
+        <text x="158" y="88" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="8" font-family="'IBM Plex Mono',monospace" font-weight="500">12F</text>
+      <circle cx="222" cy="88" r="20" fill="#2a3350" stroke="#6a75a0" stroke-width="1.5"></circle>
+      <circle cx="222" cy="88" r="11" fill="#1e2640" stroke="#4a5580" stroke-width="1" stroke-dasharray="3 2"></circle>
+      <text x="222" y="88" text-anchor="middle" dominant-baseline="central" fill="#6a75a0" font-size="7" font-family="'IBM Plex Mono',monospace">P2</text>
+      <circle cx="88" cy="185" r="20" fill="#2a3350" stroke="#6a75a0" stroke-width="1.5"></circle>
+      <circle cx="88" cy="185" r="11" fill="#1e2640" stroke="#4a5580" stroke-width="1" stroke-dasharray="3 2"></circle>
+      <text x="88" y="185" text-anchor="middle" dominant-baseline="central" fill="#6a75a0" font-size="7" font-family="'IBM Plex Mono',monospace">P3</text>
+      <circle cx="292" cy="185" r="20" fill="#2a3350" stroke="#6a75a0" stroke-width="1.5"></circle>
+      <circle cx="292" cy="185" r="11" fill="#1e2640" stroke="#4a5580" stroke-width="1" stroke-dasharray="3 2"></circle>
+      <text x="292" y="185" text-anchor="middle" dominant-baseline="central" fill="#6a75a0" font-size="7" font-family="'IBM Plex Mono',monospace">P4</text>
+      
+    <ellipse cx="190" cy="278" rx="42" ry="26" fill="#2a3350" stroke="#6a75a0" stroke-width="2"></ellipse>
+    <circle cx="174" cy="278" r="12" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.3)" stroke-width="1"></circle>
+    <circle cx="206" cy="278" r="12" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.3)" stroke-width="1"></circle>
+    <text x="190" y="278" text-anchor="middle" dominant-baseline="central" fill="#6a75a0" font-size="8" font-family="'IBM Plex Mono',monospace" font-weight="500">Sangría</text>
+      <text x="190" y="330" text-anchor="middle" fill="#4a5580" font-size="7" font-family="'IBM Plex Mono',monospace">Ø190mm · Dome 5P · vista frontal</text>
+    <g><rect x="0" y="345" width="380" height="140" fill="#181c27"></rect><text x="20" y="361" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Caja</text><text x="360" y="361" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">CE-01</text><text x="20" y="377" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Modelo</text><text x="360" y="377" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">Dome 5 puertos</text><text x="20" y="393" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Capacidad</text><text x="360" y="393" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">24F</text><text x="20" y="409" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Cables entrada</text><text x="360" y="409" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">1</text><text x="20" y="425" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Cables salida</text><text x="360" y="425" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">0</text><text x="20" y="441" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Fibras totales</text><text x="360" y="441" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">12F</text><text x="20" y="457" fill="#7a85a3" font-size="10" font-family="'IBM Plex Mono',monospace">Fusiones</text><text x="360" y="457" text-anchor="end" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">0/24</text></g></svg>
