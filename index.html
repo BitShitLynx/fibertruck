@@ -6,44 +6,27 @@
 <meta name="theme-color" content="#0f1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Empalme">
-<title>Cierre de Empalme FTTH</title>
+<meta name="apple-mobile-web-app-title" content="FiberTrack">
+<title>FiberTrack</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-:root {
-  --bg:      #0f1117;
-  --bg2:     #181c27;
-  --bg3:     #1f2436;
-  --border:  #2a3050;
-  --border2: #3a4468;
-  --text:    #e8ecf4;
-  --muted:   #7a85a3;
-  --accent:  #3b82f6;
-  --accent2: #60a5fa;
-  --green:   #22c55e;
-  --amber:   #f59e0b;
-  --red:     #ef4444;
-  --mono:    'IBM Plex Mono', monospace;
-  --sans:    'IBM Plex Sans', sans-serif;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+:root{
+  --bg:#0f1117;--bg2:#181c27;--bg3:#1f2436;
+  --border:#2a3050;--border2:#3a4468;
+  --text:#e8ecf4;--muted:#7a85a3;
+  --accent:#3b82f6;--accent2:#60a5fa;
+  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px}
-
-/* Layout */
-#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;position:relative}
-
-/* Topbar */
-.topbar{
-  background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  padding:12px 16px;
-  padding-top:max(12px, env(safe-area-inset-top));
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;
-}
+#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;
+  padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .topbar-left{display:flex;align-items:center;gap:10px}
 .topbar-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
 .topbar-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -52,72 +35,44 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .topbar-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .topbar-btn:active{background:var(--bg3);color:var(--text)}
 .topbar-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* Tabs */
-.tabbar{
-  display:flex;background:var(--bg2);border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-.tab{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:10px 4px 9px;cursor:pointer;gap:3px;color:var(--muted);font-size:10px;
-  font-family:var(--mono);letter-spacing:.03em;
-  border-bottom:2px solid transparent;transition:all .15s;
-  position:relative;
-}
-.tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.tab{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:9px 4px 8px;cursor:pointer;gap:3px;color:var(--muted);font-size:9px;
+  font-family:var(--mono);border-bottom:2px solid transparent;transition:all .15s;position:relative;white-space:nowrap}
+.tab svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab.active{color:var(--accent2);border-bottom-color:var(--accent)}
-.tab-badge{
-  position:absolute;top:6px;right:calc(50% - 14px);
-  background:var(--accent);color:#fff;font-size:9px;font-family:var(--mono);
-  border-radius:10px;padding:0 4px;min-width:16px;height:14px;
-  display:none;align-items:center;justify-content:center;
-}
+.tab-badge{position:absolute;top:5px;right:calc(50% - 14px);background:var(--accent);color:#fff;
+  font-size:9px;font-family:var(--mono);border-radius:10px;padding:0 4px;min-width:15px;height:13px;
+  display:none;align-items:center;justify-content:center}
 .tab-badge.show{display:flex}
-
-/* Content */
 .content{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;
   padding-bottom:calc(14px + var(--safe-bottom))}
-
-/* Screens */
 .screen{display:none;flex-direction:column;gap:12px}
 .screen.active{display:flex}
-
-/* Cards */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px}
 .card-title{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--muted);
   letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
-
-/* Fields */
 .field{margin-bottom:10px}
 .field:last-child{margin-bottom:0}
 .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-family:var(--mono)}
-.field input,.field select,.field textarea{
-  width:100%;font-size:14px;padding:9px 11px;
-  border-radius:8px;border:1px solid var(--border2);
-  background:var(--bg3);color:var(--text);font-family:var(--sans);
-  height:44px;appearance:none;outline:none;
-  transition:border-color .15s;
-}
+.field input,.field select{width:100%;font-size:14px;padding:9px 11px;border-radius:8px;
+  border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:var(--sans);
+  height:44px;appearance:none;outline:none;transition:border-color .15s}
 .field input:focus,.field select:focus{border-color:var(--accent)}
-.field textarea{height:auto;resize:none}
-
-/* Stats */
 .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px}
 .stat-label{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
 .stat-val{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--text)}
 .stat-val span{font-size:13px;color:var(--muted)}
-
-/* Port items */
-.port-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .15s}
+.port-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .15s;margin-bottom:10px}
 .port-item.open{border-color:var(--border2)}
 .port-header{display:flex;align-items:center;gap:10px;padding:12px;cursor:pointer;min-height:52px}
 .port-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.port-name{flex:1;font-size:14px;color:var(--text);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.port-name{flex:1;font-size:13px;color:var(--text);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .badge{font-size:10px;padding:3px 8px;border-radius:20px;font-family:var(--mono);font-weight:500;flex-shrink:0}
 .badge-in{background:#0d3320;color:#4ade80;border:1px solid #166534}
 .badge-out{background:#2d1c07;color:#fbbf24;border:1px solid #92400e}
+.badge-sang{background:#1a1440;color:#a78bfa;border:1px solid #4c1d95}
 .port-chevron{color:var(--muted);flex-shrink:0;transition:transform .2s}
 .port-chevron svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .port-item.open .port-chevron{transform:rotate(180deg)}
@@ -125,74 +80,60 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .port-item.open .port-body{display:block}
 .port-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .port-grid .field{margin-bottom:0}
-.del-btn{
-  width:100%;height:44px;border-radius:8px;border:1px solid #3f1a1a;
-  background:#1a0d0d;color:var(--red);font-size:13px;cursor:pointer;font-family:var(--sans);
-  display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;
-}
+.del-btn{width:100%;height:44px;border-radius:8px;border:1px solid #3f1a1a;background:#1a0d0d;
+  color:var(--red);font-size:13px;cursor:pointer;font-family:var(--sans);
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
 .del-btn:active{background:#2a1010}
 .del-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* FAB */
 .fab-wrap{position:sticky;bottom:0;display:flex;justify-content:flex-end;padding-top:4px}
-.fab{
-  height:48px;padding:0 20px;background:var(--accent);color:#fff;
-  border:none;border-radius:24px;font-size:14px;font-weight:500;font-family:var(--sans);
-  cursor:pointer;display:flex;align-items:center;gap:8px;
-  transition:all .15s;
-}
+.fab{height:48px;padding:0 20px;background:var(--accent);color:#fff;border:none;border-radius:24px;
+  font-size:14px;font-weight:500;font-family:var(--sans);cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s}
 .fab:active{opacity:.85;transform:scale(.97)}
 .fab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-/* SVG view */
-.svg-wrap{background:var(--bg3);border-radius:10px;border:1px solid var(--border);padding:10px;overflow:hidden}
+.svg-wrap{background:#0a0d14;border-radius:10px;border:1px solid var(--border);padding:8px;overflow:hidden}
+.summary-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.summary-row:last-child{border-bottom:none}
+.summary-key{color:var(--muted)}
+.summary-val{font-family:var(--mono);color:var(--text);text-align:right}
 .legend-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
 .legend-row:last-child{border-bottom:none}
 .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .legend-name{flex:1;font-size:13px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .legend-meta{font-family:var(--mono);font-size:11px;color:var(--muted)}
-
-/* Fusion rows */
 .fusion-section{margin-bottom:14px}
-.fusion-section-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.fusion-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
+.fusion-section-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;
+  text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.fusion-row{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border)}
 .fusion-row:last-child{border-bottom:none}
 .fib-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.15)}
-.fib-label{font-family:var(--mono);font-size:11px;color:var(--text);min-width:60px}
-.fib-sub{font-size:10px;color:var(--muted);white-space:nowrap}
+.fib-label{font-family:var(--mono);font-size:11px;color:var(--text);min-width:28px}
+.fib-sub{font-size:10px;color:var(--muted);white-space:nowrap;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .arrow-col{color:var(--border2);flex-shrink:0}
 .arrow-col svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.fus-select{flex:1;font-size:11px;padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:var(--mono);height:32px;appearance:none}
+.fus-select{flex:1;font-size:11px;padding:4px 6px;border-radius:6px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text);font-family:var(--mono);height:32px;appearance:none;min-width:0}
 .fus-select.assigned{border-color:#166534;color:#4ade80}
-
-/* Export */
 .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.export-btn{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  padding:20px 12px;background:var(--bg3);border:1px solid var(--border2);
-  border-radius:12px;cursor:pointer;color:var(--muted);font-size:12px;font-family:var(--mono);
-  transition:all .15s;
-}
+.export-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:20px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;
+  cursor:pointer;color:var(--muted);font-size:12px;font-family:var(--mono);transition:all .15s}
 .export-btn:active{background:var(--bg2);border-color:var(--accent);color:var(--accent2)}
 .export-btn svg{width:28px;height:28px;stroke:var(--text);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-
-/* Summary table */
-.summary-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
-.summary-row:last-child{border-bottom:none}
-.summary-key{color:var(--muted)}
-.summary-val{font-family:var(--mono);color:var(--text);text-align:right}
-
-/* Empty */
 .empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px;line-height:1.6}
 .empty svg{width:40px;height:40px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto 10px;opacity:.4}
-
-/* Toast */
-.toast{
-  position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);
-  background:var(--bg3);border:1px solid var(--border2);border-radius:8px;
-  padding:10px 16px;font-size:13px;font-family:var(--mono);color:var(--text);
-  opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:100;
-}
+#map-container{height:380px;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-top:0}
+.map-drop{border:2px dashed var(--border2);border-radius:10px;padding:28px 16px;text-align:center;
+  color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s;line-height:1.7}
+.map-drop:hover,.map-drop.drag{border-color:var(--accent);color:var(--accent2)}
+.map-drop svg{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto 8px;opacity:.6}
+.map-info{font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)}
+.map-clear{width:100%;height:40px;border-radius:8px;border:1px solid var(--border2);background:transparent;
+  color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);transition:all .15s}
+.map-clear:active{background:var(--bg3)}
+.toast{position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;
+  font-size:13px;font-family:var(--mono);color:var(--text);opacity:0;transition:all .25s;
+  pointer-events:none;white-space:nowrap;z-index:1000}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
@@ -232,6 +173,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       Fusiones
       <div class="tab-badge" id="badge-fusiones">0</div>
     </div>
+    <div class="tab" id="tab-mapa" onclick="goTab('mapa')">
+      <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Traza
+    </div>
     <div class="tab" id="tab-export" onclick="goTab('export')">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Exportar
@@ -243,23 +188,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="screen active" id="screen-config">
       <div class="card">
         <div class="card-title">Identificación</div>
-        <div class="field">
-          <label>Nombre / ID</label>
-          <input type="text" id="box-name" value="CE-01" oninput="onConfig()">
-        </div>
-        <div class="field">
-          <label>Ubicación</label>
-          <input type="text" id="box-loc" placeholder="Ej: Poste 14 · Calle 123" oninput="onConfig()">
-        </div>
-        <div class="field">
-          <label>Observaciones</label>
-          <input type="text" id="box-obs" placeholder="Notas técnicas opcionales">
-        </div>
+        <div class="field"><label>Nombre / ID</label><input type="text" id="box-name" value="CE-01" oninput="onConfig()"></div>
+        <div class="field"><label>Ubicación</label><input type="text" id="box-loc" placeholder="Ej: Poste 14 · Calle 123" oninput="onConfig()"></div>
+        <div class="field"><label>Observaciones</label><input type="text" id="box-obs" placeholder="Notas técnicas opcionales"></div>
       </div>
       <div class="card">
         <div class="card-title">Especificaciones técnicas</div>
-        <div class="field">
-          <label>Modelo de cierre</label>
+        <div class="field"><label>Modelo de cierre</label>
           <select id="box-model" onchange="onConfig()">
             <option value="3">Dome 3 puertos</option>
             <option value="4">Dome 4 puertos</option>
@@ -267,8 +202,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
             <option value="6">Dome 6 puertos</option>
           </select>
         </div>
-        <div class="field">
-          <label>Capacidad de fusiones</label>
+        <div class="field"><label>Capacidad de fusiones</label>
           <select id="splice-cap" onchange="onConfig()">
             <option value="12">12 fusiones</option>
             <option value="24" selected>24 fusiones</option>
@@ -278,14 +212,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         </div>
       </div>
       <div class="stats-row">
-        <div class="stat">
-          <div class="stat-label">Puertos usados</div>
-          <div class="stat-val" id="stat-p">0<span>/5</span></div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Fusiones</div>
-          <div class="stat-val" id="stat-f">0<span>/24</span></div>
-        </div>
+        <div class="stat"><div class="stat-label">Puertos usados</div><div class="stat-val" id="stat-p">0<span>/5</span></div></div>
+        <div class="stat"><div class="stat-label">Fusiones</div><div class="stat-val" id="stat-f">0<span>/24</span></div></div>
       </div>
     </div>
 
@@ -305,16 +233,39 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="svg-wrap" id="svg-container"></div>
       </div>
       <div class="card">
+        <div class="card-title">Detalles de la caja</div>
+        <div id="vista-summary"></div>
+      </div>
+      <div class="card">
         <div class="card-title">Referencias de cables</div>
         <div id="legend-container"></div>
       </div>
     </div>
 
     <div class="screen" id="screen-fusiones">
-      <div class="card" id="fusion-card">
+      <div class="card">
         <div class="card-title">Tabla de fusiones</div>
         <div id="fusion-body"></div>
       </div>
+    </div>
+
+    <div class="screen" id="screen-mapa">
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="card-title">Traza de fibra óptica</div>
+        <div class="map-drop" id="map-drop"
+          onclick="document.getElementById('kmz-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleKmzDrop(event)">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Tocá para cargar un archivo KMZ o KML<br>
+          <span style="font-size:11px;opacity:.6">o arrastrá el archivo acá</span>
+        </div>
+        <input type="file" id="kmz-input" accept=".kmz,.kml" style="display:none" onchange="handleKmzFile(this.files[0])">
+        <div class="map-info" id="map-info" style="display:none"></div>
+        <button class="map-clear" id="map-clear" style="display:none" onclick="clearMap()">Limpiar mapa</button>
+      </div>
+      <div id="map-container" style="display:none"></div>
     </div>
 
     <div class="screen" id="screen-export">
@@ -322,11 +273,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="card-title">Exportar documentación</div>
         <div class="export-grid">
           <button class="export-btn" onclick="exportJSON()">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             JSON
           </button>
           <button class="export-btn" onclick="exportSVG()">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             SVG
           </button>
         </div>
@@ -339,33 +290,43 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 const FIBER_COLORS=[
   {n:'Azul',h:'#3b82f6'},{n:'Naranja',h:'#f97316'},{n:'Verde',h:'#22c55e'},
-  {n:'Marrón',h:'#92400e'},{n:'Gris',h:'#6b7280'},{n:'Blanco',h:'#e5e7eb'},
+  {n:'Marrón',h:'#a16207'},{n:'Gris',h:'#6b7280'},{n:'Blanco',h:'#e5e7eb'},
   {n:'Rojo',h:'#ef4444'},{n:'Negro',h:'#374151'},{n:'Amarillo',h:'#eab308'},
   {n:'Violeta',h:'#8b5cf6'},{n:'Rosa',h:'#ec4899'},{n:'Celeste',h:'#06b6d4'},
 ];
 const CABLE_COLORS=[
-  {n:'Negro',h:'#1f2937'},{n:'Naranja',h:'#f97316'},{n:'Verde',h:'#16a34a'},
+  {n:'Negro',h:'#374151'},{n:'Naranja',h:'#f97316'},{n:'Verde',h:'#16a34a'},
   {n:'Rojo',h:'#dc2626'},{n:'Gris',h:'#6b7280'},{n:'Azul',h:'#3b82f6'},
-  {n:'Amarillo',h:'#ca8a04'},{n:'Blanco',h:'#9ca3af'},
+  {n:'Amarillo',h:'#ca8a04'},{n:'Blanco',h:'#9ca3af'},{n:'Violeta',h:'#8b5cf6'},
+  {n:'Celeste',h:'#06b6d4'},
 ];
 
-let ports=[
-  {id:'p1',name:'F-Troncal',type:'in',fibers:12,color:'#1f2937',open:false},
-  {id:'p2',name:'NAP-01',type:'out',fibers:12,color:'#f97316',open:false},
+// Slots del dome 5P: P1-P4 circulares, S = sangría (óvalo, 1 cable)
+const SLOTS=[
+  {id:'P1',cx:158,cy:88, r:20,ri:11,label:'P1',isSangria:false},
+  {id:'P2',cx:222,cy:88, r:20,ri:11,label:'P2',isSangria:false},
+  {id:'P3',cx:88, cy:185,r:20,ri:11,label:'P3',isSangria:false},
+  {id:'P4',cx:292,cy:185,r:20,ri:11,label:'P4',isSangria:false},
+  {id:'S', cx:190,cy:278,r:0, ri:0, label:'Sangría',isSangria:true},
 ];
+
+let ports=[];
 let fusions={};
-let pid=3;
+let pid=1;
+let leafletMap=null,kmzLayer=null;
 
-function fc(i){return FIBER_COLORS[i%12]}
-function maxP(){return parseInt(document.getElementById('box-model').value)||5}
-function cap(){return parseInt(document.getElementById('splice-cap').value)||24}
-function boxName(){return document.getElementById('box-name').value||'CE-01'}
+const fc=i=>FIBER_COLORS[i%12];
+const maxP=()=>parseInt(document.getElementById('box-model').value)||5;
+const cap=()=>parseInt(document.getElementById('splice-cap').value)||24;
+const boxName=()=>document.getElementById('box-name').value||'CE-01';
+const slotLabel=id=>SLOTS.find(s=>s.id===id)?.label||id;
 
 function toast(msg){
   const t=document.getElementById('toast');
@@ -380,18 +341,17 @@ function onConfig(){
 }
 
 function updateStats(){
-  const mp=maxP(),cp=cap();
-  const visible=ports.slice(0,mp);
-  const fusCount=Object.values(fusions).filter(Boolean).length;
-  document.getElementById('stat-p').innerHTML=`${visible.length}<span>/${mp}</span>`;
+  const cp=cap(),fusCount=Object.values(fusions).filter(Boolean).length;
+  const total=SLOTS.length;
+  document.getElementById('stat-p').innerHTML=`${ports.length}<span>/${total}</span>`;
   document.getElementById('stat-f').innerHTML=`${fusCount}<span>/${cp}</span>`;
   const bp=document.getElementById('badge-puertos');
-  bp.textContent=visible.length;
-  bp.classList.toggle('show',visible.length>0);
+  bp.textContent=ports.length;bp.classList.toggle('show',ports.length>0);
   const bf=document.getElementById('badge-fusiones');
-  bf.textContent=fusCount;
-  bf.classList.toggle('show',fusCount>0);
+  bf.textContent=fusCount;bf.classList.toggle('show',fusCount>0);
 }
+
+function freeSlots(){return SLOTS.filter(s=>!ports.find(p=>p.slot===s.id));}
 
 function goTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
@@ -399,20 +359,25 @@ function goTab(t){
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('screen-'+t).classList.add('active');
   document.getElementById('content').scrollTop=0;
-  if(t==='vista') renderSVG();
+  if(t==='vista'){renderSVG();renderVistaSummary();}
   if(t==='fusiones') renderFusions();
   if(t==='export') renderSummary();
 }
 
 function addPort(){
-  const id='p'+(pid++);
-  ports.push({id,name:'Cable '+id,type:'in',fibers:12,color:'#1f2937',open:true});
+  const free=freeSlots();
+  if(!free.length){toast('Todos los puertos están ocupados');return;}
+  const slot=free[0];
+  const id='c'+(pid++);
+  ports.push({id,slot:slot.id,name:'Cable '+id,type:'in',fibers:12,color:'#374151',open:true});
   renderPorts();updateStats();
 }
 
 function removePort(id){
   ports=ports.filter(p=>p.id!==id);
-  Object.keys(fusions).forEach(k=>{if(k.startsWith(id+':'))delete fusions[k];});
+  Object.keys(fusions).forEach(k=>{
+    if(k.startsWith(id+':')||(fusions[k]&&fusions[k].startsWith(id+':'))) delete fusions[k];
+  });
   renderPorts();updateStats();
 }
 
@@ -430,37 +395,48 @@ function setField(id,field,val){
 }
 
 function renderPorts(){
-  const mp=maxP();
-  const vis=ports.slice(0,mp);
   const el=document.getElementById('ports-list');
-  if(!vis.length){
+  if(!ports.length){
     el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>Sin cables configurados.<br>Tocá "Agregar cable" para empezar.</div>`;
     return;
   }
-  el.innerHTML=vis.map((p,i)=>{
+  el.innerHTML=ports.map(p=>{
+    const slot=SLOTS.find(s=>s.id===p.slot);
+    const isSang=slot?.isSangria;
     const cOpts=CABLE_COLORS.map(c=>`<option value="${c.h}"${p.color===c.h?' selected':''}>${c.n}</option>`).join('');
     const fOpts=[4,6,8,12,24,48,96].map(n=>`<option value="${n}"${p.fibers===n?' selected':''}>${n}F</option>`).join('');
     const tOpts=`<option value="in"${p.type==='in'?' selected':''}>Entrada</option><option value="out"${p.type==='out'?' selected':''}>Salida</option>`;
+    const slotOpts=SLOTS.map(s=>{
+      const taken=ports.find(pp=>pp.slot===s.id&&pp.id!==p.id);
+      return `<option value="${s.id}"${p.slot===s.id?' selected':''}${taken?' disabled':''}}>${s.label}${taken?' ✕':''}</option>`;
+    }).join('');
+    const badgeClass=isSang?'badge-sang':p.type==='in'?'badge-in':'badge-out';
+    const badgeLabel=isSang?'SANG':p.type==='in'?'ENTRADA':'SALIDA';
     return `<div class="port-item${p.open?' open':''}" id="pi-${p.id}">
       <div class="port-header" onclick="togglePort('${p.id}')">
         <div class="port-dot" style="background:${p.color}"></div>
-        <div class="port-name">P${i+1} · ${p.name}</div>
-        <span class="badge ${p.type==='in'?'badge-in':'badge-out'}">${p.type==='in'?'ENTRADA':'SALIDA'}</span>
+        <div class="port-name">${slotLabel(p.slot)} · ${p.name}</div>
+        <span class="badge ${badgeClass}">${badgeLabel}</span>
         <div class="port-chevron"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
       </div>
       <div class="port-body">
         <div class="field" style="margin-top:10px">
           <label>Nombre del cable</label>
-          <input type="text" value="${p.name}" oninput="setField('${p.id}','name',this.value);document.querySelector('#pi-${p.id} .port-name').textContent='P${i+1} · '+this.value">
+          <input type="text" value="${p.name}" oninput="setField('${p.id}','name',this.value);document.querySelector('#pi-${p.id} .port-name').textContent=slotLabel('${p.slot}')+' · '+this.value">
         </div>
         <div class="port-grid">
-          <div class="field"><label>Tipo</label><select onchange="setField('${p.id}','type',this.value);renderPorts()">${tOpts}</select></div>
+          <div class="field"><label>Puerto asignado</label>
+            <select onchange="setField('${p.id}','slot',this.value);renderPorts()">${slotOpts}</select>
+          </div>
+          ${!isSang?`<div class="field"><label>Tipo</label><select onchange="setField('${p.id}','type',this.value);renderPorts()">${tOpts}</select></div>`:'<div></div>'}
           <div class="field"><label>Fibras</label><select onchange="setField('${p.id}','fibers',this.value)">${fOpts}</select></div>
-          <div class="field"><label>Color del cable</label><select onchange="setField('${p.id}','color',this.value)">${cOpts}</select></div>
-          <div class="field" style="display:flex;align-items:flex-end">
+          <div class="field"><label>Color cable</label>
+            <select onchange="setField('${p.id}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
+          </div>
+          <div class="field" style="grid-column:1/-1">
             <button class="del-btn" onclick="removePort('${p.id}')">
-              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-              Eliminar
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+              Eliminar cable
             </button>
           </div>
         </div>
@@ -471,102 +447,113 @@ function renderPorts(){
 
 function renderSVG(){
   const mp=maxP(),cp=cap(),name=boxName();
-  const vis=ports.slice(0,mp);
+  const CX=190,CY=185;
+  const slotMap={};
+  ports.forEach(p=>slotMap[p.slot]=p);
 
-  // Posiciones fijas reales del dome 5P (basadas en el plano técnico):
-  // P1 arriba-izq, P2 arriba-der, P3 izq-medio, P4 der-medio
-  // Sangría = óvalo abajo-centro (no es un puerto de cable, es reserva)
-  const SLOTS=[
-    {cx:158, cy:88,  r:19, rinner:11, type:'port'},
-    {cx:222, cy:88,  r:19, rinner:11, type:'port'},
-    {cx:88,  cy:185, r:19, rinner:11, type:'port'},
-    {cx:292, cy:185, r:19, rinner:11, type:'port'},
-  ];
-  const CX=190, CY=185;
-
-  function portSVG(slot, p){
-    const filled = !!p;
-    const fill   = filled ? p.color : '#1a1f2e';
-    const stroke = filled ? p.color : '#5a6490';
-    const label  = filled ? `${p.fibers}F` : '';
-    const textFill = filled ? '#ffffff' : '#7a85a3';
+  function portCircle(slot){
+    const p=slotMap[slot.id];
+    if(p){
+      // Puerto con cable: anillo exterior de contraste + relleno color + label
+      return `
+        <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.r+4}" fill="none" stroke="${p.color}" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.r}" fill="${p.color}" stroke="#fff" stroke-width="2"/>
+        <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.ri}" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        <text x="${slot.cx}" y="${slot.cy}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="8" font-family="'IBM Plex Mono',monospace" font-weight="500">${p.fibers}F</text>`;
+    }
+    // Puerto vacío: visible con fondo medio y borde claro
     return `
-      <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.r}" fill="${fill}" stroke="${stroke}" stroke-width="2" opacity="${filled?1:0.7}"/>
-      <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.rinner}" fill="${filled?'rgba(0,0,0,0.35)':'#0a0d14'}" stroke="${filled?'rgba(255,255,255,0.15)':'#3a4468'}" stroke-width="1" stroke-dasharray="2 2"/>
-      <text x="${slot.cx}" y="${slot.cy}" text-anchor="middle" dominant-baseline="central" fill="${textFill}" font-size="8" font-family="'IBM Plex Mono',monospace" font-weight="500">${label}</text>`;
+      <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.r}" fill="#2a3350" stroke="#6a75a0" stroke-width="1.5"/>
+      <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.ri}" fill="#1e2640" stroke="#4a5580" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="${slot.cx}" y="${slot.cy}" text-anchor="middle" dominant-baseline="central" fill="#6a75a0" font-size="7" font-family="'IBM Plex Mono',monospace">${slot.label}</text>`;
   }
 
-  function emptySlot(slot){
-    return `
-      <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.r}" fill="#1a1f2e" stroke="#3a4468" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>
-      <circle cx="${slot.cx}" cy="${slot.cy}" r="${slot.rinner}" fill="none" stroke="#2a3050" stroke-width="1" stroke-dasharray="2 2" opacity="0.4"/>`;
-  }
+  // Sangría
+  const sang=slotMap['S'];
+  const sFill=sang?sang.color:'#2a3350';
+  const sStroke=sang?'#fff':'#6a75a0';
+  const sRing=sang?`<ellipse cx="190" cy="278" rx="47" ry="31" fill="none" stroke="${sang.color}" stroke-width="1.5" opacity="0.4"/>`:'';
+  const sangSVG=`
+    ${sRing}
+    <ellipse cx="190" cy="278" rx="42" ry="26" fill="${sFill}" stroke="${sStroke}" stroke-width="2"/>
+    <circle cx="174" cy="278" r="12" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <circle cx="206" cy="278" r="12" fill="rgba(0,0,0,0.45)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <text x="190" y="278" text-anchor="middle" dominant-baseline="central" fill="${sang?'#fff':'#6a75a0'}" font-size="8" font-family="'IBM Plex Mono',monospace" font-weight="500">${sang?sang.fibers+'F':'Sangría'}</text>`;
 
-  let pSVG='';
-  SLOTS.forEach((slot,i)=>{
-    pSVG += i < vis.length ? portSVG(slot, vis[i]) : emptySlot(slot);
-  });
-
-  // Líneas de cable desde el borde del puerto al centro (solo puertos asignados)
-  let linesSVG='';
-  vis.forEach((p,i)=>{
-    if(i >= SLOTS.length) return;
-    const s=SLOTS[i];
-    const dx=CX-s.cx, dy=CY-s.cy;
-    const dist=Math.sqrt(dx*dx+dy*dy);
-    const x2=s.cx+dx/dist*(dist-28);
-    const y2=s.cy+dy/dist*(dist-28);
-    linesSVG+=`<line x1="${s.cx}" y1="${s.cy}" x2="${x2}" y2="${y2}" stroke="${p.color}" stroke-width="2.5" stroke-dasharray="4 3" opacity="0.35"/>`;
+  // Líneas cable→centro
+  let lines='';
+  ports.forEach(p=>{
+    const s=SLOTS.find(s=>s.id===p.slot);
+    if(!s||s.isSangria) return;
+    const dx=CX-s.cx,dy=CY-s.cy,dist=Math.sqrt(dx*dx+dy*dy);
+    const x2=s.cx+dx/dist*(dist-32),y2=s.cy+dy/dist*(dist-32);
+    lines+=`<line x1="${s.cx}" y1="${s.cy}" x2="${x2}" y2="${y2}" stroke="${p.color}" stroke-width="2.5" stroke-dasharray="4 3" opacity="0.55"/>`;
   });
 
   document.getElementById('svg-container').innerHTML=`
     <svg width="100%" viewBox="0 0 380 345" xmlns="http://www.w3.org/2000/svg" style="display:block">
-      <ellipse cx="${CX}" cy="${CY}" rx="138" ry="135" fill="#141820" stroke="#3a4468" stroke-width="2"/>
-      <ellipse cx="${CX}" cy="${CY}" rx="124" ry="121" fill="none" stroke="#2a3050" stroke-width="1" stroke-dasharray="4 3" opacity="0.4"/>
-      ${linesSVG}
-      <circle cx="${CX}" cy="${CY}" r="28" fill="#0f131c" stroke="#3b82f6" stroke-width="1" opacity="0.7"/>
-      <text x="${CX}" y="${CY-7}" text-anchor="middle" dominant-baseline="central" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">${name}</text>
+      <ellipse cx="${CX}" cy="${CY}" rx="138" ry="135" fill="#0d1019" stroke="#5a6490" stroke-width="2"/>
+      <ellipse cx="${CX}" cy="${CY}" rx="124" ry="121" fill="none" stroke="#3a4468" stroke-width="1" stroke-dasharray="5 4" opacity="0.6"/>
+      ${lines}
+      <circle cx="${CX}" cy="${CY}" r="30" fill="#0f131c" stroke="#3b82f6" stroke-width="1.5" opacity="0.9"/>
+      <text x="${CX}" y="${CY-8}" text-anchor="middle" dominant-baseline="central" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">${name}</text>
       <text x="${CX}" y="${CY+8}" text-anchor="middle" dominant-baseline="central" fill="#7a85a3" font-size="8" font-family="'IBM Plex Mono',monospace">${cp}F</text>
-      ${pSVG}
-      <ellipse cx="${CX}" cy="278" rx="42" ry="26" fill="#1a1f2e" stroke="#5a6490" stroke-width="2"/>
-      <circle cx="174" cy="278" r="12" fill="#0a0d14" stroke="#3a4468" stroke-width="1" stroke-dasharray="2 2"/>
-      <circle cx="206" cy="278" r="12" fill="#0a0d14" stroke="#3a4468" stroke-width="1" stroke-dasharray="2 2"/>
-      <text x="${CX}" y="312" text-anchor="middle" fill="#5a6490" font-size="8" font-family="'IBM Plex Mono',monospace">sangría</text>
-      <text x="${CX}" y="332" text-anchor="middle" fill="#3a4468" font-size="7" font-family="'IBM Plex Mono',monospace">Ø190mm · Dome ${mp}P · vista frontal</text>
+      ${SLOTS.filter(s=>!s.isSangria).map(portCircle).join('')}
+      ${sangSVG}
+      <text x="${CX}" y="330" text-anchor="middle" fill="#4a5580" font-size="7" font-family="'IBM Plex Mono',monospace">Ø190mm · Dome ${mp}P · vista frontal</text>
     </svg>`;
+}
 
-  document.getElementById('legend-container').innerHTML=vis.length
-    ?vis.map((p,i)=>`
-      <div class="legend-row">
+function renderVistaSummary(){
+  const name=boxName(),loc=document.getElementById('box-loc').value;
+  const mp=maxP(),cp=cap();
+  const inP=ports.filter(p=>p.type==='in');
+  const outP=ports.filter(p=>p.type==='out');
+  const fusCount=Object.values(fusions).filter(Boolean).length;
+  const totalFib=ports.reduce((a,p)=>a+p.fibers,0);
+  const rows=[
+    ['Caja',name],loc&&['Ubicación',loc],
+    ['Modelo',`Dome ${mp}P`],['Cap. fusiones',`${cp}F`],
+    ['Cables entrada',inP.length],['Cables salida',outP.length],
+    ['Fibras totales',`${totalFib}F`],['Fusiones registradas',`${fusCount}/${cp}`],
+  ].filter(Boolean);
+  document.getElementById('vista-summary').innerHTML=rows.map(([k,v])=>
+    `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`).join('');
+
+  document.getElementById('legend-container').innerHTML=ports.length
+    ?ports.map(p=>{
+      const isSang=SLOTS.find(s=>s.id===p.slot)?.isSangria;
+      const bc=isSang?'badge-sang':p.type==='in'?'badge-in':'badge-out';
+      const bl=isSang?'SANG':p.type==='in'?'ENT':'SAL';
+      return `<div class="legend-row">
         <div class="legend-dot" style="background:${p.color}"></div>
-        <div class="legend-name">P${i+1} · ${p.name}</div>
-        <span class="badge ${p.type==='in'?'badge-in':'badge-out'}" style="font-size:9px;padding:2px 7px">${p.type==='in'?'ENT':'SAL'}</span>
+        <div class="legend-name">${slotLabel(p.slot)} · ${p.name}</div>
+        <span class="badge ${bc}" style="font-size:9px;padding:2px 7px">${bl}</span>
         <div class="legend-meta">${p.fibers}F</div>
-      </div>`).join('')
+      </div>`;
+    }).join('')
     :`<div class="empty" style="padding:16px 0">Sin cables configurados</div>`;
 }
 
 function renderFusions(){
-  const inP=ports.filter(p=>p.type==='in');
-  const outP=ports.filter(p=>p.type==='out');
   const body=document.getElementById('fusion-body');
-  if(!inP.length||!outP.length){
-    body.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Necesitás al menos un cable de entrada y uno de salida para configurar fusiones.</div>`;
+  if(ports.length<2){
+    body.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Necesitás al menos dos cables para registrar fusiones.</div>`;
     return;
   }
-  const outOpts='<option value="">— libre —</option>'+outP.map(p=>
-    Array.from({length:p.fibers},(_,i)=>{
-      const f=fc(i);
-      return `<option value="${p.id}:${i+1}">${p.name} · F${i+1} · ${f.n}</option>`;
-    }).join('')
-  ).join('');
-
-  body.innerHTML=inP.map(p=>`
-    <div class="fusion-section">
-      <div class="fusion-section-title">${p.name} · ${p.fibers}F</div>
+  body.innerHTML=ports.map(p=>{
+    const otros=ports.filter(pp=>pp.id!==p.id);
+    const outOpts='<option value="">— libre —</option>'+otros.map(op=>
+      Array.from({length:op.fibers},(_,i)=>{
+        const f=fc(i);
+        return `<option value="${op.id}:${i+1}">${op.name}·F${i+1}·${f.n}</option>`;
+      }).join('')
+    ).join('');
+    return `<div class="fusion-section">
+      <div class="fusion-section-title">${slotLabel(p.slot)} · ${p.name} · ${p.fibers}F</div>
       ${Array.from({length:p.fibers},(_,i)=>{
         const f=fc(i),key=`${p.id}:${i+1}`,val=fusions[key]||'';
-        const opts=outOpts.replace(`value="${val}"`,`value="${val}" selected`);
+        const opts=val?outOpts.replace(`value="${val}"`,`value="${val}" selected`):outOpts;
         return `<div class="fusion-row">
           <div class="fib-dot" style="background:${f.h}"></div>
           <div class="fib-label">F${i+1}</div>
@@ -575,35 +562,119 @@ function renderFusions(){
           <select class="fus-select${val?' assigned':''}" onchange="fusions['${key}']=this.value;this.classList.toggle('assigned',!!this.value);updateStats()">${opts}</select>
         </div>`;
       }).join('')}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function renderSummary(){
-  const name=boxName(),loc=document.getElementById('box-loc').value;
-  const obs=document.getElementById('box-obs').value;
+  const name=boxName(),loc=document.getElementById('box-loc').value,obs=document.getElementById('box-obs').value;
   const mp=maxP(),cp=cap();
-  const vis=ports.slice(0,mp);
-  const inP=vis.filter(p=>p.type==='in'),outP=vis.filter(p=>p.type==='out');
+  const inP=ports.filter(p=>p.type==='in'),outP=ports.filter(p=>p.type==='out');
   const fusCount=Object.values(fusions).filter(Boolean).length;
-  const totalFib=vis.reduce((a,p)=>a+p.fibers,0);
+  const totalFib=ports.reduce((a,p)=>a+p.fibers,0);
   const rows=[
     ['Caja',name],loc&&['Ubicación',loc],
     ['Modelo',`Dome ${mp} puertos`],['Capacidad',`${cp}F`],
     ['Cables entrada',inP.length],['Cables salida',outP.length],
-    ['Fibras totales',`${totalFib}F`],
-    ['Fusiones',`${fusCount} / ${cp}`],
+    ['Fibras totales',`${totalFib}F`],['Fusiones',`${fusCount}/${cp}`],
     obs&&['Observaciones',obs],
   ].filter(Boolean);
-  document.getElementById('summary-body').innerHTML=rows.map(([k,v])=>`
-    <div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`).join('');
+  document.getElementById('summary-body').innerHTML=rows.map(([k,v])=>
+    `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`).join('');
+}
+
+// ── KMZ / KML ──────────────────────────────────────────
+function initMap(){
+  if(leafletMap)return;
+  document.getElementById('map-container').style.display='block';
+  leafletMap=L.map('map-container').setView([-34.6,-58.4],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',maxZoom:19
+  }).addTo(leafletMap);
+}
+
+function handleKmzDrop(e){
+  e.preventDefault();
+  document.getElementById('map-drop').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f) handleKmzFile(f);
+}
+
+async function handleKmzFile(file){
+  if(!file)return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  let kmlText='';
+  try{
+    if(ext==='kmz'){
+      const zip=await JSZip.loadAsync(await file.arrayBuffer());
+      const kmlFile=Object.values(zip.files).find(f=>f.name.endsWith('.kml'));
+      if(!kmlFile){toast('No se encontró KML dentro del KMZ');return;}
+      kmlText=await kmlFile.async('text');
+    } else {
+      kmlText=await file.text();
+    }
+    renderKML(kmlText,file.name);
+  } catch(err){
+    toast('Error al leer el archivo');
+    console.error(err);
+  }
+}
+
+function renderKML(kmlText,filename){
+  initMap();
+  if(kmzLayer){leafletMap.removeLayer(kmzLayer);kmzLayer=null;}
+  const parser=new DOMParser();
+  const kml=parser.parseFromString(kmlText,'text/xml');
+  const coords=[],layers=[];
+
+  kml.querySelectorAll('LineString coordinates').forEach(el=>{
+    const pts=el.textContent.trim().split(/\s+/).map(c=>{
+      const[lng,lat]=c.split(',').map(Number);
+      return[lat,lng];
+    }).filter(([a,b])=>!isNaN(a)&&!isNaN(b));
+    if(pts.length>1){
+      layers.push(L.polyline(pts,{color:'#3b82f6',weight:3,opacity:.85}));
+      coords.push(...pts);
+    }
+  });
+
+  kml.querySelectorAll('Placemark').forEach(pm=>{
+    const pointEl=pm.querySelector('Point coordinates');
+    if(!pointEl)return;
+    const[lng,lat]=pointEl.textContent.trim().split(',').map(Number);
+    if(isNaN(lat)||isNaN(lng))return;
+    const name=pm.querySelector('name')?.textContent||'';
+    const desc=pm.querySelector('description')?.textContent||'';
+    const m=L.circleMarker([lat,lng],{radius:6,fillColor:'#f97316',color:'#fff',weight:1.5,fillOpacity:1});
+    if(name) m.bindPopup(`<b>${name}</b>${desc?'<br>'+desc:''}`);
+    layers.push(m);coords.push([lat,lng]);
+  });
+
+  if(!layers.length){toast('No se encontraron trazas ni puntos');return;}
+  kmzLayer=L.layerGroup(layers).addTo(leafletMap);
+  if(coords.length) leafletMap.fitBounds(L.latLngBounds(coords),{padding:[20,20]});
+
+  const lc=layers.filter(l=>l instanceof L.Polyline&&!(l instanceof L.Polygon)).length;
+  const pc=layers.filter(l=>l instanceof L.CircleMarker).length;
+  document.getElementById('map-info').style.display='block';
+  document.getElementById('map-info').textContent=`${filename} · ${lc} tramo(s) · ${pc} punto(s)`;
+  document.getElementById('map-clear').style.display='block';
+  document.getElementById('map-drop').style.display='none';
+}
+
+function clearMap(){
+  if(kmzLayer&&leafletMap){leafletMap.removeLayer(kmzLayer);kmzLayer=null;}
+  document.getElementById('map-info').style.display='none';
+  document.getElementById('map-clear').style.display='none';
+  document.getElementById('map-drop').style.display='block';
+  document.getElementById('map-container').style.display='none';
 }
 
 function exportJSON(){
   const data={
     caja:boxName(),ubicacion:document.getElementById('box-loc').value,
     observaciones:document.getElementById('box-obs').value,
-    modelo:`Dome ${maxP()} puertos`,capacidad:cap(),
-    puertos:ports.slice(0,maxP()),
+    modelo:`Dome ${maxP()} puertos`,capacidad:cap(),puertos:ports,
     fusiones:Object.entries(fusions).filter(([,v])=>v).map(([from,to])=>({from,to})),
     exportado:new Date().toISOString(),
   };
@@ -622,10 +693,7 @@ function exportSVG(){
   toast('SVG exportado');
 }
 
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js');
-}
-
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 renderPorts();updateStats();
 </script>
 </body>
