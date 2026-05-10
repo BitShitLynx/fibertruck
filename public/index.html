@@ -138,6 +138,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .map-drop svg{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto 8px;opacity:.6}
 .map-info{font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)}
 .map-clear{width:100%;height:40px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono)}
+.layer-btn{height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);transition:all .15s}
+.layer-btn:active{background:var(--bg2)}
+.active-layer{border-color:var(--accent);color:var(--accent2);background:var(--bg2)}
 
 .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .export-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
@@ -149,6 +152,47 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .empty{text-align:center;padding:28px 16px;color:var(--muted);font-size:13px;line-height:1.6}
 .empty svg{width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto 10px;opacity:.35}
 
+/* Splitter */
+.splitter-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px}
+.splitter-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.splitter-title{font-family:var(--mono);font-size:12px;color:var(--accent2);font-weight:500}
+
+/* Fusión visual — diagrama de patch */
+.fus-diagram{width:100%;overflow-x:auto}
+.fus-diagram svg{display:block;width:100%}
+.fus-pair-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+.fus-pair-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.fus-pair-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.fus-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:0 2px;line-height:1}
+.fus-del:active{color:var(--red)}
+.fus-row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-bottom:8px}
+.fus-col{display:flex;flex-direction:column;gap:4px}
+.fus-col label{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.fus-sel{font-size:12px;padding:6px 8px;border-radius:6px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text);font-family:var(--mono);height:36px;appearance:none;width:100%}
+.fus-sel.ok{border-color:#166534;color:#4ade80}
+.fus-arrow{color:var(--accent);font-size:20px;flex-shrink:0;padding-top:16px}
+.fus-fiber-row{display:grid;grid-template-columns:12px 1fr auto 1fr 12px;gap:6px;align-items:center;
+  padding:5px 0;border-bottom:0.5px solid var(--border)}
+.fus-fiber-row:last-child{border-bottom:none}
+.fib-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.2)}
+.fus-fiber-label{font-family:var(--mono);font-size:11px;color:var(--text)}
+.fus-fiber-name{font-size:10px;color:var(--muted)}
+.fus-line{height:2px;background:var(--border2);border-radius:1px}
+.fus-line.connected{background:var(--accent)}
+
+/* Plano */
+#plano-canvas-wrap{position:relative;overflow:auto;background:#111;border-radius:10px;border:1px solid var(--border);touch-action:none;height:420px}
+#plano-canvas{display:block;cursor:crosshair}
+.tool-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tool-btn{height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.tool-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tool-btn.active{border-color:var(--accent);color:var(--accent2);background:var(--bg2)}
+.tool-btn:active{opacity:.8}
+.plano-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.zoom-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.color-swatch{width:28px;height:28px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0}
+.color-swatch.active{border-color:#fff}
 .toast{position:fixed;bottom:calc(70px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;
   font-size:13px;font-family:var(--mono);color:var(--text);opacity:0;transition:all .25s;
@@ -193,9 +237,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       Fusiones
       <div class="tab-badge" id="badge-fusiones">0</div>
     </div>
-    <div class="tab" id="tab-mapa" onclick="goTab('mapa')">
-      <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-      Traza
+
+    <div class="tab" id="tab-plano" onclick="goTab('plano')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Plano
     </div>
     <div class="tab" id="tab-export" onclick="goTab('export')">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -241,6 +286,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <!-- ── PUERTOS ── -->
     <div class="screen" id="screen-puertos">
       <div id="ports-list"></div>
+      <div class="card" style="margin-top:0">
+        <div class="card-title">Splitter interno</div>
+        <div id="splitter-list"></div>
+        <button class="tool-btn" style="width:100%;justify-content:center;margin-top:8px" onclick="addSplitter()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar splitter
+        </button>
+      </div>
       <div class="fab-wrap">
         <button class="fab" onclick="addPort()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -268,9 +321,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <!-- ── FUSIONES ── -->
     <div class="screen" id="screen-fusiones">
       <div class="card">
-        <div class="card-title">Tabla de fusiones</div>
+        <div class="card-title">Diagrama de fusiones</div>
         <div id="fusion-body"></div>
-        <button class="fab" style="margin-top:12px;width:100%;justify-content:center;border-radius:10px;height:42px;font-size:13px" onclick="addFusionPair()">
+        <button class="fab" style="margin-top:10px;width:100%;justify-content:center;border-radius:10px;height:42px;font-size:13px" onclick="addFusionPair()">
           <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nueva fusión
         </button>
@@ -278,37 +331,66 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
 
     <!-- ── MAPA ── -->
-    <div class="screen" id="screen-mapa">
-      <div class="card" style="gap:10px;display:flex;flex-direction:column">
-        <div class="card-title">Traza de fibra óptica</div>
-        <div class="map-drop" id="map-drop"
-          onclick="document.getElementById('kmz-input').click()"
-          ondragover="event.preventDefault();this.classList.add('drag')"
-          ondragleave="this.classList.remove('drag')"
-          ondrop="handleKmzDrop(event)">
-          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          Tocá para cargar un archivo KMZ o KML<br>
-          <span style="font-size:11px;opacity:.6">o arrastrá el archivo acá</span>
+    <div class="screen" id="screen-plano">
+      <div class="card">
+        <div class="card-title">Plano conforme a obra — Costa Esmeralda</div>
+        <div class="tool-bar">
+          <button class="tool-btn active" id="tool-select" onclick="setTool('select')">
+            <svg viewBox="0 0 24 24"><path d="M5 3l14 9-7 1-4 7z"/></svg>Mover
+          </button>
+          <button class="tool-btn" id="tool-line" onclick="setTool('line')">
+            <svg viewBox="0 0 24 24"><polyline points="4 19 9 12 14 15 19 5"/></svg>Traza
+          </button>
+          <button class="tool-btn" id="tool-finish-line" onclick="finishLine()" style="display:none">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Finalizar
+          </button>
+          <button class="tool-btn" id="tool-nap" onclick="setTool('nap')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/></svg>NAP
+          </button>
+          <button class="tool-btn" id="tool-splice" onclick="setTool('splice')">
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>Empalme
+          </button>
+          <button class="tool-btn" id="tool-label" onclick="setTool('label')">
+            <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Etiqueta
+          </button>
+          <button class="tool-btn" id="tool-erase" onclick="setTool('erase')">
+            <svg viewBox="0 0 24 24"><polyline points="20 9 20 20 4 20 4 9"/><rect x="2" y="4" width="20" height="5" rx="1"/></svg>Borrar
+          </button>
         </div>
-        <input type="file" id="kmz-input" accept=".kmz,.kml" style="display:none" onchange="handleKmzFile(this.files[0])">
-        <div class="map-info" id="map-info" style="display:none"></div>
-        <button class="map-clear" id="map-clear" style="display:none" onclick="clearMap()">Limpiar mapa</button>
+        <div class="plano-controls" style="margin-bottom:8px">
+          <button class="zoom-btn" onclick="zoomPlano(1.2)">+</button>
+          <button class="zoom-btn" onclick="zoomPlano(0.8)">−</button>
+          <button class="zoom-btn" onclick="resetZoom()" style="font-size:11px;width:auto;padding:0 8px">Reset</button>
+          <div style="flex:1"></div>
+          <div class="color-swatch active" style="background:#3b82f6" onclick="setColor('#3b82f6',this)" title="Azul"></div>
+          <div class="color-swatch" style="background:#22c55e" onclick="setColor('#22c55e',this)" title="Verde"></div>
+          <div class="color-swatch" style="background:#f97316" onclick="setColor('#f97316',this)" title="Naranja"></div>
+          <div class="color-swatch" style="background:#ef4444" onclick="setColor('#ef4444',this)" title="Rojo"></div>
+          <div class="color-swatch" style="background:#ffffff" onclick="setColor('#ffffff',this)" title="Blanco"></div>
+        </div>
+        <div id="plano-canvas-wrap">
+          <canvas id="plano-canvas"></canvas>
+        </div>
       </div>
-      <div id="map-el" style="display:none"></div>
+      <div class="card" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="tool-btn" style="flex:1;justify-content:center" onclick="exportPlanoSVG()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar plano
+        </button>
+        <button class="tool-btn" style="flex:1;justify-content:center;color:var(--red);border-color:#3f1a1a" onclick="clearPlano()">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+          Limpiar dibujo
+        </button>
+      </div>
     </div>
 
-    <!-- ── EXPORT ── -->
     <div class="screen" id="screen-export">
       <div class="card">
         <div class="card-title">Exportar documentación</div>
         <div class="export-grid">
-          <button class="export-btn" onclick="exportJSON()">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            JSON
-          </button>
-          <button class="export-btn" onclick="exportSVG()">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            SVG
+          <button class="export-btn" style="grid-column:1/-1" onclick="exportPDF()">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
+            Generar PDF
           </button>
         </div>
       </div>
@@ -374,7 +456,8 @@ function onConfig(){
 
 function updateStats(){
   const total=SLOTS.length;
-  document.getElementById('stat-p').innerHTML=`${ports.length}<span>/${total}</span>`;
+  const portLabel=splitters.length?`${ports.length}+${splitters.length}sp`:`${ports.length}`;
+  document.getElementById('stat-p').innerHTML=`${portLabel}<span>/${total}</span>`;
   document.getElementById('stat-f').innerHTML=`${fusionPairs.length}<span>/${cap()}</span>`;
   const bp=document.getElementById('badge-puertos');
   bp.textContent=ports.length;bp.classList.toggle('show',ports.length>0);
@@ -391,6 +474,7 @@ function goTab(t){
   document.getElementById('screen-'+t).classList.add('active');
   document.getElementById('content').scrollTop=0;
   if(t==='vista'){renderSVG();renderVistaSummary();}
+  if(t==='plano'){if(!planoCanvas)initPlano();}
   if(t==='fusiones') renderFusions();
   if(t==='export') renderSummary();
 }
@@ -400,14 +484,14 @@ function addPort(){
   const free=freeSlots();
   if(!free.length){toast('Todos los puertos están ocupados');return;}
   const slot=free[0];
-  ports.push({id:'c'+(pid++),slot:slot.id,name:'Cable '+(pid-1),type:'in',fibers:12,color:'#374151',open:true});
-  renderPorts();updateStats();
+  ports.push({id:'c'+(pid++),slot:slot.id,name:'Cable '+(pid-1),type:'in',fibers:12,bufferSize:12,color:'#374151',open:true});
+  renderPorts();renderSplitters();updateStats();
 }
 
 function removePort(id){
   ports=ports.filter(p=>p.id!==id);
   fusionPairs=fusionPairs.filter(f=>f.cA!==id&&f.cB!==id);
-  renderPorts();updateStats();
+  renderPorts();renderSplitters();updateStats();
 }
 
 function togglePort(id){
@@ -432,6 +516,7 @@ function renderPorts(){
     const isSang=slot?.sang;
     const cOpts=CC.map(c=>`<option value="${c.h}"${p.color===c.h?' selected':''}>${c.n}</option>`).join('');
     const fOpts=[4,6,8,12,24,48,96].map(n=>`<option value="${n}"${p.fibers===n?' selected':''}>${n}F</option>`).join('');
+    const bOpts=[6,12].map(n=>`<option value="${n}"${(p.bufferSize||12)===n?' selected':''}>${n} fibras/buffer</option>`).join('');
     const tOpts=`<option value="in"${p.type==='in'?' selected':''}>Entrada</option><option value="out"${p.type==='out'?' selected':''}>Salida</option>`;
     const slotOpts=SLOTS.map(s=>{
       const taken=ports.find(pp=>pp.slot===s.id&&pp.id!==p.id);
@@ -458,6 +543,9 @@ function renderPorts(){
           ${!isSang?`<div class="field"><label>Tipo</label><select onchange="setPField('${p.id}','type',this.value);renderPorts()">${tOpts}</select></div>`:'<div></div>'}
           <div class="field"><label>Fibras</label>
             <select onchange="setPField('${p.id}','fibers',this.value)">${fOpts}</select>
+          </div>
+          <div class="field"><label>Fibras por buffer</label>
+            <select onchange="setPField('${p.id}','bufferSize',parseInt(this.value))">${bOpts}</select>
           </div>
           <div class="field"><label>Color cable</label>
             <select onchange="setPField('${p.id}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
@@ -515,11 +603,21 @@ function renderSVG(){
     lines+=`<line x1="${s.cx}" y1="${s.cy}" x2="${x2}" y2="${y2}" stroke="${p.color}" stroke-width="2.5" stroke-dasharray="4 3" opacity="0.55"/>`;
   });
 
+  // Splitters — rombo violeta en el interior
+  const splSVG=splitters.map((s,i)=>{
+    const sx=CX-30+(i*36), sy=148;
+    return `<polygon points="${sx},${sy-12} ${sx+16},${sy} ${sx},${sy+12} ${sx-16},${sy}"
+        fill="#1e1440" stroke="#8b5cf6" stroke-width="1.5"/>
+      <text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="6" font-family="'IBM Plex Mono',monospace" font-weight="500">${s.tipo}</text>
+      <text x="${sx}" y="${sy+18}" text-anchor="middle" fill="#7c5cbf" font-size="6" font-family="'IBM Plex Mono',monospace">${s.label}</text>`;
+  }).join('');
+
   document.getElementById('svg-container').innerHTML=`
     <svg width="100%" viewBox="0 0 380 345" xmlns="http://www.w3.org/2000/svg" style="display:block">
       <ellipse cx="${CX}" cy="${CY}" rx="138" ry="135" fill="#0d1019" stroke="#5a6490" stroke-width="2"/>
       <ellipse cx="${CX}" cy="${CY}" rx="124" ry="121" fill="none" stroke="#3a4468" stroke-width="1" stroke-dasharray="5 4" opacity="0.6"/>
       ${lines}
+      ${splSVG}
       <circle cx="${CX}" cy="${CY}" r="30" fill="#0f131c" stroke="#3b82f6" stroke-width="1.5" opacity="0.9"/>
       <text x="${CX}" y="${CY-8}" text-anchor="middle" dominant-baseline="central" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">${name}</text>
       <text x="${CX}" y="${CY+8}" text-anchor="middle" dominant-baseline="central" fill="#7a85a3" font-size="8" font-family="'IBM Plex Mono',monospace">${cp}F</text>
@@ -559,13 +657,81 @@ function renderVistaSummary(){
     :`<div class="empty" style="padding:12px 0">Sin cables configurados</div>`;
 }
 
-// ── FUSIONES — UI por par de cables ─────────────────────────
-// fusionPairs: [{id, cA, fA, cB, fB}]
+// ── SPLITTER ─────────────────────────────────────────────────
+let splitters=[]; // {id, tipo, label}
+let spid=1;
+const SPLITTER_TYPES=['1x2','1x4','1x8','1x16'];
 
+function addSplitter(){
+  // Modal inline sin prompt
+  const existing=document.getElementById('splitter-modal');
+  if(existing) existing.remove();
+  const m=document.createElement('div');
+  m.id='splitter-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  m.innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">
+      <div style="font-family:var(--mono);font-size:13px;color:var(--text);font-weight:500">Agregar splitter</div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">Tipo de splitter</div>
+        <select id="sp-tipo" style="width:100%;height:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 10px;appearance:none">
+          <option value="1x2">Splitter 1x2</option>
+          <option value="1x4">Splitter 1x4</option>
+          <option value="1x8" selected>Splitter 1x8</option>
+          <option value="1x16">Splitter 1x16</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">ID del splitter</div>
+        <input id="sp-label" type="text" value="SPL-01" style="width:100%;height:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 10px;font-family:var(--mono)">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="confirmAddSplitter()" style="flex:1;height:44px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;font-family:var(--sans);font-weight:500">Agregar</button>
+        <button onclick="document.getElementById('splitter-modal').remove()" style="flex:1;height:44px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer;font-family:var(--sans)">Cancelar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+  setTimeout(()=>document.getElementById('sp-label')?.focus(),100);
+}
+
+function confirmAddSplitter(){
+  const tipo=document.getElementById('sp-tipo')?.value||'1x8';
+  const label=document.getElementById('sp-label')?.value.trim()||'SPL-0'+spid;
+  document.getElementById('splitter-modal')?.remove();
+  splitters.push({id:'sp'+(spid++),tipo,label});
+  renderSplitters();updateStats();
+  toast(`Splitter ${label} agregado`);
+}
+
+function removeSplitter(id){
+  splitters=splitters.filter(s=>s.id!==id);
+  fusionPairs=fusionPairs.filter(f=>f.cA!==id&&f.cB!==id);
+  renderSplitters();renderFusions();updateStats();
+}
+
+function renderSplitters(){
+  const el=document.getElementById('splitter-list');
+  if(!splitters.length){
+    el.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:6px 0;font-family:var(--mono)">Sin splitters</div>`;
+    return;
+  }
+  el.innerHTML=splitters.map(s=>`
+    <div class="splitter-card">
+      <div class="splitter-header">
+        <span class="splitter-title">⊕ ${s.label} — Splitter ${s.tipo}</span>
+        <button class="fus-del" onclick="removeSplitter('${s.id}')">×</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">
+        1 entrada → ${s.tipo.split('x')[1]} salidas
+      </div>
+    </div>`).join('');
+}
+
+// ── FUSIONES — diagrama visual por par de cables ─────────────
 function addFusionPair(){
-  if(ports.length<2){toast('Necesitás al menos dos cables');return;}
-  const id='f'+(fid++);
-  fusionPairs.push({id,cA:ports[0].id,fA:1,cB:ports[1].id,fB:1});
+  const allSources=[...ports,...splitters.map(s=>({id:s.id,name:s.label,slot:'SPL',fibers:parseInt(s.tipo.split('x')[1]),isSplitter:true,splitterIn:true}))];
+  if(allSources.length<2){toast('Necesitás al menos dos cables/splitters');return;}
+  fusionPairs.push({id:'f'+(fid++),cA:ports[0]?.id||allSources[0].id,bufA:0,fA:0,cB:ports[1]?.id||allSources[1].id,bufB:0,fB:0});
   renderFusions();updateStats();
 }
 
@@ -577,82 +743,197 @@ function removeFusionPair(id){
 function setFusionField(id,field,val){
   const f=fusionPairs.find(f=>f.id===id);
   if(!f)return;
-  f[field]=field==='fA'||field==='fB'?parseInt(val):val;
+  if(field==='fA'||field==='fB'||field==='bufA'||field==='bufB') f[field]=parseInt(val);
+  else f[field]=val;
+  // Al cambiar cable, resetear buffer y fibra
+  if(field==='cA'){f.bufA=0;f.fA=0;}
+  if(field==='cB'){f.bufB=0;f.fB=0;}
   renderFusions();updateStats();
 }
 
-function fiberOpts(cableId, selectedF){
-  const p=portById(cableId);
-  if(!p)return '';
-  return Array.from({length:p.fibers},(_,i)=>{
+// Calcular buffers de un cable
+function getCableBuffers(c){
+  if(!c) return [];
+  const bs=c.bufferSize||12;
+  const total=c.fibers||12;
+  const count=Math.ceil(total/bs);
+  return Array.from({length:count},(_,i)=>({idx:i,color:FC[i%12],start:i*bs,end:Math.min((i+1)*bs,total)}));
+}
+
+// Opts de buffers para un cable
+function bufferOptsFor(cid, selBuf){
+  const c=cableById(cid);
+  if(!c) return '<option value="0">?</option>';
+  if(c.isSplitter) return `<option value="0" selected>Único</option>`;
+  const bufs=getCableBuffers(c);
+  return bufs.map(b=>`<option value="${b.idx}" ${selBuf===b.idx?'selected':''}>Buffer ${b.idx+1} · ${b.color.n}</option>`).join('');
+}
+
+// Opts de fibras dentro de un buffer
+function fiberInBufOpts(cid, bufIdx, selF){
+  const c=cableById(cid);
+  if(!c) return '<option value="0">?</option>';
+  if(c.isSplitter){
+    return Array.from({length:c.fibers},(_,i)=>`<option value="${i}" ${selF===i?'selected':''}>${FC[i%12].n}</option>`).join('');
+  }
+  const bs=c.bufferSize||12;
+  const total=c.fibers||12;
+  const start=bufIdx*bs;
+  const end=Math.min((bufIdx+1)*bs,total);
+  const count=end-start;
+  return Array.from({length:count},(_,i)=>`<option value="${i}" ${selF===i?'selected':''}>${FC[i%12].n}</option>`).join('');
+}
+
+// Nombre legible de una fibra (Buffer Color · Fibra Color)
+function fiberLabel(cid, bufIdx, fIdx){
+  const c=cableById(cid);
+  if(!c) return '?';
+  if(c.isSplitter) return `Salida ${fIdx+1} · ${FC[fIdx%12].n}`;
+  const bs=c.bufferSize||12;
+  const bufColor=FC[bufIdx%12].n;
+  const fibColor=FC[fIdx%12].n;
+  return `${bufColor} · ${fibColor}`;
+}
+
+// Color hex de la fibra para el dot
+function fiberHex(cid, bufIdx, fIdx){
+  const c=cableById(cid);
+  if(!c) return '#888';
+  return FC[fIdx%12].h;
+}
+
+function allCables(){
+  const cabs=[...ports];
+  splitters.forEach(s=>{
+    // Splitter como cable virtual con sus salidas
+    cabs.push({id:s.id+'_in',name:s.label+' IN',slot:'SPL',fibers:1,isSplitter:true});
+    cabs.push({id:s.id+'_out',name:s.label+' OUT',slot:'SPL',fibers:parseInt(s.tipo.split('x')[1]),isSplitter:true});
+  });
+  return cabs;
+}
+
+function cableById(id){
+  const all=allCables();
+  return all.find(c=>c.id===id) || portById(id);
+}
+
+function fiberOptsFor(cid, selF){
+  const c=cableById(cid);
+  if(!c) return '<option>?</option>';
+  return Array.from({length:c.fibers},(_,i)=>{
     const f=fc(i);
-    return `<option value="${i+1}"${selectedF===i+1?' selected':''}>${i+1} · ${f.n}</option>`;
+    return `<option value="${i+1}" ${selF===i+1?'selected':''}>${i+1} · ${f.n}</option>`;
   }).join('');
 }
 
-function cableOpts(excludeId, selectedId){
-  return ports.filter(p=>p.id!==excludeId).map(p=>
-    `<option value="${p.id}"${p.id===selectedId?' selected':''}>${slotLabel(p.slot)} · ${p.name}</option>`
-  ).join('');
+function cableOptsExcluding(excludeId, selId){
+  return allCables().filter(c=>c.id!==excludeId).map(c=>{
+    const lbl=c.isSplitter?`⊕ ${c.name}`:`${slotLabel(c.slot)} · ${c.name}`;
+    return `<option value="${c.id}" ${c.id===selId?'selected':''}>${lbl}</option>`;
+  }).join('');
 }
 
 function renderFusions(){
   const body=document.getElementById('fusion-body');
   if(!fusionPairs.length){
-    body.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>Sin fusiones registradas.<br>Tocá "Nueva fusión" para agregar.</div>`;
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 01-9 9"/></svg>Sin fusiones.<br>Tocá "Nueva fusión" para agregar.</div>';
     return;
   }
   body.innerHTML=fusionPairs.map(f=>{
-    const pA=portById(f.cA),pB=portById(f.cB);
-    const fcA=pA?fc(f.fA-1):{n:'?',h:'#888'};
-    const fcB=pB?fc(f.fB-1):{n:'?',h:'#888'};
-    return `<div class="fus-pair-card">
-      <div class="fus-pair-header">
-        <span class="fus-pair-title">Fusión</span>
-        <button class="fus-del" onclick="removeFusionPair('${f.id}')" title="Eliminar">×</button>
-      </div>
-      <div class="fus-add-row">
-        <div class="field">
-          <label>Cable A</label>
-          <select class="fus-sel" onchange="setFusionField('${f.id}','cA',this.value)">
-            ${cableOpts(f.cB,f.cA)}
-          </select>
-        </div>
-        <div class="field">
-          <label>Cable B</label>
-          <select class="fus-sel" onchange="setFusionField('${f.id}','cB',this.value)">
-            ${cableOpts(f.cA,f.cB)}
-          </select>
-        </div>
-      </div>
-      <div class="fus-fiber-row">
-        <div style="display:flex;align-items:center;gap:6px;min-width:0">
-          <div class="fib-dot" style="background:${fcA.h}"></div>
-          <select class="fus-sel ok" style="flex:1" onchange="setFusionField('${f.id}','fA',this.value)">
-            ${fiberOpts(f.cA,f.fA)}
-          </select>
-        </div>
-        <div class="fus-arrow">⟷</div>
-        <div style="display:flex;align-items:center;gap:6px;min-width:0">
-          <div class="fib-dot" style="background:${fcB.h}"></div>
-          <select class="fus-sel ok" style="flex:1" onchange="setFusionField('${f.id}','fB',this.value)">
-            ${fiberOpts(f.cB,f.fB)}
-          </select>
-        </div>
-        <div></div>
-      </div>
-    </div>`;
+    const cA=cableById(f.cA), cB=cableById(f.cB);
+    const bufA=f.bufA||0, fibA=f.fA||0;
+    const bufB=f.bufB||0, fibB=f.fB||0;
+    const hexA=FC[fibA%12].h, hexB=FC[fibB%12].h;
+    const nameA=cA?(cA.isSplitter?'SPL: '+cA.name:slotLabel(cA.slot)+' · '+cA.name):'?';
+    const nameB=cB?(cB.isSplitter?'SPL: '+cB.name:slotLabel(cB.slot)+' · '+cB.name):'?';
+    const lblA=fiberLabel(f.cA,bufA,fibA);
+    const lblB=fiberLabel(f.cB,bufB,fibB);
+    return '<div class="fus-pair-card">'
+      +'<div class="fus-pair-header">'
+      +'<span class="fus-pair-title">Fusión '+(fusionPairs.indexOf(f)+1)+'</span>'
+      +'<button class="fus-del" onclick="removeFusionPair(\''+f.id+'\')">×</button>'
+      +'</div>'
+      // Cables
+      +'<div class="fus-row">'
+      +'<div class="fus-col"><label>Cable A</label>'
+      +'<select class="fus-sel" onchange="setFusionField(\''+f.id+'\',\'cA\',this.value)">'
+      +cableOptsExcluding(f.cB,f.cA)+'</select></div>'
+      +'<div class="fus-arrow">⇄</div>'
+      +'<div class="fus-col"><label>Cable B</label>'
+      +'<select class="fus-sel" onchange="setFusionField(\''+f.id+'\',\'cB\',this.value)">'
+      +cableOptsExcluding(f.cA,f.cB)+'</select></div>'
+      +'</div>'
+      // Buffers
+      +'<div class="fus-row" style="margin-top:6px">'
+      +'<div class="fus-col"><label>Buffer A</label>'
+      +'<select class="fus-sel" onchange="setFusionField(\''+f.id+'\',\'bufA\',this.value)">'
+      +bufferOptsFor(f.cA,bufA)+'</select></div>'
+      +'<div></div>'
+      +'<div class="fus-col"><label>Buffer B</label>'
+      +'<select class="fus-sel" onchange="setFusionField(\''+f.id+'\',\'bufB\',this.value)">'
+      +bufferOptsFor(f.cB,bufB)+'</select></div>'
+      +'</div>'
+      // Fibras con diagrama
+      +'<div style="background:var(--bg);border-radius:8px;padding:8px;margin-top:6px">'
+      +'<div style="display:grid;grid-template-columns:1fr 28px 1fr;gap:6px;align-items:center">'
+      +'<div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-align:right">'+nameA+'</div>'
+      +'<div></div>'
+      +'<div style="font-family:var(--mono);font-size:10px;color:var(--muted)">'+nameB+'</div>'
+      +'<div style="display:flex;align-items:center;gap:5px;justify-content:flex-end">'
+      +'<select class="fus-sel ok" style="width:100%" onchange="setFusionField(\''+f.id+'\',\'fA\',this.value)">'
+      +fiberInBufOpts(f.cA,bufA,fibA)+'</select>'
+      +'<div class="fib-dot" style="background:'+hexA+';flex-shrink:0"></div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:center;gap:2px">'
+      +'<div style="width:10px;height:2.5px;background:'+hexA+';border-radius:1px"></div>'
+      +'<div style="width:10px;height:2.5px;background:'+hexB+';border-radius:1px"></div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:5px">'
+      +'<div class="fib-dot" style="background:'+hexB+';flex-shrink:0"></div>'
+      +'<select class="fus-sel ok" style="width:100%" onchange="setFusionField(\''+f.id+'\',\'fB\',this.value)">'
+      +fiberInBufOpts(f.cB,bufB,fibB)+'</select>'
+      +'</div>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border)">'
+      +'<span style="font-family:var(--mono);font-size:11px;color:var(--text)">'
+      +'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+hexA+';margin-right:4px;vertical-align:middle"></span>'+lblA+'</span>'
+      +'<span style="font-family:var(--mono);font-size:11px;color:var(--muted)">→</span>'
+      +'<span style="font-family:var(--mono);font-size:11px;color:var(--text)">'
+      +'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+hexB+';margin-right:4px;vertical-align:middle"></span>'+lblB+'</span>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 
 // ── MAPA KMZ ────────────────────────────────────────────────
+const TILES={
+  osm:{url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap',max:19},
+  sat:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'© Esri World Imagery',max:19},
+  hibrido:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'© Esri',max:19,overlay:'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'},
+  topo:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',attr:'© Esri Topo',max:19},
+};
+let currentTile=null,overlayTile=null;
+
 function initMap(){
   if(leafletMap)return;
   document.getElementById('map-el').style.display='block';
   leafletMap=L.map('map-el').setView([-34.6,-58.4],13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap',maxZoom:19
-  }).addTo(leafletMap);
+  currentTile=L.tileLayer(TILES.osm.url,{attribution:TILES.osm.attr,maxZoom:19}).addTo(leafletMap);
+}
+
+function setActiveLayer(btn){
+  document.querySelectorAll('.layer-btn').forEach(b=>b.classList.remove('active-layer'));
+  btn.classList.add('active-layer');
+}
+
+function changeLayer(type){
+  if(!leafletMap)return;
+  const cfg=TILES[type];if(!cfg)return;
+  if(currentTile)leafletMap.removeLayer(currentTile);
+  if(overlayTile){leafletMap.removeLayer(overlayTile);overlayTile=null;}
+  currentTile=L.tileLayer(cfg.url,{attribution:cfg.attr,maxZoom:cfg.max}).addTo(leafletMap);
+  if(cfg.overlay) overlayTile=L.tileLayer(cfg.overlay,{opacity:0.85,maxZoom:cfg.max}).addTo(leafletMap);
 }
 
 function handleKmzDrop(e){
@@ -714,6 +995,7 @@ function renderKML(kmlText,filename){
   document.getElementById('map-info').textContent=`${filename} · ${lc} tramo(s) · ${pc} punto(s)`;
   document.getElementById('map-clear').style.display='block';
   document.getElementById('map-drop').style.display='none';
+  document.getElementById('map-layer-selector').style.display='block';
 }
 
 function clearMap(){
@@ -722,6 +1004,7 @@ function clearMap(){
   document.getElementById('map-clear').style.display='none';
   document.getElementById('map-drop').style.display='block';
   document.getElementById('map-el').style.display='none';
+  document.getElementById('map-layer-selector').style.display='none';
 }
 
 // ── EXPORT ───────────────────────────────────────────────────
@@ -744,74 +1027,682 @@ function renderSummary(){
     `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`).join('');
 }
 
-function exportJSON(){
-  const data={
-    caja:boxName(),ubicacion:document.getElementById('box-loc').value,
-    observaciones:document.getElementById('box-obs').value,
-    modelo:`Dome ${maxP()} puertos`,capacidad:cap(),
-    puertos:ports,
-    fusiones:fusionPairs.map(f=>{
-      const pA=portById(f.cA),pB=portById(f.cB);
-      const fcA=fc(f.fA-1),fcB=fc(f.fB-1);
-      return{
-        cableA:`${slotLabel(pA?.slot)} · ${pA?.name}`,fibraA:`F${f.fA} · ${fcA.n}`,
-        cableB:`${slotLabel(pB?.slot)} · ${pB?.name}`,fibraB:`F${f.fB} · ${fcB.n}`,
-      };
-    }),
-    exportado:new Date().toISOString(),
+async function exportPDF(){
+  toast('Generando PDF...');
+  if(!window.jspdf){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload=res;s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,H=297,PAD=15;
+
+  const setH=(size,bold=false,color=[232,236,244])=>{
+    doc.setFontSize(size);
+    doc.setFont('helvetica',bold?'bold':'normal');
+    doc.setTextColor(...color);
   };
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  a.download=boxName()+'.json';a.click();
-  toast('JSON exportado');
+  const hline=(y)=>{
+    doc.setDrawColor(42,48,80);
+    doc.setLineWidth(0.3);
+    doc.line(PAD,y,W-PAD,y);
+  };
+
+  // Helper para convertir ArrayBuffer a base64 sin reventar el stack
+  function ab2b64(buffer){
+    const bytes=new Uint8Array(buffer);
+    let bin='';
+    const chunk=8192;
+    for(let i=0;i<bytes.length;i+=chunk){
+      bin+=String.fromCharCode(...bytes.subarray(i,i+chunk));
+    }
+    return btoa(bin);
+  }
+
+  // ── PÁGINA 1 ──────────────────────────────────────────────
+  doc.setFillColor(15,17,23);
+  doc.rect(0,0,W,20,'F');
+  setH(14,true,[232,236,244]);
+  doc.text('FiberTrack — Informe de empalme',PAD,13);
+  setH(8,false,[122,133,163]);
+  doc.text(new Date().toLocaleString('es-AR'),W-PAD,13,{align:'right'});
+
+  let curY=24;
+  try{
+    const cw=1140, ch=1035;
+    const tmpC=document.createElement('canvas');
+    tmpC.width=cw; tmpC.height=ch;
+    const ctx=tmpC.getContext('2d');
+    const CX=570, CY=500;
+    const slotMap={};
+    ports.forEach(p=>slotMap[p.slot]=p);
+
+    // Fondo
+    ctx.fillStyle='#181c27'; ctx.fillRect(0,0,cw,ch);
+
+    // Dome exterior
+    ctx.beginPath(); ctx.ellipse(CX,CY,414,390,0,0,Math.PI*2);
+    ctx.fillStyle='#0d1019'; ctx.fill();
+    ctx.strokeStyle='#5a6490'; ctx.lineWidth=6; ctx.stroke();
+
+    // Anillo interior punteado
+    ctx.beginPath(); ctx.ellipse(CX,CY,370,350,0,0,Math.PI*2);
+    ctx.strokeStyle='#3a4468'; ctx.lineWidth=3;
+    ctx.setLineDash([15,12]); ctx.stroke(); ctx.setLineDash([]);
+
+    // Puertos
+    const SPDF=[
+      {id:'P1',cx:474,cy:220,r:55},{id:'P2',cx:666,cy:220,r:55},
+      {id:'P3',cx:240,cy:510,r:55},{id:'P4',cx:900,cy:510,r:55}
+    ];
+    SPDF.forEach(slot=>{
+      const p=slotMap[slot.id];
+      ctx.beginPath(); ctx.arc(slot.cx,slot.cy,slot.r,0,Math.PI*2);
+      if(p){ ctx.fillStyle=p.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
+      else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
+      ctx.fillStyle='#fff'; ctx.font=`bold ${p?22:18}px monospace`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(p?(p.fibers+'F'):slot.id, slot.cx, slot.cy);
+    });
+
+    // Sangría
+    const sang=slotMap['S'];
+    ctx.beginPath(); ctx.ellipse(CX,820,130,80,0,0,Math.PI*2);
+    if(sang){ ctx.fillStyle=sang.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
+    else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(CX-40,820,30,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(CX+40,820,30,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 20px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(sang?(sang.fibers+'F'):'Sangría', CX, 820);
+
+    // Splitters
+    splitters.forEach((s,i)=>{
+      const sx=CX-80+(i*90), sy=380;
+      ctx.beginPath(); ctx.moveTo(sx,sy-35); ctx.lineTo(sx+40,sy); ctx.lineTo(sx,sy+35); ctx.lineTo(sx-40,sy); ctx.closePath();
+      ctx.fillStyle='#1e1440'; ctx.fill(); ctx.strokeStyle='#8b5cf6'; ctx.lineWidth=4; ctx.stroke();
+      ctx.fillStyle='#a78bfa'; ctx.font='bold 16px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(s.tipo,sx,sy-6); ctx.font='12px monospace'; ctx.fillText(s.label,sx,sy+12);
+    });
+
+    // Centro
+    ctx.beginPath(); ctx.arc(CX,CY,85,0,Math.PI*2);
+    ctx.fillStyle='#0f131c'; ctx.fill(); ctx.strokeStyle='#3b82f6'; ctx.lineWidth=4; ctx.stroke();
+    ctx.fillStyle='#e8ecf4'; ctx.font=`bold 28px monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(boxName(),CX,CY-14);
+    ctx.fillStyle='#7a85a3'; ctx.font='22px monospace';
+    ctx.fillText(cap()+'F',CX,CY+16);
+
+    const imgData=tmpC.toDataURL('image/jpeg',0.92);
+    const svgW=W-PAD*2;
+    const svgH=svgW*(ch/cw);
+    doc.addImage(imgData,'JPEG',PAD,curY,svgW,svgH);
+    curY+=svgH+6;
+  } catch(drawErr){
+    alert('Error dibujando dome: '+drawErr.message);
+    curY+=6;
+  }
+
+  // Resumen datos de la caja
+  hline(curY); curY+=5;
+  setH(8,true,[59,130,246]);
+  doc.text('DATOS DE LA CAJA',PAD,curY); curY+=5;
+
+  const rows=buildSummaryRows();
+  const col2=W/2+4;
+  rows.forEach(([k,v],i)=>{
+    const x=i%2===0?PAD:col2;
+    const maxW=(W/2)-PAD-4;
+    setH(7,false,[122,133,163]);
+    doc.text(String(k),x,curY);
+    setH(7,true,[255,255,255]);
+    doc.text(String(v),x+maxW,curY,{align:'right',maxWidth:maxW});
+    if(i%2!==0||i===rows.length-1) curY+=5;
+  });
+
+  // Splitters si hay
+  if(splitters.length){
+    curY+=2; hline(curY); curY+=5;
+    setH(8,true,[59,130,246]);
+    doc.text('SPLITTERS INTERNOS',PAD,curY); curY+=5;
+    splitters.forEach(s=>{
+      setH(7,false,[180,180,200]);
+      doc.text(`⊕ ${s.label}`,PAD,curY);
+      setH(7,true,[255,255,255]);
+      doc.text(`Splitter ${s.tipo}`,W-PAD,curY,{align:'right'});
+      curY+=5;
+    });
+  }
+
+  // ── PÁGINA 2 ──────────────────────────────────────────────
+  doc.addPage();
+  doc.setFillColor(15,17,23);
+  doc.rect(0,0,W,20,'F');
+  setH(13,true,[232,236,244]);
+  doc.text(`${boxName()} — Fusiones y plano`,PAD,13);
+  setH(8,false,[122,133,163]);
+  doc.text('Página 2 / 2',W-PAD,13,{align:'right'});
+  curY=24;
+
+  // Tabla de fusiones
+  setH(9,true,[59,130,246]);
+  doc.text('TABLA DE FUSIONES',PAD,curY); curY+=6;
+
+  if(!fusionPairs.length){
+    setH(8,false,[180,180,200]);
+    doc.text('Sin fusiones registradas',PAD,curY); curY+=10;
+  } else {
+    // Cabecera
+    doc.setFillColor(20,26,48);
+    doc.rect(PAD,curY-4,W-PAD*2,7,'F');
+    setH(7,true,[140,155,200]);
+    const cols=[PAD+2, PAD+42, PAD+88, PAD+120, PAD+163];
+    ['#','Cable A','Fibra A','Cable B','Fibra B'].forEach((h,i)=>doc.text(h,cols[i],curY));
+    curY+=5;
+
+    fusionPairs.forEach((f,idx)=>{
+      const pA=cableById(f.cA), pB=cableById(f.cB);
+      const bufAIdx=f.bufA||0, fibAIdx=f.fA||0;
+      const bufBIdx=f.bufB||0, fibBIdx=f.fB||0;
+      const fibAColor=FC[fibAIdx%12];
+      const fibBColor=FC[fibBIdx%12];
+      const bufAColor=pA&&!pA.isSplitter ? FC[bufAIdx%12] : null;
+      const bufBColor=pB&&!pB.isSplitter ? FC[bufBIdx%12] : null;
+      const nameA=pA?(pA.isSplitter?'SPL·'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?';
+      const nameB=pB?(pB.isSplitter?'SPL·'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?';
+      const lblA=bufAColor?(bufAColor.n+' · '+fibAColor.n):fibAColor.n;
+      const lblB=bufBColor?(bufBColor.n+' · '+fibBColor.n):fibBColor.n;
+
+      // Fondo alternado con buen contraste
+      doc.setFillColor(idx%2===0?28:38, idx%2===0?34:44, idx%2===0?52:65);
+      doc.rect(PAD,curY-3.5,W-PAD*2,6,'F');
+
+      // Número de fusión
+      setH(7,true,[180,185,210]);
+      doc.text(String(idx+1),cols[0],curY);
+
+      // Dot color fibra A
+      const [rA,gA,bA]=hexToRgb(fibAColor.h);
+      doc.setFillColor(rA,gA,bA);
+      doc.circle(cols[1]-4,curY-0.5,2,'F');
+      setH(7,false,[240,242,250]);
+      doc.text(nameA,cols[1],curY,{maxWidth:43});
+
+      setH(7,true,[255,255,255]);
+      doc.text(lblA,cols[2],curY,{maxWidth:28});
+
+      // Dot color fibra B
+      const [rB,gB,bB]=hexToRgb(fibBColor.h);
+      doc.setFillColor(rB,gB,bB);
+      doc.circle(cols[3]-4,curY-0.5,2,'F');
+      setH(7,false,[240,242,250]);
+      doc.text(nameB,cols[3],curY,{maxWidth:40});
+
+      setH(7,true,[255,255,255]);
+      doc.text(lblB,cols[4],curY,{maxWidth:28});
+
+      curY+=6;
+      if(curY>H-60){ doc.addPage(); curY=20; }
+    });
+    curY+=4;
+  }
+
+  // Plano en alta resolución
+  if(planoCanvas&&planoImgLoaded){
+    hline(curY); curY+=5;
+    setH(8,true,[59,130,246]);
+    doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
+
+    // Capturar canvas a mayor resolución
+    const scale=2;
+    const tmpC=document.createElement('canvas');
+    tmpC.width=planoCanvas.width*scale;
+    tmpC.height=planoCanvas.height*scale;
+    const tCtx=tmpC.getContext('2d');
+    tCtx.scale(scale,scale);
+    tCtx.drawImage(planoCanvas,0,0);
+    const planoData=tmpC.toDataURL('image/jpeg',0.92);
+
+    const availH=H-curY-PAD-8;
+    const availW=W-PAD*2;
+    const ratio=planoCanvas.height/planoCanvas.width;
+    let pW=availW,pH=availW*ratio;
+    if(pH>availH){pH=availH;pW=availH/ratio;}
+    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH);
+    curY+=pH+4;
+  } else {
+    setH(7,false,[122,133,163]);
+    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,curY);
+    curY+=8;
+  }
+
+  // Footer
+  doc.setFillColor(15,17,23);
+  doc.rect(0,H-8,W,8,'F');
+  setH(7,false,[80,90,120]);
+  doc.text('Generado por FiberTrack · Lynx Suite',PAD,H-3);
+  doc.text(boxName(),W-PAD,H-3,{align:'right'});
+
+  // Compartir / descargar
+  const filename=boxName()+'_fibertrack.pdf';
+  const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
+  if(IS_CAP){
+    try{
+      const pdfBytes=doc.output('arraybuffer');
+      const base64=ab2b64(pdfBytes);
+      const {Filesystem,Share}=window.Capacitor.Plugins;
+      await Filesystem.writeFile({path:filename,data:base64,directory:'CACHE'});
+      const {uri}=await Filesystem.getUri({path:filename,directory:'CACHE'});
+      await Share.share({title:filename,url:uri,dialogTitle:'Compartir PDF FiberTrack'});
+      toast('PDF listo para compartir');
+    } catch(e){console.error(e);doc.save(filename);toast('PDF generado');}
+  } else {
+    doc.save(filename);
+    toast('PDF generado');
+  }
 }
 
-function exportSVG(){
-  renderSVG();
-  const svgEl=document.querySelector('#svg-container svg');
-  if(!svgEl){toast('Error al generar SVG');return;}
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16);
+  const g=parseInt(hex.slice(3,5),16);
+  const b=parseInt(hex.slice(5,7),16);
+  return[r,g,b];
+}
 
-  // Agregar resumen de texto debajo del diagrama
-  const rows=buildSummaryRows();
-  const svgNS='http://www.w3.org/2000/svg';
-  const clone=svgEl.cloneNode(true);
-  const vbH=345;
-  const rowH=16,padTop=16,totalTextH=rows.length*rowH+padTop+12;
-  clone.setAttribute('viewBox',`0 0 380 ${vbH+totalTextH}`);
+// ── PLANO ─────────────────────────────────────────────────
+const PLANO_SRC = 'plano_fibertrack.jpg';
+const planoImg = new Image();
+planoImg.src = PLANO_SRC;
 
-  const g=document.createElementNS(svgNS,'g');
-  // fondo del resumen
-  const bg=document.createElementNS(svgNS,'rect');
-  bg.setAttribute('x','0');bg.setAttribute('y',String(vbH));
-  bg.setAttribute('width','380');bg.setAttribute('height',String(totalTextH));
-  bg.setAttribute('fill','#181c27');
-  g.appendChild(bg);
+let planoCanvas=null, planoCtx=null;
+let planoScale=1;
+let planoTool='select';
+let planoColor='#3b82f6';
+let planoElements=[];
+let planoDrawing=false;
+let planoCurrentLine=null;
+let planoPinch={active:false,lastDist:0};
+// Para pan con touch
+let planoPanStart=null, planoPanOffStart={x:0,y:0};
+// Offset de pan — en coordenadas de pantalla (px del canvas visible)
+let planoOffX=0, planoOffY=0;
+let planoImgLoaded=false;
+// Para input de label sin prompt
+let pendingLabelPos=null;
 
-  rows.forEach(([k,v],i)=>{
-    const y=vbH+padTop+(i*rowH);
-    const tk=document.createElementNS(svgNS,'text');
-    tk.setAttribute('x','20');tk.setAttribute('y',String(y));
-    tk.setAttribute('fill','#7a85a3');tk.setAttribute('font-size','10');
-    tk.setAttribute('font-family',"'IBM Plex Mono',monospace");
-    tk.textContent=k;
-    const tv=document.createElementNS(svgNS,'text');
-    tv.setAttribute('x','360');tv.setAttribute('y',String(y));
-    tv.setAttribute('text-anchor','end');
-    tv.setAttribute('fill','#e8ecf4');tv.setAttribute('font-size','10');
-    tv.setAttribute('font-family',"'IBM Plex Mono',monospace");tv.setAttribute('font-weight','500');
-    tv.textContent=String(v);
-    g.appendChild(tk);g.appendChild(tv);
-  });
-  clone.appendChild(g);
+function initPlano(){
+  if(planoCanvas) return;
+  planoCanvas = document.getElementById('plano-canvas');
+  planoCtx = planoCanvas.getContext('2d');
 
+  function onImgReady(){
+    planoImgLoaded=true;
+    const wrap=document.getElementById('plano-canvas-wrap');
+    const wrapW=wrap.clientWidth||360;
+    planoScale=wrapW/planoImg.width;
+    planoCanvas.width=wrapW;
+    planoCanvas.height=Math.round(planoImg.height*planoScale);
+    drawPlano();
+  }
+
+  if(planoImg.complete && planoImg.naturalWidth>0) onImgReady();
+  else { planoImg.onload=onImgReady; }
+
+  // Mouse
+  planoCanvas.addEventListener('mousedown', e=>planoDown(e.offsetX, e.offsetY));
+  planoCanvas.addEventListener('mousemove', e=>{ if(planoDrawing) planoMove(e.offsetX, e.offsetY); });
+  planoCanvas.addEventListener('mouseup',   e=>planoUp(e.offsetX, e.offsetY));
+
+  // Touch — single finger
+  planoCanvas.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    if(e.touches.length===1){
+      const r=planoCanvas.getBoundingClientRect();
+      planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
+    } else if(e.touches.length===2){
+      planoPinch.active=true;
+      planoPinch.lastDist=touchDist(e.touches);
+    }
+  },{passive:false});
+  planoCanvas.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    if(e.touches.length===1 && planoDrawing){
+      const r=planoCanvas.getBoundingClientRect();
+      planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
+    } else if(e.touches.length===2 && planoPinch.active){
+      const dist=touchDist(e.touches);
+      const factor=dist/planoPinch.lastDist;
+      planoPinch.lastDist=dist;
+      applyZoom(factor);
+    }
+  },{passive:false});
+  planoCanvas.addEventListener('touchend', e=>{
+    e.preventDefault();
+    planoPinch.active=false;
+    if(e.changedTouches.length){
+      const r=planoCanvas.getBoundingClientRect();
+      planoUp(e.changedTouches[0].clientX-r.left, e.changedTouches[0].clientY-r.top);
+    }
+  },{passive:false});
+}
+
+function touchDist(touches){
+  const dx=touches[0].clientX-touches[1].clientX;
+  const dy=touches[0].clientY-touches[1].clientY;
+  return Math.sqrt(dx*dx+dy*dy);
+}
+
+// Convertir coordenadas de pantalla a coordenadas del canvas (sin offset ni scale)
+// Los elementos se almacenan en coordenadas de IMAGEN (0..planoImg.width)
+function screenToImg(sx, sy){
+  return {
+    x: (sx - planoOffX) / planoScale,
+    y: (sy - planoOffY) / planoScale,
+  };
+}
+
+let planoPolyPoints=[];
+let planoLastTap=0;
+
+function planoDown(sx, sy){
+  planoDrawing=true;
+  planoPanStart={x:sx, y:sy};
+  planoPanOffStart={x:planoOffX, y:planoOffY};
+
+  if(planoTool==='select') return;
+
+  const pos=screenToImg(sx,sy);
+  const now=Date.now();
+
+  if(planoTool==='line'){
+    const doubleTap=(planoPolyPoints.length>=2 && now-planoLastTap<400);
+    if(doubleTap){
+      if(planoPolyPoints.length>=4){
+        planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
+        toast('Traza guardada');
+      }
+      planoPolyPoints=[];
+      planoCurrentLine=null;
+      planoDrawing=false;
+      updateFinishBtn();
+      drawPlano();
+      return;
+    }
+    planoPolyPoints.push(pos.x,pos.y);
+    planoLastTap=now;
+    planoCurrentLine={type:'line',points:[...planoPolyPoints],color:planoColor};
+    updateFinishBtn();
+    drawPlano();
+    planoDrawing=false;
+    return;
+  }
+
+  if(planoTool==='nap'){
+    showLabelInput(sx,sy,'NAP-01',function(label){
+      planoElements.push({type:'nap',x:pos.x,y:pos.y,color:planoColor,label:label});
+      drawPlano();
+    });
+    planoDrawing=false;
+    return;
+  }
+
+  if(planoTool==='splice'){
+    showLabelInput(sx,sy,'CE-01',function(label){
+      planoElements.push({type:'splice',x:pos.x,y:pos.y,color:planoColor,label:label});
+      drawPlano();
+    });
+    planoDrawing=false;
+    return;
+  }
+
+  if(planoTool==='label'){
+    showLabelInput(sx,sy,'Texto...',function(label){
+      if(label) planoElements.push({type:'label',x:pos.x,y:pos.y,color:planoColor,label:label});
+      drawPlano();
+    });
+    planoDrawing=false;
+    return;
+  }
+
+  if(planoTool==='erase'){
+    const thr=20/planoScale;
+    planoElements=planoElements.filter(function(el){
+      if(el.type==='line'){
+        for(var i=0;i<el.points.length-2;i+=2){
+          var dx=pos.x-el.points[i], dy=pos.y-el.points[i+1];
+          if(Math.sqrt(dx*dx+dy*dy)<thr) return false;
+        }
+        return true;
+      }
+      var dx=pos.x-el.x, dy=pos.y-el.y;
+      return Math.sqrt(dx*dx+dy*dy)>thr;
+    });
+    drawPlano();
+    planoDrawing=false;
+    return;
+  }
+}
+
+function planoMove(sx, sy){
+  if(!planoDrawing) return;
+  if(planoTool==='select'){
+    planoOffX=planoPanOffStart.x+(sx-planoPanStart.x);
+    planoOffY=planoPanOffStart.y+(sy-planoPanStart.y);
+    drawPlano();
+  } else if(planoTool==='line' && planoPolyPoints.length>=2){
+    // Preview: dibujar línea de preview hasta posición actual
+    const pos=screenToImg(sx,sy);
+    planoCurrentLine={type:'line',points:[...planoPolyPoints,pos.x,pos.y],color:planoColor,preview:true};
+    drawPlano();
+  }
+}
+
+function planoUp(sx, sy){
+  // La línea se cierra con doble tap, no en mouseup
+  if(planoTool!=='select') planoDrawing=false;
+  else { planoCurrentLine=null; planoDrawing=false; drawPlano(); }
+}
+
+function drawPlano(){
+  if(!planoCtx||!planoImgLoaded) return;
+  const c=planoCanvas, ctx=planoCtx;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.save();
+  ctx.translate(planoOffX,planoOffY);
+  ctx.scale(planoScale,planoScale);
+  // Imagen
+  ctx.drawImage(planoImg,0,0,planoImg.width,planoImg.height);
+  // Elementos
+  planoElements.forEach(el=>drawEl(ctx,el));
+  if(planoCurrentLine && planoCurrentLine.points.length>=4) drawEl(ctx,planoCurrentLine);
+  ctx.restore();
+}
+
+function drawEl(ctx,el){
+  ctx.save();
+  const lw=3/planoScale;
+  if(el.type==='line'){
+    ctx.strokeStyle=el.color; ctx.lineWidth=lw*1.5;
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath();
+    ctx.moveTo(el.points[0],el.points[1]);
+    for(let i=2;i<el.points.length;i+=2) ctx.lineTo(el.points[i],el.points[i+1]);
+    ctx.stroke();
+  } else if(el.type==='nap'){
+    const r=14/planoScale;
+    const fs=13/planoScale;
+    const pad=3/planoScale;
+    ctx.fillStyle=el.color;
+    ctx.strokeStyle='#fff';
+    ctx.lineWidth=lw*1.5;
+    ctx.beginPath();
+    ctx.arc(el.x,el.y,r,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle='#fff';
+    ctx.font='bold '+fs+'px monospace';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('N',el.x,el.y);
+    ctx.font='bold '+fs+'px monospace';
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    const twN=ctx.measureText(el.label).width;
+    const lxN=el.x+r+pad;
+    const lyN=el.y;
+    ctx.fillStyle='rgba(0,0,0,0.75)';
+    ctx.fillRect(lxN-pad, lyN-fs*0.65, twN+pad*2, fs*1.3);
+    ctx.fillStyle='#ffffff';
+    ctx.fillText(el.label,lxN,lyN);
+
+  } else if(el.type==='splice'){
+    const rx=18/planoScale;
+    const ry2=11/planoScale;
+    const fs=12/planoScale;
+    const pad=3/planoScale;
+    ctx.fillStyle=el.color;
+    ctx.strokeStyle='#fff';
+    ctx.lineWidth=lw*1.5;
+    ctx.beginPath();
+    ctx.ellipse(el.x,el.y,rx,ry2,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle='#fff';
+    ctx.font='bold '+(fs*0.85)+'px monospace';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('CE',el.x,el.y);
+    ctx.font='bold '+fs+'px monospace';
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    const twS=ctx.measureText(el.label).width;
+    const lxS=el.x+rx+pad;
+    const lyS=el.y;
+    ctx.fillStyle='rgba(0,0,0,0.75)';
+    ctx.fillRect(lxS-pad, lyS-fs*0.65, twS+pad*2, fs*1.3);
+    ctx.fillStyle='#ffffff';
+    ctx.fillText(el.label,lxS,lyS);
+
+  } else if(el.type==='label'){
+    const fs=14/planoScale;
+    const pad=4/planoScale;
+    ctx.font='bold '+fs+'px monospace';
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    const twL=ctx.measureText(el.label).width;
+    ctx.fillStyle='rgba(0,0,0,0.75)';
+    ctx.fillRect(el.x-pad, el.y-fs*0.65, twL+pad*2, fs*1.3);
+    ctx.fillStyle=el.color;
+    ctx.fillText(el.label,el.x,el.y);
+  }
+  ctx.restore();
+}
+
+// Input inline flotante (reemplaza prompt)
+function showLabelInput(sx, sy, placeholder, cb){
+  const existing=document.getElementById('plano-label-input');
+  if(existing) existing.remove();
+  const wrap=document.getElementById('plano-canvas-wrap');
+  const rect=wrap.getBoundingClientRect();
+  const inp=document.createElement('div');
+  inp.id='plano-label-input';
+  inp.style.cssText=`position:absolute;top:${Math.min(sy+4,wrap.clientHeight-60)}px;left:${Math.min(sx,wrap.clientWidth-180)}px;
+    background:var(--bg2);border:1px solid var(--accent);border-radius:8px;
+    padding:6px 8px;display:flex;gap:6px;align-items:center;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,.5)`;
+  inp.innerHTML=`<input type="text" placeholder="${placeholder}" 
+    style="width:120px;background:var(--bg3);border:none;outline:none;color:var(--text);
+    font-family:var(--mono);font-size:12px;padding:2px 4px;border-radius:4px">
+    <button style="background:var(--accent);border:none;border-radius:5px;color:#fff;
+    padding:3px 8px;cursor:pointer;font-size:12px">OK</button>`;
+  wrap.style.position='relative';
+  wrap.appendChild(inp);
+  const input=inp.querySelector('input');
+  input.focus();
+  const confirm=()=>{ const v=input.value.trim()||placeholder; inp.remove(); cb(v); };
+  inp.querySelector('button').onclick=confirm;
+  input.onkeydown=e=>{ if(e.key==='Enter') confirm(); if(e.key==='Escape') inp.remove(); };
+}
+
+function finishLine(){
+  if(planoPolyPoints.length>=4){
+    planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
+    toast('Traza guardada — '+((planoPolyPoints.length/2)-1)+' puntos');
+  }
+  planoPolyPoints=[];
+  planoCurrentLine=null;
+  document.getElementById('tool-finish-line').style.display='none';
+  drawPlano();
+}
+
+function updateFinishBtn(){
+  const btn=document.getElementById('tool-finish-line');
+  if(btn) btn.style.display=planoTool==='line'&&planoPolyPoints.length>=2?'flex':'none';
+}
+
+function setTool(t){
+  // Si había una línea en progreso, guardarla antes de cambiar
+  if(planoTool==='line' && planoPolyPoints.length>=4){
+    planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
+  }
+  planoPolyPoints=[];
+  planoCurrentLine=null;
+  planoTool=t;
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.getElementById('tool-'+t);
+  if(btn) btn.classList.add('active');
+  updateFinishBtn();
+  drawPlano();
+}
+
+function setColor(c,el){
+  planoColor=c;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function applyZoom(factor){
+  const minS=0.1, maxS=5;
+  const newS=Math.max(minS,Math.min(maxS,planoScale*factor));
+  const actualF=newS/planoScale;
+  planoScale=newS;
+  // Zoom centrado en el canvas
+  const cx=planoCanvas.width/2, cy=planoCanvas.height/2;
+  planoOffX=cx+(planoOffX-cx)*actualF;
+  planoOffY=cy+(planoOffY-cy)*actualF;
+  drawPlano();
+}
+
+function zoomPlano(factor){ applyZoom(factor); }
+
+function resetZoom(){
+  planoOffX=0; planoOffY=0;
+  const wrap=document.getElementById('plano-canvas-wrap');
+  planoScale=(wrap.clientWidth||360)/planoImg.width;
+  drawPlano();
+}
+
+function clearPlano(){
+  if(!planoElements.length) return;
+  if(!confirm('¿Borrar todo el dibujo?')) return;
+  planoElements=[]; drawPlano();
+}
+
+function exportPlanoSVG(){
+  const dataUrl=planoCanvas.toDataURL('image/jpeg',0.85);
+  const w=planoCanvas.width,h=planoCanvas.height;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><image href="${dataUrl}" width="${w}" height="${h}"/></svg>`;
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([clone.outerHTML],{type:'image/svg+xml'}));
-  a.download=boxName()+'.svg';a.click();
-  toast('SVG exportado con resumen');
+  a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  a.download='plano_fibertrack.svg'; a.click();
+  toast('Plano exportado');
 }
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-renderPorts();updateStats();
+renderPorts();renderSplitters();updateStats();
 </script>
 </body>
 </html>
+
