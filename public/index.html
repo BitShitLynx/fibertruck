@@ -1148,15 +1148,10 @@ async function exportPDF(){
 
   // Resumen datos de la caja
   const rows=buildSummaryRows();
-  const splH=splitters.length?(splitters.length*8+14):0;
-  const dataH=(Math.ceil(rows.length/2)*8)+16+splH;
-  doc.setFillColor(30,35,55);
-  doc.rect(0,curY-2,W,dataH,'F');
   curY+=4;
-
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   doc.setFont('helvetica','bold');
-  doc.setTextColor(59,130,246);
+  doc.setTextColor(0,60,160);
   doc.text('DATOS DE LA CAJA',PAD,curY);
   curY+=8;
 
@@ -1166,36 +1161,37 @@ async function exportPDF(){
     const k=String(row[0]);
     const v=String(row[1]);
     const x=rowCount%2===0?PAD:col2;
-    doc.setFontSize(7);
-    doc.setFont('helvetica','normal');
-    doc.setTextColor(150,160,190);
-    doc.text(k,x,curY);
     doc.setFontSize(8);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(80,80,80);
+    doc.text(k,x,curY);
+    doc.setFontSize(9);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(255,255,255);
-    doc.text(v,x,curY+4);
+    doc.setTextColor(0,0,0);
+    doc.text(v,x,curY+5);
     rowCount++;
-    if(rowCount%2===0) curY+=10;
+    if(rowCount%2===0) curY+=12;
   });
-  if(rowCount%2!==0) curY+=10;
+  if(rowCount%2!==0) curY+=12;
   curY+=4;
 
   if(splitters.length){
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(59,130,246);
+    doc.setTextColor(0,60,160);
     doc.text('SPLITTERS INTERNOS',PAD,curY);
     curY+=7;
     splitters.forEach(function(s){
-      doc.setFontSize(8);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(150,160,190);
+      doc.setFontSize(9);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(80,80,80);
       doc.text('SPL: '+s.label,PAD,curY);
-      doc.setTextColor(255,255,255);
-      doc.text('Splitter '+s.tipo,PAD+50,curY);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(0,0,0);
+      doc.text('Splitter '+s.tipo,PAD+55,curY);
       curY+=8;
     });
-    curY+=2;
+    curY+=4;
   }
 
   // ── PÁGINA 2 ──────────────────────────────────────────────
