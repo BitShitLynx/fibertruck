@@ -1147,57 +1147,49 @@ async function exportPDF(){
   }
 
   // Resumen datos de la caja
-  hline(curY); curY+=5;
+  hline(curY); curY+=6;
 
-  // Fondo oscuro para la sección de datos
-  const rows=buildSummaryRows();
-  const sectionH=(Math.ceil(rows.length/2)*5)+14;
-  doc.setFillColor(20,25,42);
-  doc.rect(PAD,curY-4,W-PAD*2,sectionH,'F');
-
-  doc.setFontSize(9);
+  doc.setFontSize(11);
   doc.setFont('helvetica','bold');
-  doc.setTextColor(59,130,246);
-  doc.text('DATOS DE LA CAJA',PAD+2,curY); curY+=7;
+  doc.setTextColor(30,80,180);
+  doc.text('DATOS DE LA CAJA', PAD, curY); curY+=8;
 
+  const rows=buildSummaryRows();
   const col2=W/2+4;
   let rowCount=0;
   rows.forEach(function(row){
     const k=String(row[0]);
     const v=String(row[1]);
-    const x=rowCount%2===0?PAD+2:col2;
-    const maxW=(W/2)-PAD-6;
-    doc.setFontSize(7);
-    doc.setFont('helvetica','normal');
-    doc.setTextColor(140,155,190);
-    doc.text(k,x,curY);
+    const x=rowCount%2===0 ? PAD : col2;
+    const maxW=(W/2)-PAD-4;
+    doc.setFontSize(8);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(240,242,250);
-    doc.text(v,x+maxW,curY,{align:'right',maxWidth:maxW});
+    doc.setTextColor(90,100,120);
+    doc.text(k, x, curY);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(10,10,30);
+    doc.text(v, x+maxW, curY, {align:'right', maxWidth:maxW});
     rowCount++;
-    if(rowCount%2===0) curY+=5;
+    if(rowCount%2===0) curY+=7;
   });
-  if(rowCount%2!==0) curY+=5;
+  if(rowCount%2!==0) curY+=7;
   curY+=4;
 
   if(splitters.length){
-    curY+=2;
-    doc.setFillColor(20,25,42);
-    doc.rect(PAD,curY-2,W-PAD*2,(splitters.length*5)+10,'F');
-    hline(curY); curY+=5;
-    doc.setFontSize(8);
+    curY+=2; hline(curY); curY+=6;
+    doc.setFontSize(11);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(59,130,246);
-    doc.text('SPLITTERS INTERNOS',PAD+2,curY); curY+=5;
+    doc.setTextColor(30,80,180);
+    doc.text('SPLITTERS INTERNOS', PAD, curY); curY+=7;
     splitters.forEach(function(s){
-      doc.setFontSize(7);
-      doc.setFont('helvetica','normal');
-      doc.setTextColor(140,155,190);
-      doc.text('SPL: '+s.label,PAD+2,curY);
+      doc.setFontSize(9);
       doc.setFont('helvetica','bold');
-      doc.setTextColor(240,242,250);
-      doc.text('Splitter '+s.tipo,W-PAD,curY,{align:'right'});
-      curY+=5;
+      doc.setTextColor(90,100,120);
+      doc.text('SPL: '+s.label, PAD, curY);
+      doc.setTextColor(10,10,30);
+      doc.text('Splitter '+s.tipo, W-PAD, curY, {align:'right'});
+      curY+=7;
     });
     curY+=2;
   }
