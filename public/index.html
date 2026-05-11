@@ -1148,31 +1148,45 @@ async function exportPDF(){
 
   // Resumen datos de la caja
   hline(curY); curY+=5;
-  setH(8,true,[59,130,246]);
-  doc.text('DATOS DE LA CAJA',PAD,curY); curY+=5;
+  doc.setFontSize(9);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(59,130,246);
+  doc.text('DATOS DE LA CAJA',PAD,curY); curY+=6;
 
   const rows=buildSummaryRows();
   const col2=W/2+4;
-  rows.forEach(([k,v],i)=>{
-    const x=i%2===0?PAD:col2;
+  let rowCount=0;
+  rows.forEach(function(row,i){
+    const k=row[0], v=row[1];
+    const x=rowCount%2===0?PAD:col2;
     const maxW=(W/2)-PAD-4;
-    setH(7,false,[122,133,163]);
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(160,170,200);
     doc.text(String(k),x,curY);
-    setH(7,true,[255,255,255]);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(255,255,255);
     doc.text(String(v),x+maxW,curY,{align:'right',maxWidth:maxW});
-    if(i%2!==0||i===rows.length-1) curY+=5;
+    rowCount++;
+    if(rowCount%2===0) curY+=5;
   });
+  if(rowCount%2!==0) curY+=5;
+  curY+=2;
 
-  // Splitters si hay
   if(splitters.length){
     curY+=2; hline(curY); curY+=5;
-    setH(8,true,[59,130,246]);
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(59,130,246);
     doc.text('SPLITTERS INTERNOS',PAD,curY); curY+=5;
-    splitters.forEach(s=>{
-      setH(7,false,[180,180,200]);
-      doc.text(`⊕ ${s.label}`,PAD,curY);
-      setH(7,true,[255,255,255]);
-      doc.text(`Splitter ${s.tipo}`,W-PAD,curY,{align:'right'});
+    splitters.forEach(function(s){
+      doc.setFontSize(7);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(180,185,210);
+      doc.text('SPL: '+s.label,PAD,curY);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(255,255,255);
+      doc.text('Splitter '+s.tipo,W-PAD,curY,{align:'right'});
       curY+=5;
     });
   }
