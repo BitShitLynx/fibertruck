@@ -1,4 +1,4 @@
-package com.lynx.fibertrack2;
+package com.lynx.fibertrack;
 
 import android.os.Bundle;
 import android.webkit.WebSettings;
