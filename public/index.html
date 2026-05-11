@@ -1039,6 +1039,7 @@ async function exportPDF(){
   }
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  doc.setTextColor(0,0,0);
   const W=210,H=297,PAD=15;
 
   const setH=(size,bold=false,color=[232,236,244])=>{
@@ -1151,7 +1152,6 @@ async function exportPDF(){
   curY+=4;
   doc.setFontSize(11);
   doc.setFont('helvetica','bold');
-  doc.setTextColor(0,0,0);
   doc.text('DATOS DE LA CAJA',PAD,curY);
   curY+=8;
 
@@ -1163,7 +1163,6 @@ async function exportPDF(){
     const x=rowCount%2===0?PAD:col2;
     doc.setFontSize(9);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(0,0,0);
     doc.text(k+': '+v, x, curY);
     rowCount++;
     if(rowCount%2===0) curY+=6;
@@ -1174,14 +1173,12 @@ async function exportPDF(){
   if(splitters.length){
     doc.setFontSize(11);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(0,0,0);
     doc.text('SPLITTERS INTERNOS',PAD,curY);
     curY+=7;
     splitters.forEach(function(s){
       doc.setFontSize(9);
       doc.setFont('helvetica','bold');
-      doc.setTextColor(0,0,0);
-      doc.text('SPL: '+s.label+'  -  Splitter '+s.tipo, PAD, curY);
+      doc.text('SPL: '+s.label+' - Splitter '+s.tipo, PAD, curY);
       curY+=6;
     });
     curY+=4;
