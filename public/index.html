@@ -1075,12 +1075,6 @@ async function exportPDF(){
   }
 
   // DEBUG: texto de prueba en posición fija
-  doc.setFontSize(12);
-  doc.setFont('helvetica','bold');
-  doc.setTextColor(0,0,0);
-  doc.text('DEBUG: texto negro en y=30', PAD, 30);
-  doc.text('DEBUG: texto negro en y=40', PAD, 40);
-
   // ── PÁGINA 1 ──────────────────────────────────────────────
   doc.setFillColor(15,17,23);
   doc.rect(0,0,W,20,'F');
@@ -1187,8 +1181,8 @@ async function exportPDF(){
 
     // Puertos
     const SPDF=[
-      {id:'P1',cx:474,cy:220,r:55},{id:'P2',cx:666,cy:220,r:55},
-      {id:'P3',cx:240,cy:510,r:55},{id:'P4',cx:900,cy:510,r:55}
+      {id:'P1',cx:390,cy:180,r:52},{id:'P2',cx:570,cy:180,r:52},
+      {id:'P3',cx:200,cy:430,r:52},{id:'P4',cx:760,cy:430,r:52}
     ];
     SPDF.forEach(slot=>{
       const p=slotMap[slot.id];
@@ -1202,13 +1196,13 @@ async function exportPDF(){
 
     // Sangría
     const sang=slotMap['S'];
-    ctx.beginPath(); ctx.ellipse(CX,820,130,80,0,0,Math.PI*2);
+    ctx.beginPath(); ctx.ellipse(CX,700,130,80,0,0,Math.PI*2);
     if(sang){ ctx.fillStyle=sang.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
     else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
-    ctx.beginPath(); ctx.arc(CX-40,820,30,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
-    ctx.beginPath(); ctx.arc(CX+40,820,30,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(CX-40,700,30,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(CX+40,700,30,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#fff'; ctx.font='bold 20px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(sang?(sang.fibers+'F'):'Sangría', CX, 820);
+    ctx.fillText(sang?(sang.fibers+'F'):'Sangría', CX, 700);
 
     // Splitters
     splitters.forEach((s,i)=>{
