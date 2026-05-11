@@ -4,7 +4,7 @@ android {
     namespace = "com.lynx.fibertrack"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.lynx.fibertrack"
+        applicationId "com.lynx.fibertrack2"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
