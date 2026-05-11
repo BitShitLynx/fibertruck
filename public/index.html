@@ -1151,7 +1151,7 @@ async function exportPDF(){
   curY+=4;
   doc.setFontSize(11);
   doc.setFont('helvetica','bold');
-  doc.setTextColor(0,60,160);
+  doc.setTextColor(0,0,0);
   doc.text('DATOS DE LA CAJA',PAD,curY);
   curY+=8;
 
@@ -1161,18 +1161,14 @@ async function exportPDF(){
     const k=String(row[0]);
     const v=String(row[1]);
     const x=rowCount%2===0?PAD:col2;
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.setFont('helvetica','bold');
     doc.setTextColor(0,0,0);
-    doc.text(k,x,curY);
-    doc.setFontSize(10);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(0,0,0);
-    doc.text(v,x,curY+5);
+    doc.text(k+': '+v, x, curY);
     rowCount++;
-    if(rowCount%2===0) curY+=12;
+    if(rowCount%2===0) curY+=6;
   });
-  if(rowCount%2!==0) curY+=12;
+  if(rowCount%2!==0) curY+=6;
   curY+=4;
 
   if(splitters.length){
@@ -1185,9 +1181,8 @@ async function exportPDF(){
       doc.setFontSize(9);
       doc.setFont('helvetica','bold');
       doc.setTextColor(0,0,0);
-      doc.text('SPL: '+s.label,PAD,curY);
-      doc.text('Splitter '+s.tipo,PAD+55,curY);
-      curY+=8;
+      doc.text('SPL: '+s.label+'  -  Splitter '+s.tipo, PAD, curY);
+      curY+=6;
     });
     curY+=4;
   }
@@ -1203,22 +1198,26 @@ async function exportPDF(){
   curY=24;
 
   // Tabla de fusiones
-  setH(9,true,[59,130,246]);
+  doc.setFontSize(11);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(0,0,0);
   doc.text('TABLA DE FUSIONES',PAD,curY); curY+=6;
 
   if(!fusionPairs.length){
-    setH(8,false,[180,180,200]);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(0,0,0);
     doc.text('Sin fusiones registradas',PAD,curY); curY+=10;
   } else {
     // Cabecera
-    doc.setFillColor(20,26,48);
-    doc.rect(PAD,curY-4,W-PAD*2,7,'F');
-    setH(7,true,[140,155,200]);
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(0,0,0);
     const cols=[PAD+2, PAD+42, PAD+88, PAD+120, PAD+163];
-    ['#','Cable A','Fibra A','Cable B','Fibra B'].forEach((h,i)=>doc.text(h,cols[i],curY));
+    ['#','Cable A','Fibra A','Cable B','Fibra B'].forEach(function(h,i){ doc.text(h,cols[i],curY); });
     curY+=5;
 
-    fusionPairs.forEach((f,idx)=>{
+    fusionPairs.forEach(function(f,idx){
       const pA=cableById(f.cA), pB=cableById(f.cB);
       const bufAIdx=f.bufA||0, fibAIdx=f.fA||0;
       const bufBIdx=f.bufB||0, fibBIdx=f.fB||0;
@@ -1231,32 +1230,30 @@ async function exportPDF(){
       const lblA=bufAColor?(bufAColor.n+' · '+fibAColor.n):fibAColor.n;
       const lblB=bufBColor?(bufBColor.n+' · '+fibBColor.n):fibBColor.n;
 
-      // Fondo alternado con buen contraste
-      doc.setFillColor(idx%2===0?28:38, idx%2===0?34:44, idx%2===0?52:65);
-      doc.rect(PAD,curY-3.5,W-PAD*2,6,'F');
-
-      // Número de fusión
-      setH(7,true,[180,185,210]);
+      doc.setFontSize(8);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(0,0,0);
       doc.text(String(idx+1),cols[0],curY);
 
       // Dot color fibra A
       const [rA,gA,bA]=hexToRgb(fibAColor.h);
       doc.setFillColor(rA,gA,bA);
       doc.circle(cols[1]-4,curY-0.5,2,'F');
-      setH(7,false,[240,242,250]);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(0,0,0);
       doc.text(nameA,cols[1],curY,{maxWidth:43});
 
-      setH(7,true,[255,255,255]);
+      doc.setFont('helvetica','bold');
       doc.text(lblA,cols[2],curY,{maxWidth:28});
 
       // Dot color fibra B
       const [rB,gB,bB]=hexToRgb(fibBColor.h);
       doc.setFillColor(rB,gB,bB);
       doc.circle(cols[3]-4,curY-0.5,2,'F');
-      setH(7,false,[240,242,250]);
+      doc.setFont('helvetica','normal');
       doc.text(nameB,cols[3],curY,{maxWidth:40});
 
-      setH(7,true,[255,255,255]);
+      doc.setFont('helvetica','bold');
       doc.text(lblB,cols[4],curY,{maxWidth:28});
 
       curY+=6;
