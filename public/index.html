@@ -1147,49 +1147,53 @@ async function exportPDF(){
   }
 
   // Resumen datos de la caja
-  hline(curY); curY+=6;
-
-  doc.setFontSize(11);
-  doc.setFont('helvetica','bold');
-  doc.setTextColor(30,80,180);
-  doc.text('DATOS DE LA CAJA', PAD, curY); curY+=8;
-
   const rows=buildSummaryRows();
+  const splH=splitters.length?(splitters.length*8+14):0;
+  const dataH=(Math.ceil(rows.length/2)*8)+16+splH;
+  doc.setFillColor(30,35,55);
+  doc.rect(0,curY-2,W,dataH,'F');
+  curY+=4;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(59,130,246);
+  doc.text('DATOS DE LA CAJA',PAD,curY);
+  curY+=8;
+
   const col2=W/2+4;
   let rowCount=0;
   rows.forEach(function(row){
     const k=String(row[0]);
     const v=String(row[1]);
-    const x=rowCount%2===0 ? PAD : col2;
-    const maxW=(W/2)-PAD-4;
+    const x=rowCount%2===0?PAD:col2;
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(150,160,190);
+    doc.text(k,x,curY);
     doc.setFontSize(8);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(90,100,120);
-    doc.text(k, x, curY);
-    doc.setFontSize(9);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(10,10,30);
-    doc.text(v, x+maxW, curY, {align:'right', maxWidth:maxW});
+    doc.setTextColor(255,255,255);
+    doc.text(v,x,curY+4);
     rowCount++;
-    if(rowCount%2===0) curY+=7;
+    if(rowCount%2===0) curY+=10;
   });
-  if(rowCount%2!==0) curY+=7;
+  if(rowCount%2!==0) curY+=10;
   curY+=4;
 
   if(splitters.length){
-    curY+=2; hline(curY); curY+=6;
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(30,80,180);
-    doc.text('SPLITTERS INTERNOS', PAD, curY); curY+=7;
+    doc.setTextColor(59,130,246);
+    doc.text('SPLITTERS INTERNOS',PAD,curY);
+    curY+=7;
     splitters.forEach(function(s){
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setFont('helvetica','bold');
-      doc.setTextColor(90,100,120);
-      doc.text('SPL: '+s.label, PAD, curY);
-      doc.setTextColor(10,10,30);
-      doc.text('Splitter '+s.tipo, W-PAD, curY, {align:'right'});
-      curY+=7;
+      doc.setTextColor(150,160,190);
+      doc.text('SPL: '+s.label,PAD,curY);
+      doc.setTextColor(255,255,255);
+      doc.text('Splitter '+s.tipo,PAD+50,curY);
+      curY+=8;
     });
     curY+=2;
   }
