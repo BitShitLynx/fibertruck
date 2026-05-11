@@ -1081,7 +1081,7 @@ async function exportPDF(){
 
   let curY=24;
   try{
-    const cw=1140, ch=1035;
+    const cw=760, ch=690;
     const tmpC=document.createElement('canvas');
     tmpC.width=cw; tmpC.height=ch;
     const ctx=tmpC.getContext('2d');
@@ -1145,9 +1145,9 @@ async function exportPDF(){
     ctx.fillText(cap()+'F',CX,CY+16);
 
     const imgData=tmpC.toDataURL('image/jpeg',0.92);
-    const svgW=W-PAD*2;
-    const svgH=svgW*(ch/cw);
-    doc.addImage(imgData,'JPEG',PAD,curY,svgW,svgH,undefined,'FAST');
+    const svgW=(W-PAD*2)*0.55;
+    const svgH=svgW*(690/760);
+    doc.addImage(imgData,'JPEG',(W-svgW)/2,curY,svgW,svgH,undefined,'FAST');
     curY+=svgH+6;
   } catch(drawErr){
     alert('Error dibujando dome: '+drawErr.message);
@@ -1161,37 +1161,38 @@ async function exportPDF(){
   var rows=buildSummaryRows();
   curY+=4;
   var tblW=W-PAD*2;
-  var cellH=7;
+  var cellH=10;
   var col1W=tblW*0.45;
   var col2W=tblW-col1W;
+  var col2=PAD+col1W;
 
   // Header DATOS DE LA CAJA
   doc.setFillColor(30,80,160);
   doc.rect(PAD,curY,tblW,8,'F');
-  doc.setFontSize(10);
+  doc.setFontSize(12);
   doc.setFont('helvetica','bold');
   doc.setTextColor(255,255,255);
   doc.text('DATOS DE LA CAJA',PAD+3,curY+5.5);
   curY+=8;
 
   rows.forEach(function(row,i){
-    if(i%2===0){
-      doc.setFillColor(235,238,248);
-    } else {
-      doc.setFillColor(245,248,252);
-    }
-    doc.rect(PAD,curY,tblW,cellH,'F');
-    doc.setDrawColor(180,190,210);
+    const k=String(row[0]);
+    const v=String(row[1]);
+    const x=i%2===0?PAD:col2;
+    doc.setFillColor(i%4<2?240:250,i%4<2?242:252,i%4<2?248:255);
+    doc.rect(x,curY-1,col1W,cellH,'F');
+    doc.setDrawColor(160,170,200);
     doc.setLineWidth(0.2);
-    doc.rect(PAD,curY,tblW,cellH,'S');
+    doc.rect(x,curY-1,col1W,cellH,'S');
     doc.setFontSize(8);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(80,90,110);
-    doc.text(String(row[0]),PAD+2,curY+cellH-2);
     doc.setFont('helvetica','normal');
+    doc.setTextColor(80,90,120);
+    doc.text(k,x+2,curY+3);
+    doc.setFontSize(11);
+    doc.setFont('helvetica','bold');
     doc.setTextColor(0,0,0);
-    doc.text(String(row[1]),PAD+col1W+2,curY+cellH-2);
-    curY+=cellH;
+    doc.text(v,x+col1W-2,curY+5,{align:'right',maxWidth:col1W-4});
+    if(i%2!==0) curY+=cellH;
   });
   curY+=5;
 
