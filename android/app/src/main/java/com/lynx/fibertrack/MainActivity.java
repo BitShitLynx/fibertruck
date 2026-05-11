@@ -14,13 +14,14 @@ public class MainActivity extends BridgeActivity {
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webView.clearCache(true);
         webView.clearHistory();
-        webView.reload();
+        webView.clearFormData();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getBridge().getWebView().clearCache(true);
-        getBridge().getWebView().reload();
+        WebView webView = getBridge().getWebView();
+        webView.clearCache(true);
+        webView.reload();
     }
 }
