@@ -1,0 +1,9 @@
+node_modules/
+apk-check/
+android/app/build/
+android/.idea/
+android/build/
+*.pdf
+*.jpeg
+*.jpg
+.claude/

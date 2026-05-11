@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FiberTrack</string>
+    <string name="title_activity_main">FiberTrack</string>
+    <string name="package_name">com.lynx.fibertrack</string>
+    <string name="custom_url_scheme">com.lynx.fibertrack</string>
+</resources>
