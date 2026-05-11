@@ -1064,6 +1064,13 @@ async function exportPDF(){
     return btoa(bin);
   }
 
+  // DEBUG: texto de prueba en posición fija
+  doc.setFontSize(12);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(0,0,0);
+  doc.text('DEBUG: texto negro en y=30', PAD, 30);
+  doc.text('DEBUG: texto negro en y=40', PAD, 40);
+
   // ── PÁGINA 1 ──────────────────────────────────────────────
   doc.setFillColor(15,17,23);
   doc.rect(0,0,W,20,'F');
@@ -1140,48 +1147,84 @@ async function exportPDF(){
     const imgData=tmpC.toDataURL('image/jpeg',0.92);
     const svgW=W-PAD*2;
     const svgH=svgW*(ch/cw);
-    doc.addImage(imgData,'JPEG',PAD,curY,svgW,svgH);
+    doc.addImage(imgData,'JPEG',PAD,curY,svgW,svgH,undefined,'FAST');
     curY+=svgH+6;
   } catch(drawErr){
     alert('Error dibujando dome: '+drawErr.message);
     curY+=6;
   }
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(10);
+  doc.setFont('helvetica','bold');
 
   // Resumen datos de la caja
-  const rows=buildSummaryRows();
+  var rows=buildSummaryRows();
   curY+=4;
-  doc.setFontSize(11);
+  var tblW=W-PAD*2;
+  var cellH=7;
+  var col1W=tblW*0.45;
+  var col2W=tblW-col1W;
+
+  // Header DATOS DE LA CAJA
+  doc.setFillColor(30,80,160);
+  doc.rect(PAD,curY,tblW,8,'F');
+  doc.setFontSize(10);
   doc.setFont('helvetica','bold');
-  doc.text('DATOS DE LA CAJA',PAD,curY);
+  doc.setTextColor(255,255,255);
+  doc.text('DATOS DE LA CAJA',PAD+3,curY+5.5);
   curY+=8;
 
-  const col2=W/2+4;
-  let rowCount=0;
-  rows.forEach(function(row){
-    const k=String(row[0]);
-    const v=String(row[1]);
-    const x=rowCount%2===0?PAD:col2;
-    doc.setFontSize(9);
+  rows.forEach(function(row,i){
+    if(i%2===0){
+      doc.setFillColor(235,238,248);
+    } else {
+      doc.setFillColor(245,248,252);
+    }
+    doc.rect(PAD,curY,tblW,cellH,'F');
+    doc.setDrawColor(180,190,210);
+    doc.setLineWidth(0.2);
+    doc.rect(PAD,curY,tblW,cellH,'S');
+    doc.setFontSize(8);
     doc.setFont('helvetica','bold');
-    doc.text(k+': '+v, x, curY);
-    rowCount++;
-    if(rowCount%2===0) curY+=6;
+    doc.setTextColor(80,90,110);
+    doc.text(String(row[0]),PAD+2,curY+cellH-2);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(0,0,0);
+    doc.text(String(row[1]),PAD+col1W+2,curY+cellH-2);
+    curY+=cellH;
   });
-  if(rowCount%2!==0) curY+=6;
-  curY+=4;
+  curY+=5;
 
   if(splitters.length){
-    doc.setFontSize(11);
+    // Header SPLITTERS INTERNOS
+    doc.setFillColor(30,80,160);
+    doc.rect(PAD,curY,tblW,8,'F');
+    doc.setFontSize(10);
     doc.setFont('helvetica','bold');
-    doc.text('SPLITTERS INTERNOS',PAD,curY);
-    curY+=7;
-    splitters.forEach(function(s){
-      doc.setFontSize(9);
+    doc.setTextColor(255,255,255);
+    doc.text('SPLITTERS INTERNOS',PAD+3,curY+5.5);
+    curY+=8;
+
+    splitters.forEach(function(s,i){
+      if(i%2===0){
+        doc.setFillColor(235,238,248);
+      } else {
+        doc.setFillColor(245,248,252);
+      }
+      doc.rect(PAD,curY,tblW,cellH,'F');
+      doc.setDrawColor(180,190,210);
+      doc.setLineWidth(0.2);
+      doc.rect(PAD,curY,tblW,cellH,'S');
+      doc.setFontSize(8);
       doc.setFont('helvetica','bold');
-      doc.text('SPL: '+s.label+' - Splitter '+s.tipo, PAD, curY);
-      curY+=6;
+      doc.setTextColor(80,90,110);
+      doc.text(String(s.label),PAD+2,curY+cellH-2);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(0,0,0);
+      doc.text('Splitter '+String(s.tipo),PAD+col1W+2,curY+cellH-2);
+      curY+=cellH;
     });
-    curY+=4;
+    curY+=5;
   }
 
   // ── PÁGINA 2 ──────────────────────────────────────────────
@@ -1280,7 +1323,7 @@ async function exportPDF(){
     const ratio=planoCanvas.height/planoCanvas.width;
     let pW=availW,pH=availW*ratio;
     if(pH>availH){pH=availH;pW=availH/ratio;}
-    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH);
+    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
     curY+=pH+4;
   } else {
     setH(7,false,[122,133,163]);
