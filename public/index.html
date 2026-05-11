@@ -234,7 +234,7 @@ if('caches' in window){
       Config
     </div>
     <div class="tab" id="tab-puertos" onclick="goTab('puertos')">
-      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="10" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="16" cy="10" r="1" fill="currentColor"/><circle cx="17.8" cy="11" r="1" fill="currentColor"/><circle cx="17.8" cy="13" r="1" fill="currentColor"/><circle cx="16" cy="14" r="1" fill="currentColor"/><circle cx="14.2" cy="13" r="1" fill="currentColor"/><circle cx="14.2" cy="11" r="1" fill="currentColor"/></svg>
       Puertos
       <div class="tab-badge" id="badge-puertos">0</div>
     </div>
@@ -358,7 +358,7 @@ if('caches' in window){
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/></svg>NAP
           </button>
           <button class="tool-btn" id="tool-splice" onclick="setTool('splice')">
-            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>Empalme
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="8" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="12" cy="12" rx="6" ry="5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 1.5"/><circle cx="9" cy="9" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="15" cy="9" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="17" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><ellipse cx="12" cy="18" rx="3.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>Empalme
           </button>
           <button class="tool-btn" id="tool-label" onclick="setTool('label')">
             <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Etiqueta
@@ -1621,32 +1621,35 @@ function drawEl(ctx,el){
     ctx.fillText(el.label,lxN,lyN);
 
   } else if(el.type==='splice'){
-    const rx=18/planoScale;
-    const ry2=11/planoScale;
-    const fs=12/planoScale;
-    const pad=3/planoScale;
-    ctx.fillStyle=el.color;
-    ctx.strokeStyle='#fff';
-    ctx.lineWidth=lw*1.5;
-    ctx.beginPath();
-    ctx.ellipse(el.x,el.y,rx,ry2,0,0,Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle='#fff';
-    ctx.font='bold '+(fs*0.85)+'px monospace';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText('CE',el.x,el.y);
-    ctx.font='bold '+fs+'px monospace';
-    ctx.textAlign='left';
-    ctx.textBaseline='middle';
-    const twS=ctx.measureText(el.label).width;
-    const lxS=el.x+rx+pad;
-    const lyS=el.y;
+    const r=16/planoScale;
+    const pad=4/planoScale;
+    const lw2=1.5/planoScale;
+    ctx.save();
+    // Dome exterior
+    ctx.beginPath(); ctx.ellipse(el.x,el.y,r,r*0.88,0,0,Math.PI*2);
+    ctx.fillStyle=el.color; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
+    // Anillo interior punteado
+    ctx.beginPath(); ctx.ellipse(el.x,el.y,r*0.65,r*0.55,0,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=lw2*0.7;
+    ctx.setLineDash([2/planoScale,1.5/planoScale]); ctx.stroke(); ctx.setLineDash([]);
+    // Puertos pequeños
+    [[-0.35,-0.4],[0.35,-0.4],[-0.65,0],[0.65,0]].forEach(function(p){
+      ctx.beginPath(); ctx.arc(el.x+p[0]*r,el.y+p[1]*r,r*0.18,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=lw2*0.8; ctx.stroke();
+    });
+    // Sangría abajo
+    ctx.beginPath(); ctx.ellipse(el.x,el.y+r*0.72,r*0.38,r*0.22,0,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=lw2*0.8; ctx.stroke();
+    // Etiqueta con fondo
+    ctx.font='bold '+12/planoScale+'px monospace';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    const tw=ctx.measureText(el.label).width;
+    const lx=el.x+r+pad, ly=el.y;
     ctx.fillStyle='rgba(0,0,0,0.75)';
-    ctx.fillRect(lxS-pad, lyS-fs*0.65, twS+pad*2, fs*1.3);
-    ctx.fillStyle='#ffffff';
-    ctx.fillText(el.label,lxS,lyS);
+    ctx.fillRect(lx-pad,ly-6/planoScale,tw+pad*2,12/planoScale);
+    ctx.fillStyle='#fff'; ctx.fillText(el.label,lx,ly);
+    ctx.restore();
 
   } else if(el.type==='label'){
     const fs=14/planoScale;
