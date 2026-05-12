@@ -396,6 +396,22 @@ if('caches' in window){
     </div>
 
     <div class="screen" id="screen-export">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Imagen para el informe</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">Reemplaza el plano en el PDF</div>
+        <input type="file" id="pdf-img-input" accept="image/*" style="display:none" onchange="loadPdfImage(this)">
+        <button class="tool-btn" style="width:100%;justify-content:center" onclick="document.getElementById('pdf-img-input').click()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Subir imagen para el PDF
+        </button>
+        <div id="pdf-img-preview" style="margin-top:8px;display:none">
+          <img id="pdf-img-thumb" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="">
+          <button class="tool-btn" style="width:100%;justify-content:center;margin-top:6px;color:var(--red);border-color:#3f1a1a" onclick="pdfCustomImage=null;document.getElementById('pdf-img-preview').style.display='none';toast('Imagen eliminada')">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            Quitar imagen
+          </button>
+        </div>
+      </div>
       <div class="card">
         <div class="card-title">Exportar documentación</div>
         <div class="export-grid">
@@ -440,6 +456,7 @@ const SLOTS=[
   {id:'S', cx:190,cy:278,r:0, ri:0, label:'Sangría',sang:true},
 ];
 
+let pdfCustomImage=null; // base64 de imagen subida por el usuario
 let ports=[];
 // fusionPairs: [{id, cA, fA, cB, fB}]  — cada par = una fusión entre dos fibras de dos cables distintos
 let fusionPairs=[];
@@ -1038,6 +1055,19 @@ function renderSummary(){
     `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`).join('');
 }
 
+function loadPdfImage(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    pdfCustomImage=e.target.result;
+    document.getElementById('pdf-img-thumb').src=pdfCustomImage;
+    document.getElementById('pdf-img-preview').style.display='block';
+    toast('Imagen cargada para el PDF');
+  };
+  reader.readAsDataURL(file);
+}
+
 async function exportPDF(){
   toast('Generando PDF...');
   if(!window.jspdf){
@@ -1156,78 +1186,37 @@ async function exportPDF(){
     curY+=5;
   }
 
-  // Diagrama: renderizar en canvas
+  // Diagrama: capturar SVG de pestaña Vista
   try{
-    const cw=600, ch=400;
-    const tmpC=document.createElement('canvas');
-    tmpC.width=cw; tmpC.height=ch;
-    const ctx=tmpC.getContext('2d');
-    const CX=300, CY=185;
-    const slotMap={};
-    ports.forEach(p=>slotMap[p.slot]=p);
-
-    // Fondo
-    ctx.fillStyle='#181c27'; ctx.fillRect(0,0,cw,ch);
-
-    // Dome exterior
-    ctx.beginPath(); ctx.ellipse(CX,CY,220,200,0,0,Math.PI*2);
-    ctx.fillStyle='#0d1019'; ctx.fill();
-    ctx.strokeStyle='#5a6490'; ctx.lineWidth=6; ctx.stroke();
-
-    // Anillo interior punteado
-    ctx.beginPath(); ctx.ellipse(CX,CY,160,145,0,0,Math.PI*2);
-    ctx.strokeStyle='#3a4468'; ctx.lineWidth=3;
-    ctx.setLineDash([15,12]); ctx.stroke(); ctx.setLineDash([]);
-
-    // Puertos
-    const SPDF=[
-      {id:'P1',cx:220,cy:85,r:35},{id:'P2',cx:380,cy:85,r:35},
-      {id:'P3',cx:120,cy:185,r:35},{id:'P4',cx:480,cy:185,r:35}
-    ];
-    SPDF.forEach(slot=>{
-      const p=slotMap[slot.id];
-      ctx.beginPath(); ctx.arc(slot.cx,slot.cy,slot.r,0,Math.PI*2);
-      if(p){ ctx.fillStyle=p.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
-      else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
-      ctx.fillStyle='#fff'; ctx.font=`bold ${p?14:12}px monospace`;
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(p?(p.fibers+'F'):slot.id, slot.cx, slot.cy);
-    });
-
-    // Sangría
-    const sang=slotMap['S'];
-    ctx.beginPath(); ctx.ellipse(CX,355,80,48,0,0,Math.PI*2);
-    if(sang){ ctx.fillStyle=sang.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
-    else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
-    ctx.beginPath(); ctx.arc(CX-28,355,16,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
-    ctx.beginPath(); ctx.arc(CX+28,355,16,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#fff'; ctx.font='bold 13px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(sang?(sang.fibers+'F'):'Sangría', CX, 355);
-
-    // Splitters
-    splitters.forEach((s,i)=>{
-      const sx=CX-28+(i*56), sy=130;
-      ctx.beginPath(); ctx.moveTo(sx,sy-28); ctx.lineTo(sx+28,sy); ctx.lineTo(sx,sy+28); ctx.lineTo(sx-28,sy); ctx.closePath();
-      ctx.fillStyle='#1e1440'; ctx.fill(); ctx.strokeStyle='#8b5cf6'; ctx.lineWidth=3; ctx.stroke();
-      ctx.fillStyle='#a78bfa'; ctx.font='bold 11px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(s.tipo,sx,sy-5); ctx.font='9px monospace'; ctx.fillText(s.label,sx,sy+9);
-    });
-
-    // Centro
-    ctx.beginPath(); ctx.arc(CX,CY,55,0,Math.PI*2);
-    ctx.fillStyle='#0f131c'; ctx.fill(); ctx.strokeStyle='#3b82f6'; ctx.lineWidth=4; ctx.stroke();
-    ctx.fillStyle='#e8ecf4'; ctx.font='bold 18px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(boxName(),CX,CY-9);
-    ctx.fillStyle='#7a85a3'; ctx.font='14px monospace';
-    ctx.fillText(cap()+'F',CX,CY+10);
-
-    const imgData=tmpC.toDataURL('image/jpeg',0.92);
-    const svgW=(W-PAD*2)*0.55;
-    const svgH=svgW*(ch/cw);
-    doc.addImage(imgData,'JPEG',(W-svgW)/2,165,svgW,svgH,undefined,'FAST');
-  } catch(drawErr){
-    alert('Error dibujando dome: '+drawErr.message);
-    curY+=6;
+    renderSVG();
+    const svgEl=document.querySelector('#svg-container svg');
+    if(svgEl){
+      const svgStr=new XMLSerializer().serializeToString(svgEl);
+      const svgBlob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+      const svgUrl=URL.createObjectURL(svgBlob);
+      await new Promise(function(resolve){
+        const img=new Image();
+        img.onload=function(){
+          const tmpC=document.createElement('canvas');
+          tmpC.width=800; tmpC.height=800;
+          const ctx=tmpC.getContext('2d');
+          ctx.fillStyle='#181c27';
+          ctx.fillRect(0,0,800,800);
+          ctx.drawImage(img,0,0,800,800);
+          const imgData=tmpC.toDataURL('image/jpeg',0.92);
+          const svgW=(W-PAD*2)*0.6;
+          const svgH=svgW;
+          doc.addImage(imgData,'JPEG',(W-svgW)/2,curY,svgW,svgH,undefined,'FAST');
+          curY+=svgH+6;
+          URL.revokeObjectURL(svgUrl);
+          resolve();
+        };
+        img.onerror=function(){ resolve(); };
+        img.src=svgUrl;
+      });
+    }
+  } catch(e){
+    console.error('Error capturando SVG:',e);
   }
 
   // ── PÁGINA 2 ──────────────────────────────────────────────
@@ -1305,13 +1294,34 @@ async function exportPDF(){
     curY+=4;
   }
 
-  // Plano en alta resolución
-  if(planoCanvas&&planoImgLoaded){
-    hline(curY); curY+=5;
-    setH(8,true,[59,130,246]);
-    doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
-
-    // Capturar canvas a mayor resolución
+  // Plano / imagen de referencia
+  var planoY=curY;
+  if(pdfCustomImage){
+    hline(planoY); planoY+=5;
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(0,60,160);
+    doc.text('IMAGEN DE REFERENCIA',PAD,planoY); planoY+=4;
+    const availH=H-planoY-PAD-8;
+    const availW=W-PAD*2;
+    const tmpImg=new Image();
+    await new Promise(function(res){
+      tmpImg.onload=function(){
+        const ratio=tmpImg.height/tmpImg.width;
+        let pW=availW, pH=availW*ratio;
+        if(pH>availH){pH=availH;pW=availH/ratio;}
+        doc.addImage(pdfCustomImage,'JPEG',PAD,planoY,pW,pH,undefined,'FAST');
+        planoY+=pH+4;
+        res();
+      };
+      tmpImg.src=pdfCustomImage;
+    });
+  } else if(planoCanvas&&planoImgLoaded){
+    hline(planoY); planoY+=5;
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(0,60,160);
+    doc.text('ESTADO DEL PLANO (vista actual)',PAD,planoY); planoY+=4;
     const scale=2;
     const tmpC=document.createElement('canvas');
     tmpC.width=planoCanvas.width*scale;
@@ -1320,18 +1330,19 @@ async function exportPDF(){
     tCtx.scale(scale,scale);
     tCtx.drawImage(planoCanvas,0,0);
     const planoData=tmpC.toDataURL('image/jpeg',0.92);
-
-    const availH=H-curY-PAD-8;
+    const availH=H-planoY-PAD-8;
     const availW=W-PAD*2;
     const ratio=planoCanvas.height/planoCanvas.width;
-    let pW=availW,pH=availW*ratio;
+    let pW=availW, pH=availW*ratio;
     if(pH>availH){pH=availH;pW=availH/ratio;}
-    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
-    curY+=pH+4;
+    doc.addImage(planoData,'JPEG',PAD,planoY,pW,pH,undefined,'FAST');
+    planoY+=pH+4;
   } else {
-    setH(7,false,[122,133,163]);
-    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,curY);
-    curY+=8;
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(122,133,163);
+    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,planoY);
+    planoY+=8;
   }
 
   // Footer
