@@ -1239,7 +1239,7 @@ async function exportPDF(){
     doc.setTextColor(0,0,0);
     doc.text('Sin fusiones registradas',PAD,curY); curY+=10;
   } else {
-    const cols=[PAD+2, PAD+16, PAD+58, PAD+88, PAD+108, PAD+148, PAD+170];
+    const cols=[PAD+2, PAD+16, PAD+58, PAD+82, PAD+102, PAD+142, PAD+162];
     // cols: #, CableA, BufferA, FibraA, CableB, BufferB, FibraB
 
     doc.setFillColor(20,26,48);
@@ -1280,9 +1280,19 @@ async function exportPDF(){
       doc.setTextColor(240,242,250);
       doc.setFont('helvetica','normal');
       doc.text(nameA,cols[1],curY,{maxWidth:40});
+
+      // Buffer A dot + texto
+      const [rbA,gbA,bbA]=hexToRgb(bufAColor?bufAColor.h:'#888888');
+      doc.setFillColor(rbA,gbA,bbA);
+      doc.circle(cols[2]+2,curY-0.5,1.5,'F');
       doc.setFont('helvetica','bold');
-      doc.text(bufALabel,cols[2],curY,{maxWidth:18});
-      doc.text(fibAColor.n,cols[3],curY,{maxWidth:18});
+      doc.setTextColor(240,242,250);
+      doc.text(bufALabel,cols[2]+5,curY,{maxWidth:14});
+
+      // Fibra A dot + texto
+      doc.setFillColor(rA,gA,bA);
+      doc.circle(cols[3]+2,curY-0.5,1.5,'F');
+      doc.text(fibAColor.n,cols[3]+5,curY,{maxWidth:14});
 
       // Dot fibra B como fondo del separador
       const [rB,gB,bB]=hexToRgb(fibBColor.h);
@@ -1292,9 +1302,19 @@ async function exportPDF(){
       doc.setTextColor(240,242,250);
       doc.setFont('helvetica','normal');
       doc.text(nameB,cols[4],curY,{maxWidth:38});
+
+      // Buffer B dot + texto
+      const [rbB,gbB,bbB]=hexToRgb(bufBColor?bufBColor.h:'#888888');
+      doc.setFillColor(rbB,gbB,bbB);
+      doc.circle(cols[5]+2,curY-0.5,1.5,'F');
       doc.setFont('helvetica','bold');
-      doc.text(bufBLabel,cols[5],curY,{maxWidth:18});
-      doc.text(fibBColor.n,cols[6],curY,{maxWidth:18});
+      doc.setTextColor(240,242,250);
+      doc.text(bufBLabel,cols[5]+5,curY,{maxWidth:14});
+
+      // Fibra B dot + texto
+      doc.setFillColor(rB,gB,bB);
+      doc.circle(cols[6]+2,curY-0.5,1.5,'F');
+      doc.text(fibBColor.n,cols[6]+5,curY,{maxWidth:14});
 
       curY+=6;
       if(curY>H-60){ doc.addPage(); curY=20; }
@@ -1612,7 +1632,7 @@ function drawEl(ctx,el){
     const lw2=1.2/planoScale;
     ctx.save();
     // Cuerpo rectangular principal
-    ctx.fillStyle=el.color;
+    ctx.fillStyle='#1a1a1a';
     ctx.strokeStyle='#fff';
     ctx.lineWidth=lw2;
     ctx.fillRect(el.x-nw*0.5, el.y-nh*0.5, nw, nh);
@@ -1677,7 +1697,7 @@ function drawEl(ctx,el){
     ctx.lineTo(el.x+rw, el.y-rh*0.5);
     ctx.ellipse(el.x, el.y-rh*0.5, rw, rw*0.4, 0, Math.PI, 0);
     ctx.closePath();
-    ctx.fillStyle=el.color; ctx.fill();
+    ctx.fillStyle='#1a1a1a'; ctx.fill();
     ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
     // Tapa superior (elipse)
     ctx.beginPath();
