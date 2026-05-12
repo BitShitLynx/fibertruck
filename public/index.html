@@ -1241,12 +1241,17 @@ async function exportPDF(){
     doc.setTextColor(0,0,0);
     doc.text('Sin fusiones registradas',PAD,curY); curY+=10;
   } else {
-    // Cabecera
-    doc.setFontSize(8);
+    const cols=[PAD+2, PAD+18, PAD+70, PAD+108, PAD+128, PAD+168, PAD+195];
+    // cols: #, CableA, BufferA, FibraA, CableB, BufferB, FibraB
+
+    doc.setFillColor(20,26,48);
+    doc.rect(PAD,curY-4,W-PAD*2,7,'F');
+    doc.setFontSize(6);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(0,0,0);
-    const cols=[PAD+2, PAD+42, PAD+88, PAD+120, PAD+163];
-    ['#','Cable A','Fibra A','Cable B','Fibra B'].forEach(function(h,i){ doc.text(h,cols[i],curY); });
+    doc.setTextColor(140,155,200);
+    ['#','Cable A','Buf A','Fib A','Cable B','Buf B','Fib B'].forEach(function(h,i){
+      doc.text(h,cols[i],curY);
+    });
     curY+=5;
 
     fusionPairs.forEach(function(f,idx){
@@ -1255,38 +1260,41 @@ async function exportPDF(){
       const bufBIdx=f.bufB||0, fibBIdx=f.fB||0;
       const fibAColor=FC[fibAIdx%12];
       const fibBColor=FC[fibBIdx%12];
-      const bufAColor=pA&&!pA.isSplitter ? FC[bufAIdx%12] : null;
-      const bufBColor=pB&&!pB.isSplitter ? FC[bufBIdx%12] : null;
-      const nameA=pA?(pA.isSplitter?'SPL·'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?';
-      const nameB=pB?(pB.isSplitter?'SPL·'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?';
-      const lblA=bufAColor?(bufAColor.n+' · '+fibAColor.n):fibAColor.n;
-      const lblB=bufBColor?(bufBColor.n+' · '+fibBColor.n):fibBColor.n;
+      const bufAColor=pA&&!pA.isSplitter?FC[bufAIdx%12]:null;
+      const bufBColor=pB&&!pB.isSplitter?FC[bufBIdx%12]:null;
+      const nameA=pA?(pA.isSplitter?'SPL:'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?';
+      const nameB=pB?(pB.isSplitter?'SPL:'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?';
+      const bufALabel=bufAColor?bufAColor.n:'-';
+      const bufBLabel=bufBColor?bufBColor.n:'-';
 
-      doc.setFontSize(8);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(0,0,0);
-      doc.text(String(idx+1),cols[0],curY);
+      doc.setFillColor(idx%2===0?28:38, idx%2===0?34:44, idx%2===0?52:65);
+      doc.rect(PAD,curY-3.5,W-PAD*2,6,'F');
 
-      // Dot color fibra A
+      // Dot fibra A
       const [rA,gA,bA]=hexToRgb(fibAColor.h);
       doc.setFillColor(rA,gA,bA);
-      doc.circle(cols[1]-4,curY-0.5,2,'F');
-      doc.setFont('helvetica','normal');
-      doc.setTextColor(0,0,0);
-      doc.text(nameA,cols[1],curY,{maxWidth:43});
+      doc.circle(cols[0]+3,curY-0.5,1.5,'F');
 
+      doc.setFontSize(6);
       doc.setFont('helvetica','bold');
-      doc.text(lblA,cols[2],curY,{maxWidth:28});
+      doc.setTextColor(240,242,250);
+      doc.text(String(idx+1),cols[0],curY);
+      doc.setFont('helvetica','normal');
+      doc.text(nameA,cols[1],curY,{maxWidth:50});
+      doc.setFont('helvetica','bold');
+      doc.text(bufALabel,cols[2],curY,{maxWidth:18});
+      doc.text(fibAColor.n,cols[3],curY,{maxWidth:18});
 
-      // Dot color fibra B
+      // Dot fibra B
       const [rB,gB,bB]=hexToRgb(fibBColor.h);
       doc.setFillColor(rB,gB,bB);
-      doc.circle(cols[3]-4,curY-0.5,2,'F');
-      doc.setFont('helvetica','normal');
-      doc.text(nameB,cols[3],curY,{maxWidth:40});
+      doc.circle(cols[4]+3,curY-0.5,1.5,'F');
 
+      doc.setFont('helvetica','normal');
+      doc.text(nameB,cols[4],curY,{maxWidth:38});
       doc.setFont('helvetica','bold');
-      doc.text(lblB,cols[4],curY,{maxWidth:28});
+      doc.text(bufBLabel,cols[5],curY,{maxWidth:18});
+      doc.text(fibBColor.n,cols[6],curY,{maxWidth:18});
 
       curY+=6;
       if(curY>H-60){ doc.addPage(); curY=20; }
