@@ -1119,10 +1119,6 @@ async function exportPDF(){
   var rows=buildSummaryRows();
   curY+=4;
   var tblW=W-PAD*2;
-  var cellH=10;
-  var col1W=tblW*0.45;
-  var col2W=tblW-col1W;
-  var col2=PAD+col1W;
 
   // Header DATOS DE LA CAJA
   doc.setFillColor(30,80,160);
@@ -1133,26 +1129,28 @@ async function exportPDF(){
   doc.text('DATOS DE LA CAJA',PAD+3,curY+5.5);
   curY+=8;
 
+  var cellH=8;
+  var col1W=(W-PAD*2)/2;
   rows.forEach(function(row,i){
     const k=String(row[0]);
     const v=String(row[1]);
-    const x=i%2===0?PAD:col2;
-    doc.setFillColor(i%4<2?240:250,i%4<2?242:252,i%4<2?248:255);
-    doc.rect(x,curY-1,col1W,cellH,'F');
-    doc.setDrawColor(160,170,200);
+    const cellX=i%2===0?PAD:PAD+col1W;
+    const cellY=Math.floor(i/2)*(cellH)+curY;
+    doc.setFillColor(i%4<2?238:248,i%4<2?242:250,i%4<2?252:255);
+    doc.rect(cellX,cellY-1,col1W,cellH,'F');
+    doc.setDrawColor(180,190,210);
     doc.setLineWidth(0.2);
-    doc.rect(x,curY-1,col1W,cellH,'S');
-    doc.setFontSize(8);
+    doc.rect(cellX,cellY-1,col1W,cellH,'S');
+    doc.setFontSize(7);
     doc.setFont('helvetica','normal');
     doc.setTextColor(80,90,120);
-    doc.text(k,x+2,curY+3);
-    doc.setFontSize(11);
+    doc.text(k,cellX+2,cellY+3);
+    doc.setFontSize(9);
     doc.setFont('helvetica','bold');
     doc.setTextColor(0,0,0);
-    doc.text(v,x+col1W-2,curY+5,{align:'right',maxWidth:col1W-4});
-    if(i%2!==0) curY+=cellH;
+    doc.text(String(v),cellX+col1W-2,cellY+5,{align:'right',maxWidth:col1W-4});
   });
-  curY+=5;
+  curY+=Math.ceil(rows.length/2)*cellH+4;
 
   if(splitters.length){
     // Header SPLITTERS INTERNOS
@@ -1241,12 +1239,12 @@ async function exportPDF(){
     doc.setTextColor(0,0,0);
     doc.text('Sin fusiones registradas',PAD,curY); curY+=10;
   } else {
-    const cols=[PAD+2, PAD+18, PAD+70, PAD+108, PAD+128, PAD+168, PAD+195];
+    const cols=[PAD+2, PAD+16, PAD+58, PAD+88, PAD+108, PAD+148, PAD+170];
     // cols: #, CableA, BufferA, FibraA, CableB, BufferB, FibraB
 
     doc.setFillColor(20,26,48);
     doc.rect(PAD,curY-4,W-PAD*2,7,'F');
-    doc.setFontSize(6);
+    doc.setFontSize(7);
     doc.setFont('helvetica','bold');
     doc.setTextColor(140,155,200);
     ['#','Cable A','Buf A','Fib A','Cable B','Buf B','Fib B'].forEach(function(h,i){
@@ -1275,12 +1273,12 @@ async function exportPDF(){
       doc.setFillColor(rA,gA,bA);
       doc.circle(cols[0]+3,curY-0.5,1.5,'F');
 
-      doc.setFontSize(6);
+      doc.setFontSize(7);
       doc.setFont('helvetica','bold');
       doc.setTextColor(240,242,250);
       doc.text(String(idx+1),cols[0],curY);
       doc.setFont('helvetica','normal');
-      doc.text(nameA,cols[1],curY,{maxWidth:50});
+      doc.text(nameA,cols[1],curY,{maxWidth:40});
       doc.setFont('helvetica','bold');
       doc.text(bufALabel,cols[2],curY,{maxWidth:18});
       doc.text(fibAColor.n,cols[3],curY,{maxWidth:18});
@@ -1633,34 +1631,54 @@ function drawEl(ctx,el){
     ctx.fillText(el.label,lxN,lyN);
 
   } else if(el.type==='splice'){
-    const r=16/planoScale;
+    const rw=20/planoScale;
+    const rh=28/planoScale;
     const pad=4/planoScale;
     const lw2=1.5/planoScale;
     ctx.save();
-    // Dome exterior
-    ctx.beginPath(); ctx.ellipse(el.x,el.y,r,r*0.88,0,0,Math.PI*2);
+    // Tapa superior (elipse)
+    ctx.beginPath();
+    ctx.ellipse(el.x, el.y-rh*0.6, rw, rw*0.35, 0, 0, Math.PI*2);
     ctx.fillStyle=el.color; ctx.fill();
     ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
-    // Anillo interior punteado
-    ctx.beginPath(); ctx.ellipse(el.x,el.y,r*0.65,r*0.55,0,0,Math.PI*2);
-    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=lw2*0.7;
-    ctx.setLineDash([2/planoScale,1.5/planoScale]); ctx.stroke(); ctx.setLineDash([]);
-    // Puertos pequeños
-    [[-0.35,-0.4],[0.35,-0.4],[-0.65,0],[0.65,0]].forEach(function(p){
-      ctx.beginPath(); ctx.arc(el.x+p[0]*r,el.y+p[1]*r,r*0.18,0,Math.PI*2);
-      ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=lw2*0.8; ctx.stroke();
+    // Cuerpo cilíndrico
+    ctx.beginPath();
+    ctx.moveTo(el.x-rw, el.y-rh*0.6);
+    ctx.lineTo(el.x-rw, el.y+rh*0.5);
+    ctx.ellipse(el.x, el.y+rh*0.5, rw, rw*0.35, 0, 0, Math.PI, false);
+    ctx.lineTo(el.x+rw, el.y-rh*0.6);
+    ctx.fillStyle=el.color; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
+    // Líneas horizontales del cuerpo
+    ctx.strokeStyle='rgba(255,255,255,0.4)'; ctx.lineWidth=lw2*0.6;
+    [-0.1,0.1,0.3].forEach(function(offset){
+      ctx.beginPath();
+      ctx.moveTo(el.x-rw, el.y+rh*offset);
+      ctx.lineTo(el.x+rw, el.y+rh*offset);
+      ctx.stroke();
     });
-    // Sangría abajo
-    ctx.beginPath(); ctx.ellipse(el.x,el.y+r*0.72,r*0.38,r*0.22,0,0,Math.PI*2);
-    ctx.strokeStyle='rgba(255,255,255,0.8)'; ctx.lineWidth=lw2*0.8; ctx.stroke();
-    // Etiqueta con fondo
-    ctx.font='bold '+12/planoScale+'px monospace';
+    // Base con entradas de cables
+    ctx.beginPath();
+    ctx.ellipse(el.x, el.y+rh*0.5, rw*1.2, rw*0.4, 0, 0, Math.PI*2);
+    ctx.fillStyle=el.color; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
+    // Tubos de entrada
+    [-0.5,-0.15,0.15,0.5].forEach(function(offset){
+      ctx.beginPath();
+      ctx.arc(el.x+rw*1.1*offset, el.y+rh*0.85, rw*0.15, 0, Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=lw2*0.6; ctx.stroke();
+    });
+    // Etiqueta
+    ctx.font='bold '+11/planoScale+'px monospace';
     ctx.textAlign='left'; ctx.textBaseline='middle';
     const tw=ctx.measureText(el.label).width;
-    const lx=el.x+r+pad, ly=el.y;
+    const lx=el.x+rw*1.3;
+    const ly=el.y;
     ctx.fillStyle='rgba(0,0,0,0.75)';
-    ctx.fillRect(lx-pad,ly-6/planoScale,tw+pad*2,12/planoScale);
-    ctx.fillStyle='#fff'; ctx.fillText(el.label,lx,ly);
+    ctx.fillRect(lx-pad, ly-5/planoScale, tw+pad*2, 11/planoScale);
+    ctx.fillStyle='#fff';
+    ctx.fillText(el.label, lx, ly);
     ctx.restore();
 
   } else if(el.type==='label'){
