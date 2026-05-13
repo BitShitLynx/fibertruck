@@ -419,6 +419,10 @@ if('caches' in window){
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
             Generar PDF
           </button>
+          <button class="export-btn" onclick="exportJSON()">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2a2 2 0 010 4H8"/><path d="M16 13l2 4-2 4"/><path d="M12 13v8"/></svg>
+            Exportar JSON
+          </button>
         </div>
       </div>
       <div class="card">
@@ -1064,8 +1068,92 @@ function loadPdfImage(input){
     document.getElementById('pdf-img-thumb').src=pdfCustomImage;
     document.getElementById('pdf-img-preview').style.display='block';
     toast('Imagen cargada para el PDF');
+    // Usar la imagen también como fondo del plano
+    planoImg.onload=function(){
+      planoImgLoaded=true;
+      const wrap=document.getElementById('plano-canvas-wrap');
+      if(wrap&&planoCanvas){
+        const wrapW=wrap.clientWidth||360;
+        planoScale=wrapW/planoImg.width;
+        planoCanvas.width=wrapW;
+        planoCanvas.height=Math.round(planoImg.height*planoScale);
+        planoOffX=0; planoOffY=0;
+        drawPlano();
+      }
+    };
+    planoImg.src=pdfCustomImage;
   };
   reader.readAsDataURL(file);
+}
+
+function exportJSON(){
+  const data={
+    version:'1.0',
+    exportado:new Date().toISOString(),
+    caja:{
+      nombre:boxName(),
+      ubicacion:document.getElementById('box-loc').value||'',
+      modelo:'Dome '+maxP()+'P',
+      capacidad:cap(),
+      observaciones:document.getElementById('box-obs').value||''
+    },
+    cables:ports.map(function(p){
+      return {
+        id:p.id,
+        slot:slotLabel(p.slot),
+        nombre:p.nombre||p.name,
+        tipo:p.type,
+        fibras:p.fibers,
+        bufferSize:p.bufferSize||12,
+        color:p.color
+      };
+    }),
+    splitters:splitters.map(function(s){
+      return {id:s.id,label:s.label,tipo:s.tipo};
+    }),
+    fusiones:fusionPairs.map(function(f,i){
+      const pA=cableById(f.cA),pB=cableById(f.cB);
+      const bufAColor=pA&&!pA.isSplitter?FC[(f.bufA||0)%12]:null;
+      const fibAColor=FC[(f.fA||0)%12];
+      const bufBColor=pB&&!pB.isSplitter?FC[(f.bufB||0)%12]:null;
+      const fibBColor=FC[(f.fB||0)%12];
+      return {
+        numero:i+1,
+        cableA:{
+          nombre:pA?(pA.isSplitter?'SPL:'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?',
+          buffer:bufAColor?bufAColor.n:'-',
+          fibra:fibAColor.n
+        },
+        cableB:{
+          nombre:pB?(pB.isSplitter?'SPL:'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?',
+          buffer:bufBColor?bufBColor.n:'-',
+          fibra:fibBColor.n
+        }
+      };
+    })
+  };
+  const json=JSON.stringify(data,null,2);
+  const filename=boxName()+'_fibertrack.json';
+  const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
+  if(IS_CAP){
+    try{
+      const b64=btoa(unescape(encodeURIComponent(json)));
+      const {Filesystem,Share}=window.Capacitor.Plugins;
+      Filesystem.writeFile({path:filename,data:b64,directory:'CACHE'}).then(function(r){
+        return Filesystem.getUri({path:filename,directory:'CACHE'});
+      }).then(function(r){
+        Share.share({title:filename,url:r.uri,dialogTitle:'Compartir JSON FiberTrack'});
+        toast('JSON listo para compartir');
+      });
+    } catch(e){ fallbackJSON(json,filename); }
+  } else { fallbackJSON(json,filename); }
+}
+
+function fallbackJSON(json,filename){
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(json);
+  a.download=filename; a.click();
+  toast('JSON exportado');
 }
 
 async function exportPDF(){
@@ -1294,10 +1382,7 @@ async function exportPDF(){
       doc.circle(cols[3]+2,curY-0.5,1.5,'F');
       doc.text(fibAColor.n,cols[3]+5,curY,{maxWidth:14});
 
-      // Dot fibra B como fondo del separador
       const [rB,gB,bB]=hexToRgb(fibBColor.h);
-      doc.setFillColor(rB,gB,bB);
-      doc.rect(cols[4]-3,curY-3,3,5.5,'F');
 
       doc.setTextColor(240,242,250);
       doc.setFont('helvetica','normal');
