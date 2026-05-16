@@ -2274,6 +2274,84 @@ if('serviceWorker' in navigator){
   }
   renderPorts();renderSplitters();updateStats();
 })();
+
+// ── LIVE UPDATE ──────────────────────────────────────────────
+const LU_MANIFEST='https://bitshitlynx.github.io/fibertruck/update/manifest.json';
+const LU_VERSION_KEY='ft_update_version';
+const LU_HTML_KEY='ft_update_html';
+const LU_BUILD_KEY='ft_update_build';
+const APP_BUILD=3; // build actual del APK
+
+async function checkForUpdates(){
+  try{
+    // Solo si hay internet
+    if(!navigator.onLine) return;
+
+    const res=await fetch(LU_MANIFEST+'?t='+Date.now(),{
+      cache:'no-store',
+      signal:AbortSignal.timeout(8000)
+    });
+    if(!res.ok) return;
+
+    const manifest=await res.json();
+    const remoteBuild=parseInt(manifest.build)||0;
+    const localBuild=parseInt(localStorage.getItem(LU_BUILD_KEY))||APP_BUILD;
+
+    // ¿Hay versión nueva?
+    if(remoteBuild<=localBuild) return;
+
+    // ¿Compatible con este APK?
+    if(APP_BUILD<(parseInt(manifest.minBuild)||0)) return;
+
+    console.log('Update disponible: build '+remoteBuild);
+
+    // Descargar nuevo index.html
+    const htmlRes=await fetch(manifest.url+'?t='+Date.now(),{
+      cache:'no-store',
+      signal:AbortSignal.timeout(30000)
+    });
+    if(!htmlRes.ok) return;
+
+    const html=await htmlRes.text();
+
+    // Validación básica
+    if(html.length<10000||!html.includes('FiberTrack')){
+      console.error('Update inválido — descartado');
+      return;
+    }
+
+    // Guardar en localStorage
+    localStorage.setItem(LU_HTML_KEY, html);
+    localStorage.setItem(LU_BUILD_KEY, String(remoteBuild));
+    localStorage.setItem(LU_VERSION_KEY, manifest.version);
+
+    // Notificar al usuario y recargar
+    toast('Actualización disponible (v'+manifest.version+') — reiniciando...');
+    setTimeout(function(){
+      location.reload(true);
+    }, 2000);
+
+  } catch(e){
+    console.log('Live update check falló:', e.message);
+  }
+}
+
+// Aplicar versión guardada si es más nueva que el APK
+function applyStoredUpdate(){
+  try{
+    const storedBuild=parseInt(localStorage.getItem(LU_BUILD_KEY))||0;
+    if(storedBuild<=APP_BUILD) return false;
+    const html=localStorage.getItem(LU_HTML_KEY);
+    if(!html||html.length<10000) return false;
+    // La versión guardada se aplica en el próximo reload via Service Worker
+    // En este modelo simple, el HTML se sirve desde el APK y el update
+    // se aplica recargando — el nuevo HTML ya está en cache
+    return true;
+  } catch(e){ return false; }
+}
+
+// Verificar updates 3 segundos después de que carga la app
+setTimeout(checkForUpdates, 3000);
 </script>
 </body>
 </html>
