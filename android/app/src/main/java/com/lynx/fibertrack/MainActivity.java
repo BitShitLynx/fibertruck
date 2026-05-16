@@ -15,13 +15,23 @@ public class MainActivity extends BridgeActivity {
         webView.clearCache(true);
         webView.clearHistory();
         webView.clearFormData();
+        // Desregistrar service workers viejos via JavaScript
+        webView.evaluateJavascript(
+            "if('serviceWorker' in navigator){" +
+            "  navigator.serviceWorker.getRegistrations().then(function(regs){" +
+            "    regs.forEach(function(r){ r.unregister(); });" +
+            "  });" +
+            "  caches.keys().then(function(keys){" +
+            "    keys.forEach(function(k){ caches.delete(k); });" +
+            "  });" +
+            "}",
+            null
+        );
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        WebView webView = getBridge().getWebView();
-        webView.clearCache(true);
-        webView.reload();
+        getBridge().getWebView().clearCache(true);
     }
 }
