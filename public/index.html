@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -506,11 +506,14 @@ let pdfCustomImage=null; // base64 de imagen subida por el usuario
 let planoDefaultSrc = 'plano_fibertrack.jpg'; // src original hardcodeado
 let fotos=[]; // [{id, descripcion, data}]
 let ports=[];
+let splitters=[]; // {id, tipo, label}
+let spid=1;
 // fusionPairs: [{id, cA, fA, cB, fB}]  — cada par = una fusión entre dos fibras de dos cables distintos
 let fusionPairs=[];
 let pid=1, fid=1;
 let leafletMap=null, kmzLayer=null;
 
+const esc=s=>String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
 const fc=i=>FC[i%12];
 const maxP=()=>parseInt(document.getElementById('box-model').value)||5;
 const cap=()=>parseInt(document.getElementById('splice-cap').value)||24;
@@ -580,6 +583,7 @@ function cargarCierre(cierre){
   document.getElementById('box-name').value=d.nombre||'CE-01';
   document.getElementById('box-loc').value=d.ubicacion||'';
   document.getElementById('box-model').value=d.modelo||'5';
+  document.getElementById('splice-cap').value=d.capacidad||'24';
   document.getElementById('box-obs').value=d.observaciones||'';
   ports=d.ports?JSON.parse(JSON.stringify(d.ports)):[];
   splitters=d.splitters?JSON.parse(JSON.stringify(d.splitters)):[];
@@ -733,7 +737,7 @@ function renderPorts(){
     const bc=isSang?'badge-sang':p.type==='in'?'badge-in':'badge-out';
     const bl=isSang?'SANG':p.type==='in'?'ENTRADA':'SALIDA';
     return `<div class="port-item${p.open?' open':''}" id="pi-${p.id}">
-      <div class="port-header" onclick="togglePort('${p.id}')">
+      <div class="port-header" onclick="togglePort('${esc(p.id)}')">
         <div class="port-dot" style="background:${p.color}"></div>
         <div class="port-name">${slotLabel(p.slot)} · ${p.name}</div>
         <span class="badge ${bc}">${bl}</span>
@@ -742,24 +746,24 @@ function renderPorts(){
       <div class="port-body">
         <div class="field" style="margin-top:10px">
           <label>Nombre del cable</label>
-          <input type="text" value="${p.name}" oninput="setPField('${p.id}','name',this.value);document.querySelector('#pi-${p.id} .port-name').textContent=slotLabel('${p.slot}')+' · '+this.value">
+          <input type="text" value="${p.name}" oninput="setPField('${esc(p.id)}','name',this.value);document.querySelector('#pi-${p.id} .port-name').textContent=slotLabel('${p.slot}')+' · '+this.value">
         </div>
         <div class="port-grid">
           <div class="field"><label>Puerto asignado</label>
-            <select onchange="setPField('${p.id}','slot',this.value);renderPorts()">${slotOpts}</select>
+            <select onchange="setPField('${esc(p.id)}','slot',this.value);renderPorts()">${slotOpts}</select>
           </div>
-          ${!isSang?`<div class="field"><label>Tipo</label><select onchange="setPField('${p.id}','type',this.value);renderPorts()">${tOpts}</select></div>`:'<div></div>'}
+          ${!isSang?`<div class="field"><label>Tipo</label><select onchange="setPField('${esc(p.id)}','type',this.value);renderPorts()">${tOpts}</select></div>`:'<div></div>'}
           <div class="field"><label>Fibras</label>
-            <select onchange="setPField('${p.id}','fibers',this.value)">${fOpts}</select>
+            <select onchange="setPField('${esc(p.id)}','fibers',this.value)">${fOpts}</select>
           </div>
           <div class="field"><label>Fibras por buffer</label>
-            <select onchange="setPField('${p.id}','bufferSize',parseInt(this.value))">${bOpts}</select>
+            <select onchange="setPField('${esc(p.id)}','bufferSize',parseInt(this.value))">${bOpts}</select>
           </div>
           <div class="field"><label>Color cable</label>
-            <select onchange="setPField('${p.id}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
+            <select onchange="setPField('${esc(p.id)}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
           </div>
           <div class="field" style="grid-column:1/-1">
-            <button class="del-btn" onclick="removePort('${p.id}')">
+            <button class="del-btn" onclick="removePort('${esc(p.id)}')">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
               Eliminar cable
             </button>
@@ -866,8 +870,6 @@ function renderVistaSummary(){
 }
 
 // ── SPLITTER ─────────────────────────────────────────────────
-let splitters=[]; // {id, tipo, label}
-let spid=1;
 const SPLITTER_TYPES=['1x2','1x4','1x8','1x16'];
 
 function addSplitter(){
@@ -927,7 +929,7 @@ function renderSplitters(){
     <div class="splitter-card">
       <div class="splitter-header">
         <span class="splitter-title">⊕ ${s.label} — Splitter ${s.tipo}</span>
-        <button class="fus-del" onclick="removeSplitter('${s.id}')">×</button>
+        <button class="fus-del" onclick="removeSplitter('${esc(s.id)}')">×</button>
       </div>
       <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">
         1 entrada → ${s.tipo.split('x')[1]} salidas
@@ -1305,8 +1307,8 @@ function renderFotos(){
   grid.innerHTML=fotos.map(f=>`
     <div style="position:relative;width:calc(50% - 4px)">
       <img src="${f.data}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
-      <button onclick="eliminarFoto('${f.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">×</button>
-      <div style="font-size:10px;color:var(--muted);padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.descripcion}</div>
+      <button onclick="eliminarFoto('${esc(f.id)}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">×</button>
+      <div style="font-size:10px;color:var(--muted);padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.descripcion.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
     </div>`).join('');
 }
 
@@ -1643,7 +1645,7 @@ async function exportPDF(){
   }
 
   // Plano / imagen de referencia
-  var planoY=curY;
+  let planoY=curY;
   if(pdfCustomImage){
     hline(planoY); planoY+=5;
     doc.setFontSize(9);
@@ -1702,8 +1704,9 @@ async function exportPDF(){
     } else { doc.addPage(); planoY=20; }
     const fotoW=(W-PAD*2-6)/2;
     let fx=PAD, fy=planoY;
-    for(var fi=0;fi<fotos.length;fi++){
+    for(let fi=0;fi<fotos.length;fi++){
       if(fy+fotoW*0.75>H-PAD){ doc.addPage(); fy=20; fx=PAD; }
+      if(!fotos[fi].data){ fx+=fotoW+6; if(fx>W-PAD){ fx=PAD; fy+=fotoW*0.75+14; } continue; }
       doc.addImage(fotos[fi].data,'JPEG',fx,fy,fotoW,fotoW*0.75,undefined,'FAST');
       doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
       doc.text(fotos[fi].descripcion||'Foto '+(fi+1),fx,fy+fotoW*0.75+4,{maxWidth:fotoW});
@@ -2175,7 +2178,7 @@ function resetZoom(){
 
 function clearPlano(){
   if(!planoElements.length) return;
-  if(!confirm('¿Borrar todo el dibujo?')) return;
+  let ok=false; try{ ok=confirm('¿Borrar todo el dibujo?'); }catch(e){ ok=true; } if(!ok) return;
   planoElements=[]; drawPlano();
 }
 
@@ -2209,12 +2212,12 @@ function mostrarLista(){
   } else {
     lista.innerHTML=cierres.map(c=>`
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">
-        <div onclick="abrirCierre('${c.id}')" style="flex:1;cursor:pointer">
+        <div onclick="abrirCierre('${esc(c.id)}')" style="flex:1;cursor:pointer">
           <div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">${c.datos?.nombre||'Sin nombre'}</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px">${c.datos?.ubicacion||'Sin ubicación'} · ${c.datos?.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):''}</div>
           <div style="font-size:11px;color:var(--accent2);margin-top:2px">${c.datos?.ports?.length||0} cables · ${c.datos?.fusionPairs?.length||0} fusiones</div>
         </div>
-        <button onclick="eliminarCierre('${c.id}')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>
+        <button onclick="eliminarCierre('${esc(c.id)}')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>
       </div>`).join('');
   }
   document.getElementById('screen-lista').style.display='flex';
@@ -2238,7 +2241,7 @@ function abrirCierre(id){
 }
 
 function eliminarCierre(id){
-  if(!confirm('¿Eliminar este cierre?')) return;
+  let ok=false; try{ ok=confirm('¿Eliminar este cierre?'); }catch(e){ ok=true; } if(!ok) return;
   saveCierres(getCierres().filter(c=>c.id!==id));
   mostrarLista();
 }
