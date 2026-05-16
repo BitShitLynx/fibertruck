@@ -2328,29 +2328,28 @@ async function checkForUpdates(){
     localStorage.setItem(LU_BUILD_KEY, String(remoteBuild));
     localStorage.setItem(LU_VERSION_KEY, manifest.version);
 
-    // Guardar estado actual antes de recargar
+    // Guardar estado antes de mostrar el modal
     saveEstadoActual();
 
-    // Mostrar modal de actualización (no toast que desaparece)
+    // Modal de confirmación
     const modal=document.createElement('div');
     modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px';
     modal.innerHTML='<svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:#3b82f6;fill:none;stroke-width:1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
       +'<div style="color:#fff;font-size:18px;font-weight:700;font-family:monospace;text-align:center">Actualización disponible</div>'
-      +'<div style="color:#94a3b8;font-size:13px;font-family:monospace;text-align:center">Versión '+manifest.version+' — '+manifest.changelog+'</div>'
-      +'<div style="color:#64748b;font-size:12px;font-family:monospace">Reiniciando en 3 segundos...</div>';
+      +'<div style="color:#94a3b8;font-size:14px;font-family:monospace;text-align:center;max-width:300px">v'+manifest.version+' — '+manifest.changelog+'</div>'
+      +'<div style="display:flex;gap:12px;margin-top:8px;width:100%;max-width:300px">'
+      +'<button id="btn-update-now" style="flex:1;height:48px;background:#3b82f6;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace">Actualizar</button>'
+      +'<button id="btn-update-later" style="flex:1;height:48px;background:transparent;border:1px solid #475569;border-radius:10px;color:#94a3b8;font-size:15px;cursor:pointer;font-family:monospace">Ahora no</button>'
+      +'</div>';
     document.body.appendChild(modal);
 
-    // Contar regresivamente
-    let secs=3;
-    const interval=setInterval(function(){
-      secs--;
-      const txt=modal.querySelector('div:last-child');
-      if(txt) txt.textContent='Reiniciando en '+secs+' segundo'+(secs!==1?'s':'')+'...';
-      if(secs<=0){
-        clearInterval(interval);
-        location.reload(true);
-      }
-    },1000);
+    document.getElementById('btn-update-now').onclick=function(){
+      modal.remove();
+      location.reload(true);
+    };
+    document.getElementById('btn-update-later').onclick=function(){
+      modal.remove();
+    };
 
   } catch(e){
     console.log('Live update check falló:', e.message);
