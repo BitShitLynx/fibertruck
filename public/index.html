@@ -600,31 +600,53 @@ function cargarCierre(cierre){
 function captrarGPS(){
   const btn=document.getElementById('btn-gps');
   btn.textContent='...';
-  if(!navigator.geolocation){ toast('GPS no disponible'); btn.innerHTML='GPS'; return; }
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      const lat=pos.coords.latitude.toFixed(6);
-      const lng=pos.coords.longitude.toFixed(6);
-      const id=localStorage.getItem('ft_cierre_actual');
-      if(id){
-        const cierres=getCierres();
-        const idx=cierres.findIndex(c=>c.id===id);
-        if(idx!==-1){
-          if(!cierres[idx].datos) cierres[idx].datos={};
-          cierres[idx].datos.coordenadas={lat:parseFloat(lat),lng:parseFloat(lng),precision:Math.round(pos.coords.accuracy)};
-          saveCierres(cierres);
-        }
+
+  const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
+
+  if(IS_CAP){
+    const {Geolocation}=window.Capacitor.Plugins;
+    Geolocation.requestPermissions().then(function(perm){
+      if(perm.location==='granted'||perm.coarseLocation==='granted'){
+        return Geolocation.getCurrentPosition({enableHighAccuracy:true,timeout:10000});
+      } else {
+        throw new Error('Permiso denegado');
       }
-      document.getElementById('box-loc').value=document.getElementById('box-loc').value||('GPS: '+lat+', '+lng);
+    }).then(function(pos){
+      guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+    }).catch(function(err){
+      toast('GPS: '+err.message);
       btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
-      toast('GPS: '+lat+', '+lng);
-    },
-    function(err){
-      toast('Error GPS: '+err.message);
-      btn.innerHTML='GPS';
-    },
-    {enableHighAccuracy:true,timeout:10000}
-  );
+    });
+  } else {
+    if(!navigator.geolocation){ toast('GPS no disponible'); return; }
+    navigator.geolocation.getCurrentPosition(
+      function(pos){
+        guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+      },
+      function(err){ toast('Error GPS: '+err.message); },
+      {enableHighAccuracy:true,timeout:10000}
+    );
+  }
+}
+
+function guardarCoordenadas(lat, lng, accuracy){
+  const btn=document.getElementById('btn-gps');
+  const latS=lat.toFixed(6), lngS=lng.toFixed(6);
+  const id=localStorage.getItem('ft_cierre_actual');
+  if(id){
+    const cierres=getCierres();
+    const idx=cierres.findIndex(c=>c.id===id);
+    if(idx!==-1){
+      if(!cierres[idx].datos) cierres[idx].datos={};
+      cierres[idx].datos.coordenadas={lat:parseFloat(latS),lng:parseFloat(lngS),precision:Math.round(accuracy||0)};
+      saveCierres(cierres);
+    }
+  }
+  if(!document.getElementById('box-loc').value){
+    document.getElementById('box-loc').value=latS+', '+lngS;
+  }
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#22c55e;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
+  toast('GPS: '+latS+', '+lngS+' (±'+Math.round(accuracy||0)+'m)');
 }
 
 function toast(msg){
