@@ -406,7 +406,7 @@ if('caches' in window){
         </button>
         <div id="pdf-img-preview" style="margin-top:8px;display:none">
           <img id="pdf-img-thumb" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="">
-          <button class="tool-btn" style="width:100%;justify-content:center;margin-top:6px;color:var(--red);border-color:#3f1a1a" onclick="pdfCustomImage=null;document.getElementById('pdf-img-preview').style.display='none';toast('Imagen eliminada')">
+          <button class="tool-btn" style="width:100%;justify-content:center;margin-top:6px;color:var(--red);border-color:#3f1a1a" onclick="clearPdfImage()">
             <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
             Quitar imagen
           </button>
@@ -461,6 +461,7 @@ const SLOTS=[
 ];
 
 let pdfCustomImage=null; // base64 de imagen subida por el usuario
+let planoDefaultSrc = 'plano_fibertrack.jpg'; // src original hardcodeado
 let ports=[];
 // fusionPairs: [{id, cA, fA, cB, fB}]  — cada par = una fusión entre dos fibras de dos cables distintos
 let fusionPairs=[];
@@ -1081,9 +1082,31 @@ function loadPdfImage(input){
         drawPlano();
       }
     };
+    planoDefaultSrc = planoDefaultSrc || planoImg.src;
     planoImg.src=pdfCustomImage;
   };
   reader.readAsDataURL(file);
+}
+
+function clearPdfImage(){
+  pdfCustomImage=null;
+  document.getElementById('pdf-img-preview').style.display='none';
+  // Restaurar plano original
+  planoImgLoaded=false;
+  planoImg.onload=function(){
+    planoImgLoaded=true;
+    const wrap=document.getElementById('plano-canvas-wrap');
+    if(wrap&&planoCanvas){
+      const wrapW=wrap.clientWidth||360;
+      planoScale=wrapW/planoImg.width;
+      planoCanvas.width=wrapW;
+      planoCanvas.height=Math.round(planoImg.height*planoScale);
+      planoOffX=0; planoOffY=0;
+      drawPlano();
+    }
+  };
+  planoImg.src=planoDefaultSrc+'?t='+Date.now(); // forzar recarga
+  toast('Imagen eliminada — plano original restaurado');
 }
 
 function exportJSON(){
