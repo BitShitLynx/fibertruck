@@ -593,7 +593,7 @@ function cargarCierre(cierre){
   fotos=d.fotos?JSON.parse(JSON.stringify(d.fotos)):[];
   renderFotos();
   pid=ports.length+1; fid=fusionPairs.length+1; spid=splitters.length+1;
-  renderPorts(); renderSplitters(); renderFusions(); updateStats();
+  renderPorts(); renderSplitters(); renderFusions(); updateStats(); // orden importante: ports y splitters antes de fusiones
   if(pdfCustomImage){
     document.getElementById('pdf-img-thumb').src=pdfCustomImage;
     document.getElementById('pdf-img-preview').style.display='block';
@@ -601,6 +601,25 @@ function cargarCierre(cierre){
   onConfig();
 }
 
+function guardarCoordenadas(lat, lng, accuracy){
+  const btn=document.getElementById('btn-gps');
+  const latS=lat.toFixed(6), lngS=lng.toFixed(6);
+  const id=localStorage.getItem('ft_cierre_actual');
+  if(id){
+    const cierres=getCierres();
+    const idx=cierres.findIndex(c=>c.id===id);
+    if(idx!==-1){
+      if(!cierres[idx].datos) cierres[idx].datos={};
+      cierres[idx].datos.coordenadas={lat:parseFloat(latS),lng:parseFloat(lngS),precision:Math.round(accuracy||0)};
+      saveCierres(cierres);
+    }
+  }
+  if(!document.getElementById('box-loc').value){
+    document.getElementById('box-loc').value=latS+', '+lngS;
+  }
+  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#22c55e;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
+  toast('GPS: '+latS+', '+lngS+' (±'+Math.round(accuracy||0)+'m)');
+}
 function captrarGPS(){
   const btn=document.getElementById('btn-gps');
   btn.textContent='...';
@@ -628,31 +647,12 @@ function captrarGPS(){
       function(pos){
         guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
       },
-      function(err){ toast('Error GPS: '+err.message); },
+      function(err){ toast('Error GPS ('+err.code+'): '+err.message); },
       {enableHighAccuracy:true,timeout:10000}
     );
   }
 }
 
-function guardarCoordenadas(lat, lng, accuracy){
-  const btn=document.getElementById('btn-gps');
-  const latS=lat.toFixed(6), lngS=lng.toFixed(6);
-  const id=localStorage.getItem('ft_cierre_actual');
-  if(id){
-    const cierres=getCierres();
-    const idx=cierres.findIndex(c=>c.id===id);
-    if(idx!==-1){
-      if(!cierres[idx].datos) cierres[idx].datos={};
-      cierres[idx].datos.coordenadas={lat:parseFloat(latS),lng:parseFloat(lngS),precision:Math.round(accuracy||0)};
-      saveCierres(cierres);
-    }
-  }
-  if(!document.getElementById('box-loc').value){
-    document.getElementById('box-loc').value=latS+', '+lngS;
-  }
-  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#22c55e;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
-  toast('GPS: '+latS+', '+lngS+' (±'+Math.round(accuracy||0)+'m)');
-}
 
 function toast(msg){
   const t=document.getElementById('toast');
