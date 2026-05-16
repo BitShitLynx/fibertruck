@@ -289,7 +289,16 @@ if('caches' in window){
       <div class="card">
         <div class="card-title">Identificación</div>
         <div class="field"><label>Nombre / ID</label><input type="text" id="box-name" value="CE-01" oninput="onConfig()"></div>
-        <div class="field"><label>Ubicación</label><input type="text" id="box-loc" placeholder="Ej: Poste 14 · Calle 123"></div>
+        <div class="field" style="grid-column:1/-1">
+          <label>Ubicación</label>
+          <div style="display:flex;gap:8px">
+            <input id="box-loc" type="text" placeholder="Ej: S3-421" oninput="onConfig()" style="flex:1">
+            <button onclick="captrarGPS()" id="btn-gps" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--accent);padding:0 12px;cursor:pointer;white-space:nowrap;font-size:12px">
+              <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg>
+              GPS
+            </button>
+          </div>
+        </div>
         <div class="field"><label>Observaciones</label><input type="text" id="box-obs" placeholder="Notas opcionales"></div>
       </div>
       <div class="card">
@@ -435,6 +444,16 @@ if('caches' in window){
           </button>
         </div>
       </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Fotos del cierre</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">Se incluyen en el PDF</div>
+        <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="agregarFoto(this)">
+        <button class="tool-btn" style="width:100%;justify-content:center" onclick="document.getElementById('foto-input').click()">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Agregar foto
+        </button>
+        <div id="fotos-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      </div>
       <div class="card">
         <div class="card-title">Exportar documentación</div>
         <div class="export-grid">
@@ -485,6 +504,7 @@ const SLOTS=[
 
 let pdfCustomImage=null; // base64 de imagen subida por el usuario
 let planoDefaultSrc = 'plano_fibertrack.jpg'; // src original hardcodeado
+let fotos=[]; // [{id, descripcion, data}]
 let ports=[];
 // fusionPairs: [{id, cA, fA, cB, fB}]  — cada par = una fusión entre dos fibras de dos cables distintos
 let fusionPairs=[];
@@ -548,6 +568,7 @@ function saveEstadoActual(){
     fusionPairs:JSON.parse(JSON.stringify(fusionPairs)),
     planoElements:JSON.parse(JSON.stringify(planoElements)),
     pdfCustomImage:pdfCustomImage||null,
+    fotos:JSON.parse(JSON.stringify(fotos)),
     tecnico:getTecnico(),
     fechaModificacion:new Date().toISOString()
   };
@@ -565,6 +586,8 @@ function cargarCierre(cierre){
   fusionPairs=d.fusionPairs?JSON.parse(JSON.stringify(d.fusionPairs)):[];
   planoElements=d.planoElements?JSON.parse(JSON.stringify(d.planoElements)):[];
   pdfCustomImage=d.pdfCustomImage||null;
+  fotos=d.fotos?JSON.parse(JSON.stringify(d.fotos)):[];
+  renderFotos();
   pid=ports.length+1; fid=fusionPairs.length+1; spid=splitters.length+1;
   renderPorts(); renderSplitters(); renderFusions(); updateStats();
   if(pdfCustomImage){
@@ -572,6 +595,36 @@ function cargarCierre(cierre){
     document.getElementById('pdf-img-preview').style.display='block';
   }
   onConfig();
+}
+
+function captrarGPS(){
+  const btn=document.getElementById('btn-gps');
+  btn.textContent='...';
+  if(!navigator.geolocation){ toast('GPS no disponible'); btn.innerHTML='GPS'; return; }
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      const lat=pos.coords.latitude.toFixed(6);
+      const lng=pos.coords.longitude.toFixed(6);
+      const id=localStorage.getItem('ft_cierre_actual');
+      if(id){
+        const cierres=getCierres();
+        const idx=cierres.findIndex(c=>c.id===id);
+        if(idx!==-1){
+          if(!cierres[idx].datos) cierres[idx].datos={};
+          cierres[idx].datos.coordenadas={lat:parseFloat(lat),lng:parseFloat(lng),precision:Math.round(pos.coords.accuracy)};
+          saveCierres(cierres);
+        }
+      }
+      document.getElementById('box-loc').value=document.getElementById('box-loc').value||('GPS: '+lat+', '+lng);
+      btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
+      toast('GPS: '+lat+', '+lng);
+    },
+    function(err){
+      toast('Error GPS: '+err.message);
+      btn.innerHTML='GPS';
+    },
+    {enableHighAccuracy:true,timeout:10000}
+  );
 }
 
 function toast(msg){
@@ -1209,6 +1262,38 @@ function clearPdfImage(){
   toast('Imagen eliminada — plano original restaurado');
 }
 
+function agregarFoto(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const id='f'+Date.now();
+    fotos.push({id,descripcion:file.name,data:e.target.result});
+    renderFotos();
+    saveEstadoActual();
+    toast('Foto agregada');
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+function renderFotos(){
+  const grid=document.getElementById('fotos-grid');
+  if(!fotos.length){ grid.innerHTML=''; return; }
+  grid.innerHTML=fotos.map(f=>`
+    <div style="position:relative;width:calc(50% - 4px)">
+      <img src="${f.data}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+      <button onclick="eliminarFoto('${f.id}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">×</button>
+      <div style="font-size:10px;color:var(--muted);padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.descripcion}</div>
+    </div>`).join('');
+}
+
+function eliminarFoto(id){
+  fotos=fotos.filter(f=>f.id!==id);
+  renderFotos();
+  saveEstadoActual();
+}
+
 function exportJSON(){
   const data={
     version:'1.0',
@@ -1234,6 +1319,11 @@ function exportJSON(){
     splitters:splitters.map(function(s){
       return {id:s.id,label:s.label,tipo:s.tipo};
     }),
+    fotos:fotos.map(function(f){ return {id:f.id,descripcion:f.descripcion}; }),
+    coordenadas:getCierreActual()?.datos?.coordenadas||null,
+    tecnico:getTecnico(),
+    tipoIntervencion:'documentacion',
+    fechaIntervencion:new Date().toISOString().split('T')[0],
     fusiones:fusionPairs.map(function(f,i){
       const pA=cableById(f.cA),pB=cableById(f.cB);
       const bufAColor=pA&&!pA.isSplitter?FC[(f.bufA||0)%12]:null;
@@ -1579,6 +1669,25 @@ async function exportPDF(){
     doc.setTextColor(122,133,163);
     doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,planoY);
     planoY+=8;
+  }
+
+  if(fotos.length){
+    if(planoY+20<H){
+      doc.setFontSize(9);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(0,60,160);
+      doc.text('REGISTRO FOTOGRÁFICO',PAD,planoY); planoY+=6;
+    } else { doc.addPage(); planoY=20; }
+    const fotoW=(W-PAD*2-6)/2;
+    let fx=PAD, fy=planoY;
+    for(var fi=0;fi<fotos.length;fi++){
+      if(fy+fotoW*0.75>H-PAD){ doc.addPage(); fy=20; fx=PAD; }
+      doc.addImage(fotos[fi].data,'JPEG',fx,fy,fotoW,fotoW*0.75,undefined,'FAST');
+      doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
+      doc.text(fotos[fi].descripcion||'Foto '+(fi+1),fx,fy+fotoW*0.75+4,{maxWidth:fotoW});
+      fx+=fotoW+6;
+      if(fx>W-PAD){ fx=PAD; fy+=fotoW*0.75+14; }
+    }
   }
 
   // Footer
