@@ -2336,7 +2336,7 @@ async function checkForUpdates(){
     modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px';
     modal.innerHTML='<svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:#3b82f6;fill:none;stroke-width:1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
       +'<div style="color:#fff;font-size:18px;font-weight:700;font-family:monospace;text-align:center">Actualización disponible</div>'
-      +'<div style="color:#94a3b8;font-size:14px;font-family:monospace;text-align:center;max-width:300px">v'+manifest.version+' — '+manifest.changelog+'</div>'
+      +'<div style="color:#94a3b8;font-size:14px;font-family:monospace;text-align:center;max-width:300px">Versión '+manifest.version+' · '+manifest.fecha+'</div>'
       +'<div style="display:flex;gap:12px;margin-top:8px;width:100%;max-width:300px">'
       +'<button id="btn-update-now" style="flex:1;height:48px;background:#3b82f6;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace">Actualizar</button>'
       +'<button id="btn-update-later" style="flex:1;height:48px;background:transparent;border:1px solid #475569;border-radius:10px;color:#94a3b8;font-size:15px;cursor:pointer;font-family:monospace">Ahora no</button>'
