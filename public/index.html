@@ -516,7 +516,7 @@ let leafletMap=null, kmzLayer=null;
 const esc=s=>String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
 const fc=i=>FC[i%12];
 const maxP=()=>parseInt(document.getElementById('box-model').value)||5;
-const cap=()=>parseInt(document.getElementById('splice-cap').value)||24;
+const cap=()=>parseInt(document.getElementById('splice-cap')?.value)||24;
 const boxName=()=>document.getElementById('box-name').value||'CE-01';
 const slotLabel=id=>SLOTS.find(s=>s.id===id)?.label||id;
 const portById=id=>ports.find(p=>p.id===id);
@@ -608,7 +608,8 @@ function captrarGPS(){
   const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
 
   if(IS_CAP){
-    const {Geolocation}=window.Capacitor.Plugins;
+    const Geolocation=window.Capacitor?.Plugins?.Geolocation;
+    if(!Geolocation){ toast('Plugin GPS no disponible'); btn.innerHTML='GPS'; return; }
     Geolocation.requestPermissions().then(function(perm){
       if(perm.location==='granted'||perm.coarseLocation==='granted'){
         return Geolocation.getCurrentPosition({enableHighAccuracy:true,timeout:10000});
@@ -1645,14 +1646,13 @@ async function exportPDF(){
   }
 
   // Plano / imagen de referencia
-  let planoY=curY;
   if(pdfCustomImage){
-    hline(planoY); planoY+=5;
+    hline(curY); curY+=5;
     doc.setFontSize(9);
     doc.setFont('helvetica','bold');
     doc.setTextColor(0,60,160);
-    doc.text('IMAGEN DE REFERENCIA',PAD,planoY); planoY+=4;
-    const availH=H-planoY-PAD-8;
+    doc.text('IMAGEN DE REFERENCIA',PAD,curY); curY+=4;
+    const availH=H-curY-PAD-8;
     const availW=W-PAD*2;
     const tmpImg=new Image();
     await new Promise(function(res){
@@ -1660,18 +1660,18 @@ async function exportPDF(){
         const ratio=tmpImg.height/tmpImg.width;
         let pW=availW, pH=availW*ratio;
         if(pH>availH){pH=availH;pW=availH/ratio;}
-        doc.addImage(pdfCustomImage,'JPEG',PAD,planoY,pW,pH,undefined,'FAST');
-        planoY+=pH+4;
+        doc.addImage(pdfCustomImage,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
+        curY+=pH+4;
         res();
       };
       tmpImg.src=pdfCustomImage;
     });
-  } else if(planoCanvas&&planoImgLoaded){
-    hline(planoY); planoY+=5;
+  } else if(planoCanvas){
+    hline(curY); curY+=5;
     doc.setFontSize(9);
     doc.setFont('helvetica','bold');
     doc.setTextColor(0,60,160);
-    doc.text('ESTADO DEL PLANO (vista actual)',PAD,planoY); planoY+=4;
+    doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
     const scale=2;
     const tmpC=document.createElement('canvas');
     tmpC.width=planoCanvas.width*scale;
@@ -1680,30 +1680,30 @@ async function exportPDF(){
     tCtx.scale(scale,scale);
     tCtx.drawImage(planoCanvas,0,0);
     const planoData=tmpC.toDataURL('image/jpeg',0.92);
-    const availH=H-planoY-PAD-8;
+    const availH=H-curY-PAD-8;
     const availW=W-PAD*2;
     const ratio=planoCanvas.height/planoCanvas.width;
     let pW=availW, pH=availW*ratio;
     if(pH>availH){pH=availH;pW=availH/ratio;}
-    doc.addImage(planoData,'JPEG',PAD,planoY,pW,pH,undefined,'FAST');
-    planoY+=pH+4;
+    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
+    curY+=pH+4;
   } else {
     doc.setFontSize(7);
     doc.setFont('helvetica','normal');
     doc.setTextColor(122,133,163);
-    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,planoY);
-    planoY+=8;
+    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,curY);
+    curY+=8;
   }
 
   if(fotos.length){
-    if(planoY+20<H){
+    if(curY+20<H){
       doc.setFontSize(9);
       doc.setFont('helvetica','bold');
       doc.setTextColor(0,60,160);
-      doc.text('REGISTRO FOTOGRÁFICO',PAD,planoY); planoY+=6;
-    } else { doc.addPage(); planoY=20; }
+      doc.text('REGISTRO FOTOGRÁFICO',PAD,curY); curY+=6;
+    } else { doc.addPage(); curY=20; }
     const fotoW=(W-PAD*2-6)/2;
-    let fx=PAD, fy=planoY;
+    let fx=PAD, fy=curY;
     for(let fi=0;fi<fotos.length;fi++){
       if(fy+fotoW*0.75>H-PAD){ doc.addPage(); fy=20; fx=PAD; }
       if(!fotos[fi].data){ fx+=fotoW+6; if(fx>W-PAD){ fx=PAD; fy+=fotoW*0.75+14; } continue; }
@@ -2196,7 +2196,12 @@ function guardarTecnico(){
   const nombre=document.getElementById('tec-nombre').value.trim();
   const legajo=document.getElementById('tec-legajo').value.trim();
   if(!nombre){ toast('Ingresá tu nombre'); return; }
-  saveTecnico({nombre,legajo,desde:new Date().toISOString()});
+  try{
+    saveTecnico({nombre,legajo,desde:new Date().toISOString()});
+  } catch(e){
+    toast('Error al guardar técnico: '+e.message);
+    return;
+  }
   document.getElementById('screen-tecnico').style.display='none';
   mostrarLista();
 }
@@ -2213,8 +2218,8 @@ function mostrarLista(){
     lista.innerHTML=cierres.map(c=>`
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">
         <div onclick="abrirCierre('${esc(c.id)}')" style="flex:1;cursor:pointer">
-          <div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">${c.datos?.nombre||'Sin nombre'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${c.datos?.ubicacion||'Sin ubicación'} · ${c.datos?.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):''}</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">${esc(c.datos?.nombre||'Sin nombre')}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(c.datos?.ubicacion||'Sin ubicación')} · ${c.datos?.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):''}</div>
           <div style="font-size:11px;color:var(--accent2);margin-top:2px">${c.datos?.ports?.length||0} cables · ${c.datos?.fusionPairs?.length||0} fusiones</div>
         </div>
         <button onclick="eliminarCierre('${esc(c.id)}')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>
