@@ -1,0 +1,9 @@
+{
+  "version": "1.4",
+  "build": 4,
+  "fecha": "2026-05-16",
+  "changelog": "Live update implementado, GPS nativo, persistencia múltiples cierres, fotos en PDF",
+  "url": "https://fibertrack-update.vercel.app/update/index.html",
+  "minBuild": 3,
+  "checksum_length": 0
+}
