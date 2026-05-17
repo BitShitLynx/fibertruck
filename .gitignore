@@ -1,5 +1,6 @@
 node_modules/
 apk-check/
+apk-release-check/
 android/app/build/
 android/.idea/
 android/build/
