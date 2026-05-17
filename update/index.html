@@ -704,10 +704,16 @@ function toast(msg){
 
 function onConfig(){
   document.getElementById('top-name').textContent=boxName();
-  document.getElementById('top-sub').textContent=`Dome ${maxP()}P · ${cap()}F`;
-  updateStats();
   const cierreActual=getCierreActual();
   const esNap=cierreActual?.datos?.tipo==='nap';
+  if(esNap){
+    const puertos=document.getElementById('nap-puertos')?.value||'8';
+    const conector=document.getElementById('nap-conector')?.value||'SC/APC';
+    document.getElementById('top-sub').innerHTML='NAP '+puertos+'P \xb7 '+conector+' <span style="opacity:.45;font-size:9px">v1.3</span>';
+  } else {
+    document.getElementById('top-sub').innerHTML='Dome '+maxP()+'P \xb7 '+cap()+'F <span style="opacity:.45;font-size:9px">v1.3</span>';
+  }
+  updateStats();
   const napFields=document.getElementById('nap-fields');
   if(napFields) napFields.style.display=esNap?'block':'none';
 }
@@ -1366,8 +1372,9 @@ function loadPdfImage(input){
     // Usar la imagen también como fondo del plano
     planoImg.onload=function(){
       planoImgLoaded=true;
+      if(!planoCanvas) return;
       const wrap=document.getElementById('plano-canvas-wrap');
-      if(wrap&&planoCanvas){
+      if(wrap){
         const wrapW=wrap.clientWidth||360;
         planoScale=wrapW/planoImg.width;
         planoCanvas.width=wrapW;
@@ -1436,16 +1443,25 @@ function eliminarFoto(id){
 }
 
 function exportJSON(){
+  const _jsonTipo=getCierreActual()?.datos?.tipo||'cierre';
+  const _esNapJson=_jsonTipo==='nap';
   const data={
     version:'1.0',
     exportado:new Date().toISOString(),
-    caja:{
+    tipo:_jsonTipo,
+    caja:Object.assign({
       nombre:boxName(),
       ubicacion:document.getElementById('box-loc').value||'',
-      modelo:'Dome '+maxP()+'P',
-      capacidad:cap(),
       observaciones:document.getElementById('box-obs').value||''
-    },
+    }, _esNapJson ? {
+      napPuertos:document.getElementById('nap-puertos')?.value||'8',
+      napConector:document.getElementById('nap-conector')?.value||'SC/APC',
+      napPon:document.getElementById('nap-pon')?.value||'',
+      napPotencia:document.getElementById('nap-potencia')?.value||''
+    } : {
+      modelo:'Dome '+maxP()+'P',
+      capacidad:cap()
+    }),
     cables:ports.map(function(p){
       return {
         id:p.id,
@@ -1891,7 +1907,8 @@ async function exportPDF(){
     for(let fi=0;fi<fotos.length;fi++){
       if(fy+fotoW*0.75>H-PAD){ doc.addPage(); fy=20; fx=PAD; }
       if(!fotos[fi].data){ fx+=fotoW+6; if(fx>W-PAD){ fx=PAD; fy+=fotoW*0.75+14; } continue; }
-      doc.addImage(fotos[fi].data,'JPEG',fx,fy,fotoW,fotoW*0.75,undefined,'FAST');
+      const _imgType=fotos[fi].data.startsWith('data:image/png')?'PNG':'JPEG';
+      doc.addImage(fotos[fi].data,_imgType,fx,fy,fotoW,fotoW*0.75,undefined,'FAST');
       doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
       doc.text(fotos[fi].descripcion||'Foto '+(fi+1),fx,fy+fotoW*0.75+4,{maxWidth:fotoW});
       fx+=fotoW+6;
@@ -2396,8 +2413,10 @@ function exportPlanoSVG(){
   const w=planoCanvas.width,h=planoCanvas.height;
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><image href="${dataUrl}" width="${w}" height="${h}"/></svg>`;
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  const blobUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  a.href=blobUrl;
   a.download='plano_fibertrack.svg'; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 1000);
   toast('Plano exportado');
 }
 
@@ -2552,6 +2571,8 @@ function volverALista(){
   ports=[]; splitters=[]; fusionPairs=[]; planoElements=[]; fotos=[];
   planoPolyPoints=[]; planoHistory=[];
   pdfCustomImage=null;
+  planoCanvas=null; planoCtx=null; planoImgLoaded=false;
+  planoOffX=0; planoOffY=0;
   pid=1; fid=1; spid=1;
   const tabFusiones=document.getElementById('tab-fusiones');
   const tabVista=document.getElementById('tab-vista');
@@ -2569,6 +2590,8 @@ if('serviceWorker' in navigator){
 }
 // Inicialización con persistencia
 (function init(){
+  // Aplicar live update guardado si es más nuevo que el APK instalado
+  if(applyStoredUpdate()) return;
   // Detectar si acabamos de aplicar un update
   const pendingUpdateVersion=localStorage.getItem('ft_pending_update_version');
   if(pendingUpdateVersion){
@@ -2615,7 +2638,7 @@ const LU_MANIFEST='https://bitshitlynx.github.io/fibertruck/update/manifest.json
 const LU_VERSION_KEY='ft_update_version';
 const LU_HTML_KEY='ft_update_html';
 const LU_BUILD_KEY='ft_update_build';
-const APP_BUILD=9; // build actual del APK, debe coincidir con manifest.json
+const APP_BUILD=20; // build actual del APK, debe coincidir con manifest.json
 
 async function checkForUpdates(){
   try{
@@ -2701,9 +2724,10 @@ function applyStoredUpdate(){
     if(storedBuild<=APP_BUILD) return false;
     const html=localStorage.getItem(LU_HTML_KEY);
     if(!html||html.length<10000) return false;
-    // La versión guardada se aplica en el próximo reload via Service Worker
-    // En este modelo simple, el HTML se sirve desde el APK y el update
-    // se aplica recargando — el nuevo HTML ya está en cache
+    // Reemplazar el documento actual con el HTML actualizado
+    document.open();
+    document.write(html);
+    document.close();
     return true;
   } catch(e){ return false; }
 }
