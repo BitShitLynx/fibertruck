@@ -2371,8 +2371,12 @@ function abrirCierre(id){
     document.getElementById('tab-fusiones').style.display='';
     document.getElementById('tab-vista').style.display='';
   }
-  document.getElementById('screen-lista').style.display='none';
-  document.getElementById('app').style.display='flex';
+  const screenLista=document.getElementById('screen-lista');
+  const screenTecnico=document.getElementById('screen-tecnico');
+  if(screenLista) screenLista.style.display='none';
+  if(screenTecnico) screenTecnico.style.display='none';
+  const appEl=document.getElementById('app');
+  if(appEl){ appEl.style.display='flex'; appEl.style.flexDirection='column'; appEl.style.height='100vh'; }
   goTab('config');
 }
 
@@ -2419,7 +2423,7 @@ const LU_MANIFEST='https://bitshitlynx.github.io/fibertruck/update/manifest.json
 const LU_VERSION_KEY='ft_update_version';
 const LU_HTML_KEY='ft_update_html';
 const LU_BUILD_KEY='ft_update_build';
-const APP_BUILD=3; // build actual del APK
+const APP_BUILD=9; // build actual del APK, debe coincidir con manifest.json
 
 async function checkForUpdates(){
   try{
