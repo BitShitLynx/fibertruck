@@ -186,7 +186,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .fus-line.connected{background:var(--accent)}
 
 /* Plano */
-#plano-canvas-wrap{position:relative;overflow:auto;background:#111;border-radius:10px;border:1px solid var(--border);touch-action:none;height:420px}
+#plano-canvas-wrap{position:relative;overflow:auto;background:#111;border-radius:10px;border:1px solid var(--border);touch-action:none;height:auto}
 #plano-canvas{display:block;cursor:crosshair}
 .tool-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .tool-btn{height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
@@ -411,8 +411,26 @@ if('caches' in window){
           <div class="color-swatch" style="background:#ef4444" onclick="setColor('#ef4444',this)" title="Rojo"></div>
           <div class="color-swatch" style="background:#ffffff" onclick="setColor('#ffffff',this)" title="Blanco"></div>
         </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="tool-btn" style="flex:1;justify-content:center" onclick="document.getElementById('plano-img-input').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Subir plano
+          </button>
+          <button class="tool-btn" id="btn-undo-plano" onclick="undoPlano()" style="justify-content:center">
+            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            Deshacer
+          </button>
+          <input type="file" id="plano-img-input" accept="image/*" style="display:none" onchange="loadPdfImage(this)">
+        </div>
         <div id="plano-canvas-wrap">
           <canvas id="plano-canvas"></canvas>
+        </div>
+        <div id="pdf-img-preview" style="margin-top:8px;display:none">
+          <img id="pdf-img-thumb" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="">
+          <button class="tool-btn" style="width:100%;justify-content:center;margin-top:6px;color:var(--red);border-color:#3f1a1a" onclick="clearPdfImage()">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            Quitar imagen
+          </button>
         </div>
       </div>
       <div class="card" style="display:flex;gap:8px;flex-wrap:wrap">
@@ -428,22 +446,6 @@ if('caches' in window){
     </div>
 
     <div class="screen" id="screen-export">
-      <div class="card" style="margin-bottom:0">
-        <div class="card-title">Imagen para el informe</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">Reemplaza el plano en el PDF</div>
-        <input type="file" id="pdf-img-input" accept="image/*" style="display:none" onchange="loadPdfImage(this)">
-        <button class="tool-btn" style="width:100%;justify-content:center" onclick="document.getElementById('pdf-img-input').click()">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Subir imagen para el PDF
-        </button>
-        <div id="pdf-img-preview" style="margin-top:8px;display:none">
-          <img id="pdf-img-thumb" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="">
-          <button class="tool-btn" style="width:100%;justify-content:center;margin-top:6px;color:var(--red);border-color:#3f1a1a" onclick="clearPdfImage()">
-            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-            Quitar imagen
-          </button>
-        </div>
-      </div>
       <div class="card" style="margin-bottom:0">
         <div class="card-title">Fotos del cierre</div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">Se incluyen en el PDF</div>
@@ -1758,6 +1760,7 @@ let planoScale=1;
 let planoTool='select';
 let planoColor='#3b82f6';
 let planoElements=[];
+let planoHistory=[]; // stack de estados anteriores
 let planoDrawing=false;
 let planoCurrentLine=null;
 let planoPinch={active:false,lastDist:0};
@@ -1843,6 +1846,21 @@ function screenToImg(sx, sy){
 let planoPolyPoints=[];
 let planoLastTap=0;
 
+function savePlanoHistory(){
+  planoHistory.push(JSON.parse(JSON.stringify(planoElements)));
+  if(planoHistory.length>30) planoHistory.shift(); // máximo 30 pasos
+}
+
+function undoPlano(){
+  if(!planoHistory.length){ toast('Nada para deshacer'); return; }
+  planoElements=planoHistory.pop();
+  planoCurrentLine=null;
+  planoPolyPoints=[];
+  updateFinishBtn();
+  drawPlano();
+  toast('Deshecho');
+}
+
 function planoDown(sx, sy){
   planoDrawing=true;
   planoPanStart={x:sx, y:sy};
@@ -1857,6 +1875,7 @@ function planoDown(sx, sy){
     const doubleTap=(planoPolyPoints.length>=2 && now-planoLastTap<400);
     if(doubleTap){
       if(planoPolyPoints.length>=4){
+        savePlanoHistory();
         planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
         toast('Traza guardada');
       }
@@ -1878,6 +1897,7 @@ function planoDown(sx, sy){
 
   if(planoTool==='nap'){
     showLabelInput(sx,sy,'NAP-01',function(label){
+      savePlanoHistory();
       planoElements.push({type:'nap',x:pos.x,y:pos.y,color:planoColor,label:label});
       drawPlano();
     });
@@ -1887,6 +1907,7 @@ function planoDown(sx, sy){
 
   if(planoTool==='splice'){
     showLabelInput(sx,sy,'CE-01',function(label){
+      savePlanoHistory();
       planoElements.push({type:'splice',x:pos.x,y:pos.y,color:planoColor,label:label});
       drawPlano();
     });
@@ -1896,7 +1917,7 @@ function planoDown(sx, sy){
 
   if(planoTool==='label'){
     showLabelInput(sx,sy,'Texto...',function(label){
-      if(label) planoElements.push({type:'label',x:pos.x,y:pos.y,color:planoColor,label:label});
+      if(label){ savePlanoHistory(); planoElements.push({type:'label',x:pos.x,y:pos.y,color:planoColor,label:label}); }
       drawPlano();
     });
     planoDrawing=false;
@@ -1905,6 +1926,7 @@ function planoDown(sx, sy){
 
   if(planoTool==='erase'){
     const thr=20/planoScale;
+    savePlanoHistory();
     planoElements=planoElements.filter(function(el){
       if(el.type==='line'){
         for(var i=0;i<el.points.length-2;i+=2){
@@ -2120,6 +2142,7 @@ function showLabelInput(sx, sy, placeholder, cb){
 
 function finishLine(){
   if(planoPolyPoints.length>=4){
+    savePlanoHistory();
     planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
     toast('Traza guardada — '+((planoPolyPoints.length/2)-1)+' puntos');
   }

@@ -1,8 +1,8 @@
-﻿{
+{
   "version": "1.4",
-  "build": 4,
+  "build": 5,
   "fecha": "2026-05-16",
-  "changelog": "Live update implementado, GPS nativo, persistencia múltiples cierres, fotos en PDF",
+  "changelog": "Deshacer en plano, subir plano desde pestaña plano, fix espacio negro",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
