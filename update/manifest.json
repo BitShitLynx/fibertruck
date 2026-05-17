@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 9,
+  "build": 10,
   "fecha": "2026-05-17",
-  "changelog": "Fix modal tipo, notificación de update instalado",
+  "changelog": "fix: pantalla negra al volver a lista de cierres",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
