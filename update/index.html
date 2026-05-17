@@ -1266,15 +1266,32 @@ function clearMap(){
 
 // ── EXPORT ───────────────────────────────────────────────────
 function buildSummaryRows(){
-  const name=boxName(),loc=document.getElementById('box-loc').value,obs=document.getElementById('box-obs').value;
-  const mp=maxP(),cp=cap();
-  const inP=ports.filter(p=>p.type==='in'),outP=ports.filter(p=>p.type==='out');
-  const totalFib=ports.reduce((a,p)=>a+p.fibers,0);
-  return[
-    ['Caja',name],loc&&['Ubicación',loc],
-    ['Modelo',`Dome ${mp} puertos`],['Capacidad',`${cp}F`],
-    ['Cables entrada',inP.length],['Cables salida',outP.length],
-    ['Fibras totales',`${totalFib}F`],['Fusiones',`${fusionPairs.length}/${cp}`],
+  const cierreActual=getCierreActual();
+  const esNap=cierreActual?.datos?.tipo==='nap';
+  const name=boxName();
+  const loc=document.getElementById('box-loc').value;
+  const obs=document.getElementById('box-obs').value;
+  if(esNap){
+    const puertos=document.getElementById('nap-puertos')?.value||'8';
+    const conector=document.getElementById('nap-conector')?.value||'SC/APC';
+    const pon=document.getElementById('nap-pon')?.value||'-';
+    const potencia=document.getElementById('nap-potencia')?.value||'-';
+    return [
+      ['NAP',name], loc&&['Ubicación',loc],
+      ['Puertos',puertos+'P'], ['Conector',conector],
+      ['PON OLT',pon], ['Potencia',potencia+' dBm'],
+      obs&&['Observaciones',obs],
+    ].filter(Boolean);
+  }
+  const mp=maxP(), cp=cap();
+  const inP=ports.filter(function(p){return p.type==='in';});
+  const outP=ports.filter(function(p){return p.type==='out';});
+  const totalFib=ports.reduce(function(a,p){return a+p.fibers;},0);
+  return [
+    ['Caja',name], loc&&['Ubicación',loc],
+    ['Modelo','Dome '+mp+' puertos'], ['Capacidad',cp+'F'],
+    ['Cables entrada',inP.length], ['Cables salida',outP.length],
+    ['Fibras totales',totalFib+'F'], ['Fusiones',fusionPairs.length+'/'+cp],
     obs&&['Observaciones',obs],
   ].filter(Boolean);
 }
@@ -1486,107 +1503,110 @@ async function exportPDF(){
   doc.text(new Date().toLocaleString('es-AR'),W-PAD,13,{align:'right'});
 
   let curY=24;
+  const cierreActual=getCierreActual();
+  const esNap=cierreActual?.datos?.tipo==='nap';
 
-  // Resumen datos de la caja
-  var rows=buildSummaryRows();
-  curY+=4;
-  var tblW=W-PAD*2;
-
-  // Header DATOS DE LA CAJA
-  doc.setFillColor(30,80,160);
-  doc.rect(PAD,curY,tblW,8,'F');
-  doc.setFontSize(12);
-  doc.setFont('helvetica','bold');
-  doc.setTextColor(255,255,255);
-  doc.text('DATOS DE LA CAJA',PAD+3,curY+5.5);
-  curY+=8;
-
-  var cellH=8;
-  var col1W=(W-PAD*2)/2;
-  rows.forEach(function(row,i){
-    const k=String(row[0]);
-    const v=String(row[1]);
-    const cellX=i%2===0?PAD:PAD+col1W;
-    const cellY=Math.floor(i/2)*(cellH)+curY;
-    doc.setFillColor(i%4<2?238:248,i%4<2?242:250,i%4<2?252:255);
-    doc.rect(cellX,cellY-1,col1W,cellH,'F');
-    doc.setDrawColor(180,190,210);
-    doc.setLineWidth(0.2);
-    doc.rect(cellX,cellY-1,col1W,cellH,'S');
-    doc.setFontSize(7);
-    doc.setFont('helvetica','normal');
-    doc.setTextColor(80,90,120);
-    doc.text(k,cellX+2,cellY+3);
-    doc.setFontSize(9);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(0,0,0);
-    doc.text(String(v),cellX+col1W-2,cellY+5,{align:'right',maxWidth:col1W-4});
-  });
-  curY+=Math.ceil(rows.length/2)*cellH+4;
-
-  if(splitters.length){
-    // Header SPLITTERS INTERNOS
-    doc.setFillColor(30,80,160);
-    doc.rect(PAD,curY,tblW,8,'F');
-    doc.setFontSize(10);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(255,255,255);
-    doc.text('SPLITTERS INTERNOS',PAD+3,curY+5.5);
-    curY+=8;
-
-    splitters.forEach(function(s,i){
-      if(i%2===0){
-        doc.setFillColor(235,238,248);
-      } else {
-        doc.setFillColor(245,248,252);
+  if(esNap){
+    try{
+      const napPuertos=parseInt(cierreActual.datos.napPuertos)||8;
+      const napConector=cierreActual.datos.napConector||'SC/APC';
+      const napPon=cierreActual.datos.napPon||'-';
+      const napPotencia=cierreActual.datos.napPotencia||'-';
+      const cw=760, ch=640;
+      const tmpC=document.createElement('canvas');
+      tmpC.width=cw; tmpC.height=ch;
+      const ctx=tmpC.getContext('2d');
+      ctx.fillStyle='#181c27'; ctx.fillRect(0,0,cw,ch);
+      const bx=120, by=80, bw=520, bh=400;
+      // Cuerpo principal
+      ctx.fillStyle='#1a1f2e'; ctx.strokeStyle='#475569'; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,16); ctx.fill(); ctx.stroke();
+      // Tapa superior
+      ctx.fillStyle='#0f1520'; ctx.strokeStyle='#334155'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(bx,by,bw,80,16); ctx.fill(); ctx.stroke();
+      // Estrias ventilacion
+      ctx.strokeStyle='#1e293b'; ctx.lineWidth=3;
+      for(let v=0;v<11;v++){
+        ctx.beginPath();
+        ctx.moveTo(bx+60+v*38,by+16); ctx.lineTo(bx+60+v*38,by+64); ctx.stroke();
       }
-      doc.rect(PAD,curY,tblW,cellH,'F');
-      doc.setDrawColor(180,190,210);
-      doc.setLineWidth(0.2);
-      doc.rect(PAD,curY,tblW,cellH,'S');
-      doc.setFontSize(8);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(80,90,110);
-      doc.text(String(s.label),PAD+2,curY+cellH-2);
-      doc.setFont('helvetica','normal');
-      doc.setTextColor(0,0,0);
-      doc.text('Splitter '+String(s.tipo),PAD+col1W+2,curY+cellH-2);
-      curY+=cellH;
-    });
-    curY+=5;
-  }
-
-  // Diagrama: capturar SVG de pestaña Vista
-  try{
-    renderSVG();
-    const svgEl=document.querySelector('#svg-container svg');
-    if(svgEl){
-      const svgStr=new XMLSerializer().serializeToString(svgEl);
-      const svgBlob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
-      const svgUrl=URL.createObjectURL(svgBlob);
-      await new Promise(function(resolve){
-        const img=new Image();
-        img.onload=function(){
-          const tmpC=document.createElement('canvas');
-          tmpC.width=800; tmpC.height=800;
-          const ctx=tmpC.getContext('2d');
-          ctx.fillStyle='#181c27';
-          ctx.fillRect(0,0,800,800);
-          ctx.drawImage(img,0,0,800,800);
-          const imgData=tmpC.toDataURL('image/jpeg',0.92);
-          const svgW=(W-PAD*2)*0.6;
-          const svgH=svgW;
-          doc.addImage(imgData,'JPEG',(W-svgW)/2,curY,svgW,svgH,undefined,'FAST');
-          curY+=svgH+6;
-          URL.revokeObjectURL(svgUrl);
-          resolve();
-        };
-        img.onerror=function(){ resolve(); };
-        img.src=svgUrl;
+      // Label tapa
+      ctx.fillStyle='#94a3b8'; ctx.font='bold 24px monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('NAP  ·  '+napConector, bx+bw/2, by+40);
+      // Bisagras laterales
+      ctx.fillStyle='#334155'; ctx.strokeStyle='#475569'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(bx-28,by+100,28,80,6); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.roundRect(bx-28,by+240,28,80,6); ctx.fill(); ctx.stroke();
+      // Puertos en grilla
+      const cols=napPuertos<=8?4:napPuertos<=12?4:8;
+      const rows=Math.ceil(napPuertos/cols);
+      const pSize=80;
+      const pGap=20;
+      const gridW=cols*(pSize+pGap)-pGap;
+      const gridH=rows*(pSize+pGap)-pGap;
+      const gx=bx+(bw-gridW)/2;
+      const gy=by+100+(bh-80-gridH)/2;
+      for(let i=0;i<napPuertos;i++){
+        const col=i%cols;
+        const row=Math.floor(i/cols);
+        const px=gx+col*(pSize+pGap);
+        const py=gy+row*(pSize+pGap);
+        ctx.fillStyle='#0369a1'; ctx.strokeStyle='#7dd3fc'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.roundRect(px,py,pSize,pSize,8); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#0284c7';
+        ctx.beginPath(); ctx.arc(px+pSize/2,py+pSize/2-8,16,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#e0f2fe'; ctx.font='bold 20px monospace';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(String(i+1),px+pSize/2,py+pSize-14);
+      }
+      // Entradas de cable abajo
+      [bx+bw/2-50, bx+bw/2+10].forEach(function(ex){
+        ctx.fillStyle='#0f1520'; ctx.strokeStyle='#475569'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.roundRect(ex,by+bh,40,55,6); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle='#334155'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(ex+20,by+bh+55); ctx.lineTo(ex+20,by+bh+90); ctx.stroke();
       });
-    }
-  } catch(e){
-    console.error('Error capturando SVG:',e);
+      // Info tecnica
+      ctx.fillStyle='#64748b'; ctx.font='22px monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(napPuertos+'P  ·  '+napConector+'  ·  PON: '+napPon+'  ·  Potencia: '+napPotencia+' dBm', cw/2, ch-30);
+      const imgData=tmpC.toDataURL('image/jpeg',0.92);
+      const svgW=W-PAD*2;
+      const svgH=svgW*(ch/cw);
+      doc.addImage(imgData,'JPEG',PAD,curY,svgW,svgH,undefined,'FAST');
+      curY+=svgH+6;
+    } catch(e){ console.error('Error dibujando NAP:',e); curY+=6; }
+
+  } else {
+    try{
+      renderSVG();
+      const svgEl=document.querySelector('#svg-container svg');
+      if(svgEl){
+        const svgStr=new XMLSerializer().serializeToString(svgEl);
+        const svgBlob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
+        const svgUrl=URL.createObjectURL(svgBlob);
+        await new Promise(function(resolve){
+          const img=new Image();
+          img.onload=function(){
+            const tmpC=document.createElement('canvas');
+            tmpC.width=800; tmpC.height=800;
+            const ctx=tmpC.getContext('2d');
+            ctx.fillStyle='#181c27'; ctx.fillRect(0,0,800,800);
+            ctx.drawImage(img,0,0,800,800);
+            const imgData=tmpC.toDataURL('image/jpeg',0.92);
+            const svgW=(W-PAD*2)*0.6;
+            const svgH=svgW;
+            doc.addImage(imgData,'JPEG',(W-svgW)/2,curY,svgW,svgH,undefined,'FAST');
+            curY+=svgH+6;
+            URL.revokeObjectURL(svgUrl);
+            resolve();
+          };
+          img.onerror=function(){ resolve(); };
+          img.src=svgUrl;
+        });
+      }
+    } catch(e){ console.error('Error capturando SVG:',e); }
   }
 
   // ── PÁGINA 2 ──────────────────────────────────────────────

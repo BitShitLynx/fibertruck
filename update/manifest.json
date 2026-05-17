@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 7,
-  "fecha": "2026-05-16",
-  "changelog": "Tipo de elemento NAP vs Cierre, modal de selección, campos específicos NAP",
+  "build": 8,
+  "fecha": "2026-05-17",
+  "changelog": "Diagrama NAP en PDF, datos de caja adaptados por tipo",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
