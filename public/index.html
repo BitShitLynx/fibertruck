@@ -2543,12 +2543,11 @@ function abrirCierre(id){
   if(cierre) cargarCierre(cierre);
   const tipo=cierre?.datos?.tipo||'cierre';
   if(tipo==='nap'){
-    document.getElementById('tab-fusiones').style.display='none';
     document.getElementById('tab-vista').style.display='none';
   } else {
-    document.getElementById('tab-fusiones').style.display='';
     document.getElementById('tab-vista').style.display='';
   }
+  document.getElementById('tab-fusiones').style.display='';
   const screenLista=document.getElementById('screen-lista');
   const screenTecnico=document.getElementById('screen-tecnico');
   if(screenLista){ screenLista.style.display='none'; screenLista.style.zIndex=''; }
@@ -2619,12 +2618,10 @@ if('serviceWorker' in navigator){
       const appEl=document.getElementById('app');
       if(appEl){ appEl.style.visibility='visible'; appEl.style.display='flex'; appEl.style.flexDirection='column'; appEl.style.height='100vh'; }
       const tipo=cierre.datos&&cierre.datos.tipo||'cierre';
-      if(tipo==='nap'){
-        const tf=document.getElementById('tab-fusiones');
-        const tv=document.getElementById('tab-vista');
-        if(tf) tf.style.display='none';
-        if(tv) tv.style.display='none';
-      }
+      const tv=document.getElementById('tab-vista');
+      if(tv) tv.style.display=tipo==='nap'?'none':'';
+      const tf=document.getElementById('tab-fusiones');
+      if(tf) tf.style.display='';
       goTab('config');
     } else {
       document.getElementById('app').style.display='none';

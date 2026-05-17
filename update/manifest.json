@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 25,
+  "build": 26,
   "fecha": "2026-05-17",
-  "changelog": "fix: eliminar thumbnail doble bajo canvas, build 25",
+  "changelog": "feat: mostrar tab Fusiones en NAPs",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
