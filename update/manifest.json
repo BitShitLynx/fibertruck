@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 13,
+  "build": 14,
   "fecha": "2026-05-17",
-  "changelog": "debug: logging para diagnosticar pantalla lista",
+  "changelog": "fix: null check en lista-tecnico-label, eliminar debug logs",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
