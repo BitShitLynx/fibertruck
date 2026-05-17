@@ -2297,25 +2297,41 @@ function mostrarLista(){
   const tec=getTecnico();
   const tecLabel=document.getElementById('lista-tecnico-label');
   if(tecLabel) tecLabel.textContent=tec?(tec.nombre+(tec.legajo?' · '+tec.legajo:'')):'';
+
   const lista=document.getElementById('lista-cierres');
+  if(!lista){
+    console.error('lista-cierres not found in DOM');
+    return;
+  }
+
   const cierres=getCierres();
   if(!cierres.length){
-    lista.innerHTML='<div style="text-align:center;padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px">Sin cierres registrados.<br>Tocá "+ Nuevo" para comenzar.</div>';
+    lista.innerHTML='<div style="text-align:center;padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px">Sin cierres registrados.<br>Tocá &quot;+ Nuevo&quot; para comenzar.</div>';
   } else {
-    lista.innerHTML=cierres.map(c=>
-      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">'
-      +'<div onclick="abrirCierre(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer">'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-      +'<div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">'+(c.datos?.nombre||'Sin nombre')+'</div>'
-      +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--mono);font-weight:500;background:'+(c.datos?.tipo==='nap'?'rgba(139,92,246,0.2)':'rgba(59,130,246,0.2)')+';color:'+(c.datos?.tipo==='nap'?'#a78bfa':'#60a5fa')+'">'+(c.datos?.tipo==='nap'?'NAP':'CE')+'</span>'
-      +'</div>'
-      +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+(c.datos?.ubicacion||'Sin ubicación')+' · '+(c.datos?.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):'')+' </div>'
-      +'<div style="font-size:11px;color:var(--accent2);margin-top:2px">'+(c.datos?.ports?.length||0)+' cables · '+(c.datos?.fusionPairs?.length||0)+' fusiones</div>'
-      +'</div>'
-      +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
-      +'</div>'
-    ).join('');
+    lista.innerHTML=cierres.map(function(c){
+      const esNap=c.datos&&c.datos.tipo==='nap';
+      const badgeColor=esNap?'rgba(139,92,246,0.2)':'rgba(59,130,246,0.2)';
+      const badgeText=esNap?'#a78bfa':'#60a5fa';
+      const badgeLabel=esNap?'NAP':'CE';
+      const nombre=c.datos&&c.datos.nombre?c.datos.nombre:'Sin nombre';
+      const ubicacion=c.datos&&c.datos.ubicacion?c.datos.ubicacion:'Sin ubicación';
+      const fecha=c.datos&&c.datos.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):'';
+      const cables=c.datos&&c.datos.ports?c.datos.ports.length:0;
+      const fusiones=c.datos&&c.datos.fusionPairs?c.datos.fusionPairs.length:0;
+      return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">'
+        +'<div onclick="abrirCierre(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer">'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+        +'<div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">'+nombre+'</div>'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--mono);font-weight:500;background:'+badgeColor+';color:'+badgeText+'">'+badgeLabel+'</span>'
+        +'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+ubicacion+' · '+fecha+'</div>'
+        +'<div style="font-size:11px;color:var(--accent2);margin-top:2px">'+cables+' cables · '+fusiones+' fusiones</div>'
+        +'</div>'
+        +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
+        +'</div>';
+    }).join('');
   }
+
   const sl=document.getElementById('screen-lista');
   if(sl){
     sl.style.display='flex';
