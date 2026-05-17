@@ -1784,6 +1784,7 @@ async function exportPDF(){
       doc.text(nameA,cols[1],curY,{maxWidth:40});
 
       // Buffer A dot + texto
+      const [rA,gA,bA]=hexToRgb(fibAColor.h);
       const [rbA,gbA,bbA]=hexToRgb(bufAColor?bufAColor.h:'#888888');
       doc.setFillColor(rbA,gbA,bbA);
       doc.circle(cols[2]+2,curY-0.5,1.5,'F');
