@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 10,
+  "build": 11,
   "fecha": "2026-05-17",
-  "changelog": "fix: pantalla negra al volver a lista de cierres",
+  "changelog": "fix: lista de cierres no aparece al volver - z-index y position fixed",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0

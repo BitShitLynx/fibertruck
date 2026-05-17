@@ -2317,7 +2317,9 @@ function mostrarLista(){
     ).join('');
   }
   const sl=document.getElementById('screen-lista');
-  if(sl){ sl.style.display='flex'; sl.style.flexDirection='column'; sl.style.height='100vh'; }
+  if(sl){
+    sl.style.cssText='display:flex;flex-direction:column;height:100vh;position:fixed;inset:0;background:var(--bg);z-index:9998;';
+  }
 }
 
 function mostrarNuevoCierre(){
@@ -2374,7 +2376,7 @@ function abrirCierre(id){
   }
   const screenLista=document.getElementById('screen-lista');
   const screenTecnico=document.getElementById('screen-tecnico');
-  if(screenLista) screenLista.style.display='none';
+  if(screenLista){ screenLista.style.display='none'; screenLista.style.zIndex=''; }
   if(screenTecnico) screenTecnico.style.display='none';
   const appEl=document.getElementById('app');
   if(appEl){ appEl.style.display='flex'; appEl.style.flexDirection='column'; appEl.style.height='100vh'; }
