@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 11,
+  "build": 12,
   "fecha": "2026-05-17",
-  "changelog": "fix: lista de cierres no aparece al volver - z-index y position fixed",
+  "changelog": "fix: visibility para ocultar app al mostrar lista",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
