@@ -2328,6 +2328,12 @@ function mostrarLista(){
   }
   const appEl=document.getElementById('app');
   if(appEl) appEl.style.visibility='hidden';
+  console.log('mostrarLista finished');
+  console.log('screen-lista computed:', window.getComputedStyle(document.getElementById('screen-lista')).display);
+  console.log('screen-lista z-index:', window.getComputedStyle(document.getElementById('screen-lista')).zIndex);
+  console.log('screen-lista visibility:', window.getComputedStyle(document.getElementById('screen-lista')).visibility);
+  console.log('app computed display:', window.getComputedStyle(document.getElementById('app')).display);
+  console.log('app computed visibility:', window.getComputedStyle(document.getElementById('app')).visibility);
 }
 
 function mostrarNuevoCierre(){
@@ -2371,6 +2377,7 @@ function crearElemento(tipo){
 }
 
 function abrirCierre(id){
+  console.log('abrirCierre called, id:', id);
   localStorage.setItem('ft_cierre_actual',id);
   const cierre=getCierres().find(c=>c.id===id);
   if(cierre) cargarCierre(cierre);
@@ -2403,6 +2410,10 @@ function eliminarCierre(id){
 }
 
 function volverALista(){
+  console.log('volverALista called');
+  console.log('app display:', document.getElementById('app')?.style.display);
+  console.log('app visibility:', document.getElementById('app')?.style.visibility);
+  console.log('screen-lista display:', document.getElementById('screen-lista')?.style.display);
   saveEstadoActual();
   localStorage.removeItem('ft_cierre_actual');
   ports=[]; splitters=[]; fusionPairs=[]; planoElements=[]; fotos=[];

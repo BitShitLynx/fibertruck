@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 12,
+  "build": 13,
   "fecha": "2026-05-17",
-  "changelog": "fix: visibility para ocultar app al mostrar lista",
+  "changelog": "debug: logging para diagnosticar pantalla lista",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
