@@ -2316,7 +2316,8 @@ function mostrarLista(){
       +'</div>'
     ).join('');
   }
-  document.getElementById('screen-lista').style.display='flex';
+  const sl=document.getElementById('screen-lista');
+  if(sl){ sl.style.display='flex'; sl.style.flexDirection='column'; sl.style.height='100vh'; }
 }
 
 function mostrarNuevoCierre(){
@@ -2388,7 +2389,21 @@ function eliminarCierre(id){
 
 function volverALista(){
   saveEstadoActual();
-  document.getElementById('app').style.display='none';
+  const appEl=document.getElementById('app');
+  if(appEl) appEl.style.display='none';
+  // Limpiar estado actual
+  localStorage.removeItem('ft_cierre_actual');
+  // Resetear variables globales
+  ports=[]; splitters=[]; fusionPairs=[]; planoElements=[]; fotos=[];
+  planoPolyPoints=[]; planoHistory=[];
+  pdfCustomImage=null;
+  pid=1; fid=1; spid=1;
+  // Restaurar pestañas ocultas
+  const tabFusiones=document.getElementById('tab-fusiones');
+  const tabVista=document.getElementById('tab-vista');
+  if(tabFusiones) tabFusiones.style.display='';
+  if(tabVista) tabVista.style.display='';
+  // Mostrar lista
   mostrarLista();
 }
 
