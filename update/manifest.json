@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 5,
+  "build": 6,
   "fecha": "2026-05-16",
-  "changelog": "Deshacer en plano, subir plano desde pestaña plano, fix espacio negro",
+  "changelog": "Botones PDF y JSON mismo tamaño en exportar",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
