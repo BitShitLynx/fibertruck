@@ -2294,19 +2294,35 @@ function guardarTecnico(){
 }
 
 function mostrarLista(){
+  // Asegurar que screen-lista existe en el DOM
+  let sl=document.getElementById('screen-lista');
+  if(!sl){
+    sl=document.createElement('div');
+    sl.id='screen-lista';
+    document.body.appendChild(sl);
+  }
+  sl.style.cssText='display:flex;flex-direction:column;position:fixed;inset:0;z-index:9998;background:#0f1117;height:100vh;';
+
+  // Asegurar header
+  if(!sl.querySelector('.lista-header')){
+    sl.innerHTML='<div class="lista-header" style="background:#181c27;padding:16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2f45">'
+      +'<div><div style="font-size:16px;font-weight:700;color:#e8ecf4;font-family:monospace">FiberTrack</div>'
+      +'<div id="lista-tecnico-label" style="font-size:11px;color:#7a85a3"></div></div>'
+      +'<button onclick="mostrarNuevoCierre()" style="background:#3b82f6;border:none;border-radius:8px;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">+ Nuevo</button>'
+      +'</div>'
+      +'<div id="lista-cierres" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>';
+  }
+
   const tec=getTecnico();
   const tecLabel=document.getElementById('lista-tecnico-label');
   if(tecLabel) tecLabel.textContent=tec?(tec.nombre+(tec.legajo?' · '+tec.legajo:'')):'';
 
   const lista=document.getElementById('lista-cierres');
-  if(!lista){
-    console.error('lista-cierres not found in DOM');
-    return;
-  }
+  if(!lista) return;
 
   const cierres=getCierres();
   if(!cierres.length){
-    lista.innerHTML='<div style="text-align:center;padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px">Sin cierres registrados.<br>Tocá &quot;+ Nuevo&quot; para comenzar.</div>';
+    lista.innerHTML='<div style="text-align:center;padding:48px 0;color:#7a85a3;font-family:monospace;font-size:13px">Sin cierres registrados.<br>Tocá &quot;+ Nuevo&quot; para comenzar.</div>';
   } else {
     lista.innerHTML=cierres.map(function(c){
       const esNap=c.datos&&c.datos.tipo==='nap';
@@ -2318,30 +2334,20 @@ function mostrarLista(){
       const fecha=c.datos&&c.datos.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):'';
       const cables=c.datos&&c.datos.ports?c.datos.ports.length:0;
       const fusiones=c.datos&&c.datos.fusionPairs?c.datos.fusionPairs.length:0;
-      return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">'
+      return '<div style="background:#181c27;border:1px solid #2a2f45;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">'
         +'<div onclick="abrirCierre(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer">'
         +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">'+nombre+'</div>'
-        +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--mono);font-weight:500;background:'+badgeColor+';color:'+badgeText+'">'+badgeLabel+'</span>'
+        +'<div style="font-size:14px;font-weight:600;color:#e8ecf4;font-family:monospace">'+nombre+'</div>'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:monospace;font-weight:500;background:'+badgeColor+';color:'+badgeText+'">'+badgeLabel+'</span>'
         +'</div>'
-        +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+ubicacion+' · '+fecha+'</div>'
-        +'<div style="font-size:11px;color:var(--accent2);margin-top:2px">'+cables+' cables · '+fusiones+' fusiones</div>'
+        +'<div style="font-size:11px;color:#7a85a3;margin-top:2px">'+ubicacion+' · '+fecha+'</div>'
+        +'<div style="font-size:11px;color:#a78bfa;margin-top:2px">'+cables+' cables · '+fusiones+' fusiones</div>'
         +'</div>'
-        +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
+        +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:#7a85a3;font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
         +'</div>';
     }).join('');
   }
 
-  const sl=document.getElementById('screen-lista');
-  if(sl){
-    sl.style.display='flex';
-    sl.style.flexDirection='column';
-    sl.style.position='fixed';
-    sl.style.inset='0';
-    sl.style.zIndex='9998';
-    sl.style.background='var(--bg)';
-    sl.style.height='100vh';
-  }
   const appEl=document.getElementById('app');
   if(appEl) appEl.style.visibility='hidden';
 }
