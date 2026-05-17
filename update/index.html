@@ -2339,7 +2339,7 @@ function mostrarNuevoCierre(){
 }
 
 function crearElemento(tipo){
-  document.querySelector('div[style*="position:fixed"][style*="99999"]')?.remove();
+  document.querySelectorAll('div[style*="fixed"]').forEach(function(el){ if(el.id!=='splitter-modal'&&el.id!=='plano-label-input') el.remove(); });
   const id=genId();
   const cierres=getCierres();
   const num=String(cierres.length+1).padStart(2,'0');
@@ -2395,6 +2395,14 @@ if('serviceWorker' in navigator){
 }
 // Inicialización con persistencia
 (function init(){
+  // Detectar si acabamos de aplicar un update
+  const pendingUpdateVersion=localStorage.getItem('ft_pending_update_version');
+  if(pendingUpdateVersion){
+    localStorage.removeItem('ft_pending_update_version');
+    setTimeout(function(){
+      toast('✓ App actualizada a v'+pendingUpdateVersion);
+    }, 1500);
+  }
   const tec=getTecnico();
   if(!tec){
     document.getElementById('app').style.display='none';
@@ -2475,8 +2483,11 @@ async function checkForUpdates(){
     document.body.appendChild(modal);
 
     document.getElementById('btn-update-now').onclick=function(){
-      modal.remove();
-      location.reload(true);
+      localStorage.setItem('ft_pending_update_version', manifest.version);
+      modal.innerHTML='<div style="color:#fff;font-size:16px;font-weight:700;font-family:monospace;text-align:center">Instalando actualización...</div>'
+        +'<svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:#3b82f6;fill:none;stroke-width:1.5;animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>'
+        +'<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>';
+      setTimeout(function(){ location.reload(true); }, 1500);
     };
     document.getElementById('btn-update-later').onclick=function(){
       modal.remove();

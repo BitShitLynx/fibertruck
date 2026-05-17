@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 8,
+  "build": 9,
   "fecha": "2026-05-17",
-  "changelog": "Diagrama NAP en PDF, datos de caja adaptados por tipo",
+  "changelog": "Fix modal tipo, notificación de update instalado",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
