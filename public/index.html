@@ -1843,33 +1843,40 @@ async function exportPDF(){
       };
       tmpImg.src=pdfCustomImage;
     });
-  } else if(planoCanvas){
-    hline(curY); curY+=5;
-    doc.setFontSize(9);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(0,60,160);
-    doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
-    const scale=2;
-    const tmpC=document.createElement('canvas');
-    tmpC.width=planoCanvas.width*scale;
-    tmpC.height=planoCanvas.height*scale;
-    const tCtx=tmpC.getContext('2d');
-    tCtx.scale(scale,scale);
-    tCtx.drawImage(planoCanvas,0,0);
-    const planoData=tmpC.toDataURL('image/jpeg',0.92);
-    const availH=H-curY-PAD-8;
-    const availW=W-PAD*2;
-    const ratio=planoCanvas.height/planoCanvas.width;
-    let pW=availW, pH=availW*ratio;
-    if(pH>availH){pH=availH;pW=availH/ratio;}
-    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
-    curY+=pH+4;
   } else {
-    doc.setFontSize(7);
-    doc.setFont('helvetica','normal');
-    doc.setTextColor(122,133,163);
-    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,curY);
-    curY+=8;
+    // Intentar cargar el plano si no está inicializado
+    if(!planoImgLoaded && !planoCanvas){
+      initPlano();
+      await new Promise(function(res){ setTimeout(res, 1500); });
+    }
+    if(planoCanvas&&planoImgLoaded){
+      hline(curY); curY+=5;
+      doc.setFontSize(9);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(0,60,160);
+      doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
+      const scale=2;
+      const tmpC=document.createElement('canvas');
+      tmpC.width=planoCanvas.width*scale;
+      tmpC.height=planoCanvas.height*scale;
+      const tCtx=tmpC.getContext('2d');
+      tCtx.scale(scale,scale);
+      tCtx.drawImage(planoCanvas,0,0);
+      const planoData=tmpC.toDataURL('image/jpeg',0.92);
+      const availH=H-curY-PAD-8;
+      const availW=W-PAD*2;
+      const ratio=planoCanvas.height/planoCanvas.width;
+      let pW=availW, pH=availW*ratio;
+      if(pH>availH){pH=availH;pW=availH/ratio;}
+      doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
+      curY+=pH+4;
+    } else {
+      doc.setFontSize(8);
+      doc.setFont('helvetica','italic');
+      doc.setTextColor(150,150,150);
+      doc.text('Sin datos de plano',PAD,curY);
+      curY+=8;
+    }
   }
 
   if(fotos.length){
@@ -1948,59 +1955,63 @@ let planoImgLoaded=false;
 let pendingLabelPos=null;
 
 function initPlano(){
-  if(planoCanvas) return;
-  planoCanvas = document.getElementById('plano-canvas');
-  planoCtx = planoCanvas.getContext('2d');
+  if(planoCanvas && planoImgLoaded) return;
 
   function onImgReady(){
     planoImgLoaded=true;
     const wrap=document.getElementById('plano-canvas-wrap');
-    const wrapW=wrap.clientWidth||360;
+    const wrapW=(wrap&&wrap.clientWidth)||360;
     planoScale=wrapW/planoImg.width;
     planoCanvas.width=wrapW;
     planoCanvas.height=Math.round(planoImg.height*planoScale);
     drawPlano();
   }
 
+  if(!planoCanvas){
+    planoCanvas = document.getElementById('plano-canvas');
+    if(!planoCanvas) return;
+    planoCtx = planoCanvas.getContext('2d');
+
+    // Mouse
+    planoCanvas.addEventListener('mousedown', e=>planoDown(e.offsetX, e.offsetY));
+    planoCanvas.addEventListener('mousemove', e=>{ if(planoDrawing) planoMove(e.offsetX, e.offsetY); });
+    planoCanvas.addEventListener('mouseup',   e=>planoUp(e.offsetX, e.offsetY));
+
+    // Touch — single finger
+    planoCanvas.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      if(e.touches.length===1){
+        const r=planoCanvas.getBoundingClientRect();
+        planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
+      } else if(e.touches.length===2){
+        planoPinch.active=true;
+        planoPinch.lastDist=touchDist(e.touches);
+      }
+    },{passive:false});
+    planoCanvas.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      if(e.touches.length===1 && planoDrawing){
+        const r=planoCanvas.getBoundingClientRect();
+        planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
+      } else if(e.touches.length===2 && planoPinch.active){
+        const dist=touchDist(e.touches);
+        const factor=dist/planoPinch.lastDist;
+        planoPinch.lastDist=dist;
+        applyZoom(factor);
+      }
+    },{passive:false});
+    planoCanvas.addEventListener('touchend', e=>{
+      e.preventDefault();
+      planoPinch.active=false;
+      if(e.changedTouches.length){
+        const r=planoCanvas.getBoundingClientRect();
+        planoUp(e.changedTouches[0].clientX-r.left, e.changedTouches[0].clientY-r.top);
+      }
+    },{passive:false});
+  }
+
   if(planoImg.complete && planoImg.naturalWidth>0) onImgReady();
   else { planoImg.onload=onImgReady; }
-
-  // Mouse
-  planoCanvas.addEventListener('mousedown', e=>planoDown(e.offsetX, e.offsetY));
-  planoCanvas.addEventListener('mousemove', e=>{ if(planoDrawing) planoMove(e.offsetX, e.offsetY); });
-  planoCanvas.addEventListener('mouseup',   e=>planoUp(e.offsetX, e.offsetY));
-
-  // Touch — single finger
-  planoCanvas.addEventListener('touchstart', e=>{
-    e.preventDefault();
-    if(e.touches.length===1){
-      const r=planoCanvas.getBoundingClientRect();
-      planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
-    } else if(e.touches.length===2){
-      planoPinch.active=true;
-      planoPinch.lastDist=touchDist(e.touches);
-    }
-  },{passive:false});
-  planoCanvas.addEventListener('touchmove', e=>{
-    e.preventDefault();
-    if(e.touches.length===1 && planoDrawing){
-      const r=planoCanvas.getBoundingClientRect();
-      planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
-    } else if(e.touches.length===2 && planoPinch.active){
-      const dist=touchDist(e.touches);
-      const factor=dist/planoPinch.lastDist;
-      planoPinch.lastDist=dist;
-      applyZoom(factor);
-    }
-  },{passive:false});
-  planoCanvas.addEventListener('touchend', e=>{
-    e.preventDefault();
-    planoPinch.active=false;
-    if(e.changedTouches.length){
-      const r=planoCanvas.getBoundingClientRect();
-      planoUp(e.changedTouches[0].clientX-r.left, e.changedTouches[0].clientY-r.top);
-    }
-  },{passive:false});
 }
 
 function touchDist(touches){
