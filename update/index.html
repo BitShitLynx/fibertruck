@@ -809,6 +809,19 @@ function renderPorts(){
           <div class="field"><label>Color cable</label>
             <select onchange="setPField('${esc(p.id)}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
           </div>
+          ${p.slot==='S'?`
+          <div class="field" style="grid-column:1/-1">
+            <label>Lado con potencia</label>
+            <select onchange="setPField('${esc(p.id)}','ladoPotencia',this.value)">
+              <option value="" ${!p.ladoPotencia?'selected':''}>Sin especificar</option>
+              <option value="izquierdo" ${p.ladoPotencia==='izquierdo'?'selected':''}>Izquierdo</option>
+              <option value="derecho" ${p.ladoPotencia==='derecho'?'selected':''}>Derecho</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column:1/-1">
+            <label>Referencia de dirección</label>
+            <input type="text" placeholder="Ej: Hacia calle San Martín" value="${p.refDireccion||''}" onchange="setPField('${esc(p.id)}','refDireccion',this.value)">
+          </div>`:''}
           <div class="field" style="grid-column:1/-1">
             <button class="del-btn" onclick="removePort('${esc(p.id)}')">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
@@ -966,6 +979,43 @@ function removeSplitter(id){
   renderSplitters();renderFusions();updateStats();
 }
 
+function editarSplitter(id){
+  const s=splitters.find(function(x){return x.id===id;});
+  if(!s) return;
+  const modal=document.createElement('div');
+  modal.id='splitter-edit-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML='<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">'
+    +'<div style="font-family:var(--mono);font-size:13px;color:var(--text);font-weight:500">Editar splitter</div>'
+    +'<div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">Tipo de splitter</div>'
+    +'<select id="sp-edit-tipo" style="width:100%;height:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 10px;appearance:none">'
+    +'<option value="1x2"'+(s.tipo==='1x2'?' selected':'')+'>Splitter 1x2</option>'
+    +'<option value="1x4"'+(s.tipo==='1x4'?' selected':'')+'>Splitter 1x4</option>'
+    +'<option value="1x8"'+(s.tipo==='1x8'?' selected':'')+'>Splitter 1x8</option>'
+    +'<option value="1x16"'+(s.tipo==='1x16'?' selected':'')+'>Splitter 1x16</option>'
+    +'</select></div>'
+    +'<div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">ID del splitter</div>'
+    +'<input id="sp-edit-label" type="text" value="'+esc(s.label)+'" style="width:100%;height:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 10px;font-family:var(--mono)"></div>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button onclick="confirmarEditarSplitter(\''+esc(id)+'\')" style="flex:1;height:44px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;font-weight:500">Guardar</button>'
+    +'<button onclick="document.getElementById(\'splitter-edit-modal\').remove()" style="flex:1;height:44px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer">Cancelar</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+  setTimeout(function(){document.getElementById('sp-edit-label')?.focus();},100);
+}
+
+function confirmarEditarSplitter(id){
+  const s=splitters.find(function(x){return x.id===id;});
+  if(!s) return;
+  const tipo=document.getElementById('sp-edit-tipo')?.value||s.tipo;
+  const label=document.getElementById('sp-edit-label')?.value.trim()||s.label;
+  document.getElementById('splitter-edit-modal')?.remove();
+  s.tipo=tipo; s.label=label;
+  renderSplitters(); renderFusions(); updateStats();
+  saveEstadoActual();
+  toast('Splitter actualizado');
+}
+
 function renderSplitters(){
   const el=document.getElementById('splitter-list');
   if(!splitters.length){
@@ -976,7 +1026,7 @@ function renderSplitters(){
     <div class="splitter-card">
       <div class="splitter-header">
         <span class="splitter-title">⊕ ${s.label} — Splitter ${s.tipo}</span>
-        <button class="fus-del" onclick="removeSplitter('${esc(s.id)}')">×</button>
+        <button class="fus-del" onclick="editarSplitter('${esc(s.id)}')" style="font-size:16px;margin-right:4px">✎</button><button class="fus-del" onclick="removeSplitter('${esc(s.id)}')">×</button>
       </div>
       <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">
         1 entrada → ${s.tipo.split('x')[1]} salidas
@@ -1287,11 +1337,14 @@ function buildSummaryRows(){
   const inP=ports.filter(function(p){return p.type==='in';});
   const outP=ports.filter(function(p){return p.type==='out';});
   const totalFib=ports.reduce(function(a,p){return a+p.fibers;},0);
+  const sang=ports.find(function(p){return p.slot==='S';});
   return [
     ['Caja',name], loc&&['Ubicación',loc],
     ['Modelo','Dome '+mp+' puertos'], ['Capacidad',cp+'F'],
     ['Cables entrada',inP.length], ['Cables salida',outP.length],
     ['Fibras totales',totalFib+'F'], ['Fusiones',fusionPairs.length+'/'+cp],
+    sang&&sang.ladoPotencia?['Potencia lado',sang.ladoPotencia]:null,
+    sang&&sang.refDireccion?['Dirección sangría',sang.refDireccion]:null,
     obs&&['Observaciones',obs],
   ].filter(Boolean);
 }
@@ -1401,7 +1454,9 @@ function exportJSON(){
         tipo:p.type,
         fibras:p.fibers,
         bufferSize:p.bufferSize||12,
-        color:p.color
+        color:p.color,
+        ladoPotencia:p.ladoPotencia||'',
+        refDireccion:p.refDireccion||''
       };
     }),
     splitters:splitters.map(function(s){
@@ -1609,6 +1664,58 @@ async function exportPDF(){
     } catch(e){ console.error('Error capturando SVG:',e); }
   }
 
+  // Datos de la caja
+  const rows=buildSummaryRows();
+  const cellH=8;
+  const col1W=(W-PAD*2)/2;
+  doc.setFontSize(11);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(30,80,180);
+  doc.text('DATOS DE LA CAJA',PAD,curY); curY+=6;
+  rows.forEach(function(row,i){
+    const k=String(row[0]);
+    const v=String(row[1]);
+    const cellX=i%2===0?PAD:PAD+col1W;
+    const cellY=Math.floor(i/2)*cellH+curY;
+    doc.setFillColor(i%4<2?238:248,i%4<2?242:250,i%4<2?252:255);
+    doc.rect(cellX,cellY-1,col1W,cellH,'F');
+    doc.setDrawColor(180,190,210);
+    doc.setLineWidth(0.2);
+    doc.rect(cellX,cellY-1,col1W,cellH,'S');
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(80,90,120);
+    doc.text(k,cellX+2,cellY+3);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(0,0,0);
+    doc.text(String(v),cellX+col1W-2,cellY+5,{align:'right',maxWidth:col1W-4});
+  });
+  curY+=Math.ceil(rows.length/2)*cellH+4;
+
+  if(splitters.length){
+    doc.setFontSize(11);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(30,80,180);
+    doc.text('SPLITTERS INTERNOS',PAD,curY); curY+=6;
+    splitters.forEach(function(s,i){
+      doc.setFillColor(i%2===0?238:248,i%2===0?242:250,i%2===0?252:255);
+      doc.rect(PAD,curY-1,W-PAD*2,cellH,'F');
+      doc.setDrawColor(180,190,210);
+      doc.setLineWidth(0.2);
+      doc.rect(PAD,curY-1,W-PAD*2,cellH,'S');
+      doc.setFontSize(8);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(80,90,120);
+      doc.text('SPL: '+s.label,PAD+2,curY+3);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(0,0,0);
+      doc.text('Splitter '+s.tipo,W-PAD-2,curY+3,{align:'right'});
+      curY+=cellH;
+    });
+    curY+=4;
+  }
+
   // ── PÁGINA 2 ──────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(15,17,23);
@@ -1661,13 +1768,10 @@ async function exportPDF(){
       doc.rect(PAD,curY-3.5,W-PAD*2,6,'F');
 
       // Número con fondo del color de fibra A
-      const [rA,gA,bA]=hexToRgb(fibAColor.h);
-      doc.setFillColor(rA,gA,bA);
-      doc.rect(cols[0]-1,curY-3,6,5.5,'F');
-      doc.setFontSize(6);
+      doc.setFontSize(7);
       doc.setFont('helvetica','bold');
-      doc.setTextColor(255,255,255);
-      doc.text(String(idx+1),cols[0]+2,curY,{align:'center'});
+      doc.setTextColor(200,205,220);
+      doc.text(String(idx+1),cols[0],curY);
 
       doc.setTextColor(240,242,250);
       doc.setFont('helvetica','normal');

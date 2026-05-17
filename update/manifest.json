@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 16,
+  "build": 17,
   "fecha": "2026-05-17",
-  "changelog": "fix: screen-lista creado dinámicamente si no existe en DOM",
+  "changelog": "feat: datos caja en PDF restaurados, editar splitter, campos sangría, sin color en número fusión",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
