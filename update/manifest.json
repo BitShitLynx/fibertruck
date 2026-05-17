@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 22,
+  "build": 23,
   "fecha": "2026-05-17",
-  "changelog": "fix: QA audit bajos - toast plano incompleto, race condition initPlano, modal ID específico, meta version, selector modal, allSources fusion, CSS duplicados",
+  "changelog": "fix: NAP puertos dinámicos en PDF, plano doble al subir imagen",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0

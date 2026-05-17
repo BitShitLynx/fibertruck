@@ -1359,13 +1359,21 @@ function loadPdfImage(input){
   const reader=new FileReader();
   reader.onload=function(e){
     pdfCustomImage=e.target.result;
-    document.getElementById('pdf-img-thumb').src=pdfCustomImage;
-    document.getElementById('pdf-img-preview').style.display='block';
+    const thumb=document.getElementById('pdf-img-thumb');
+    const preview=document.getElementById('pdf-img-preview');
+    if(thumb) thumb.src=pdfCustomImage;
+    if(preview) preview.style.display='block';
     toast('Imagen cargada para el PDF');
-    // Usar la imagen también como fondo del plano
+    // Reemplazar fondo del plano con la nueva imagen
+    planoDefaultSrc=planoDefaultSrc||planoImg.src;
+    planoImgLoaded=false;
+    // Limpiar canvas completamente antes de cargar nueva imagen
+    if(planoCtx&&planoCanvas){
+      planoCtx.clearRect(0,0,planoCanvas.width,planoCanvas.height);
+    }
     planoImg.onload=function(){
       planoImgLoaded=true;
-      if(!planoCanvas) return;
+      if(!planoCanvas||!planoCtx) return;
       const wrap=document.getElementById('plano-canvas-wrap');
       if(wrap){
         const wrapW=wrap.clientWidth||360;
@@ -1373,10 +1381,11 @@ function loadPdfImage(input){
         planoCanvas.width=wrapW;
         planoCanvas.height=Math.round(planoImg.height*planoScale);
         planoOffX=0; planoOffY=0;
+        planoElements=[];
+        planoHistory=[];
         drawPlano();
       }
     };
-    planoDefaultSrc = planoDefaultSrc || planoImg.src;
     planoImg.src=pdfCustomImage;
   };
   reader.readAsDataURL(file);
@@ -1609,10 +1618,12 @@ async function exportPDF(){
       ctx.beginPath(); ctx.roundRect(bx-28,by+100,28,80,6); ctx.fill(); ctx.stroke();
       ctx.beginPath(); ctx.roundRect(bx-28,by+240,28,80,6); ctx.fill(); ctx.stroke();
       // Puertos en grilla
-      const cols=napPuertos<=8?4:napPuertos<=12?4:8;
+      const cols=napPuertos<=4?2:napPuertos<=8?4:napPuertos<=12?6:8;
       const rows=Math.ceil(napPuertos/cols);
-      const pSize=80;
-      const pGap=20;
+      const maxGridW=bw-60;
+      const maxGridH=bh-120;
+      const pSize=Math.min(80, Math.floor((maxGridW-(cols-1)*10)/cols), Math.floor((maxGridH-(rows-1)*10)/rows));
+      const pGap=Math.min(20, Math.floor((maxGridW-cols*pSize)/(cols-1)||10));
       const gridW=cols*(pSize+pGap)-pGap;
       const gridH=rows*(pSize+pGap)-pGap;
       const gx=bx+(bw-gridW)/2;
