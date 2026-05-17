@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 23,
+  "build": 24,
   "fecha": "2026-05-17",
-  "changelog": "fix: NAP puertos dinámicos en PDF, plano doble al subir imagen",
+  "changelog": "fix: plano doble por onload acumulado",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0

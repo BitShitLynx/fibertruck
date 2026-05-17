@@ -1371,6 +1371,7 @@ function loadPdfImage(input){
     if(planoCtx&&planoCanvas){
       planoCtx.clearRect(0,0,planoCanvas.width,planoCanvas.height);
     }
+    planoImg.onload=null;
     planoImg.onload=function(){
       planoImgLoaded=true;
       if(!planoCanvas||!planoCtx) return;

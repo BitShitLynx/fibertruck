@@ -1,0 +1,12 @@
+{
+	"appId": "com.lynx.fibertrack",
+	"appName": "FiberTrack",
+	"webDir": "public",
+	"android": {
+		"allowMixedContent": true
+	},
+	"server": {
+		"androidScheme": "https",
+		"cleartext": true
+	}
+}

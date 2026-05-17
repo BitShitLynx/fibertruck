@@ -1,11 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="1.3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,7 +27,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px}
-#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;position:relative}
+#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto}
 
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;
   padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -119,6 +118,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 /* Fusiones — UI por par de cables */
 .fus-add-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .fus-add-row .field{margin-bottom:0}
+.fus-fiber-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+.fus-fiber-row:last-child{border-bottom:none}
+.fib-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,.15)}
+.fus-sel{font-size:12px;padding:5px 6px;border-radius:6px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text);font-family:var(--mono);height:34px;appearance:none;width:100%}
+.fus-sel.ok{border-color:#166534;color:#4ade80}
+.fus-arrow{color:var(--border2);font-size:16px;flex-shrink:0}
+.fus-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 2px;line-height:1;flex-shrink:0}
+.fus-del:active{color:var(--red)}
+.fus-pair-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px}
+.fus-pair-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.fus-pair-title{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em}
 .fus-pair-add{font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);
   background:transparent;color:var(--accent2);cursor:pointer;font-family:var(--mono)}
 
@@ -174,7 +185,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .fus-line.connected{background:var(--accent)}
 
 /* Plano */
-#plano-canvas-wrap{position:relative;overflow:auto;background:#111;border-radius:10px;border:1px solid var(--border);touch-action:none;height:auto}
+#plano-canvas-wrap{position:relative;overflow:auto;background:#111;border-radius:10px;border:1px solid var(--border);touch-action:none;height:420px}
 #plano-canvas{display:block;cursor:crosshair}
 .tool-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .tool-btn{height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--mono);transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
@@ -200,39 +211,16 @@ if('caches' in window){
 </script>
 </head>
 <body>
-<!-- Pantalla identificación técnico -->
-<div id="screen-tecnico" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;gap:16px">
-  <svg viewBox="0 0 24 24" style="width:64px;height:64px;stroke:var(--accent);fill:none;stroke-width:1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-  <div style="font-size:22px;font-weight:700;color:var(--text);font-family:var(--mono)">FiberTrack</div>
-  <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Identificación del técnico</div>
-  <input id="tec-nombre" type="text" placeholder="Nombre completo" style="width:100%;max-width:320px;height:48px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:15px;padding:0 14px;font-family:var(--sans)">
-  <input id="tec-legajo" type="text" placeholder="Legajo / ID técnico" style="width:100%;max-width:320px;height:48px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:15px;padding:0 14px;font-family:var(--sans)">
-  <button onclick="guardarTecnico()" style="width:100%;max-width:320px;height:48px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--sans)">Ingresar</button>
-</div>
-
-<!-- Pantalla lista de cierres -->
-<div id="screen-lista" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9998;flex-direction:column">
-  <div style="background:var(--bg2);padding:16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
-    <div>
-      <div style="font-size:16px;font-weight:700;color:var(--text);font-family:var(--mono)">FiberTrack</div>
-      <div id="lista-tecnico-label" style="font-size:11px;color:var(--muted)"></div>
-    </div>
-    <button onclick="mostrarNuevoCierre()" style="background:var(--accent);border:none;border-radius:8px;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">+ Nuevo</button>
-  </div>
-  <div id="lista-cierres" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>
-</div>
-
 <div id="app">
 
   <div class="topbar">
     <div class="topbar-left">
-      <button onclick="volverALista()" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:4px 8px;font-size:18px;margin-right:4px">‹</button>
       <div class="topbar-icon">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
       </div>
       <div>
         <div class="topbar-name" id="top-name">CE-01</div>
-        <div class="topbar-sub" id="top-sub">Dome 5P · 24F <span style="opacity:.45;font-size:9px">v1.3</span></div>
+        <div class="topbar-sub" id="top-sub">Dome 5P · 24F</div>
       </div>
     </div>
     <button class="topbar-btn" onclick="goTab('export')" aria-label="Exportar">
@@ -246,7 +234,7 @@ if('caches' in window){
       Config
     </div>
     <div class="tab" id="tab-puertos" onclick="goTab('puertos')">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="10" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="16" cy="10" r="1" fill="currentColor"/><circle cx="17.8" cy="11" r="1" fill="currentColor"/><circle cx="17.8" cy="13" r="1" fill="currentColor"/><circle cx="16" cy="14" r="1" fill="currentColor"/><circle cx="14.2" cy="13" r="1" fill="currentColor"/><circle cx="14.2" cy="11" r="1" fill="currentColor"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
       Puertos
       <div class="tab-badge" id="badge-puertos">0</div>
     </div>
@@ -277,48 +265,8 @@ if('caches' in window){
       <div class="card">
         <div class="card-title">Identificación</div>
         <div class="field"><label>Nombre / ID</label><input type="text" id="box-name" value="CE-01" oninput="onConfig()"></div>
-        <div class="field" style="grid-column:1/-1">
-          <label>Ubicación</label>
-          <div style="display:flex;gap:8px">
-            <input id="box-loc" type="text" placeholder="Ej: S3-421" oninput="onConfig()" style="flex:1">
-            <button onclick="captrarGPS()" id="btn-gps" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--accent);padding:0 12px;cursor:pointer;white-space:nowrap;font-size:12px">
-              <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg>
-              GPS
-            </button>
-          </div>
-        </div>
+        <div class="field"><label>Ubicación</label><input type="text" id="box-loc" placeholder="Ej: Poste 14 · Calle 123"></div>
         <div class="field"><label>Observaciones</label><input type="text" id="box-obs" placeholder="Notas opcionales"></div>
-        <div id="nap-fields" style="display:none">
-          <div class="card-title" style="margin-top:12px">Datos de la NAP</div>
-          <div class="field-grid">
-            <div class="field">
-              <label>Puertos</label>
-              <select id="nap-puertos" onchange="onConfig()">
-                <option value="4">4 puertos</option>
-                <option value="8" selected>8 puertos</option>
-                <option value="16">16 puertos</option>
-                <option value="24">24 puertos</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Tipo conector</label>
-              <select id="nap-conector" onchange="onConfig()">
-                <option value="SC/APC" selected>SC/APC</option>
-                <option value="SC/UPC">SC/UPC</option>
-                <option value="LC/APC">LC/APC</option>
-                <option value="LC/UPC">LC/UPC</option>
-              </select>
-            </div>
-            <div class="field" style="grid-column:1/-1">
-              <label>PON de la OLT</label>
-              <input id="nap-pon" type="text" placeholder="Ej: OLT-01 / PON-3" oninput="onConfig()">
-            </div>
-            <div class="field" style="grid-column:1/-1">
-              <label>Potencia de entrada (dBm)</label>
-              <input id="nap-potencia" type="number" step="0.1" placeholder="Ej: -18.5" oninput="onConfig()">
-            </div>
-          </div>
-        </div>
       </div>
       <div class="card">
         <div class="card-title">Especificaciones técnicas</div>
@@ -410,7 +358,7 @@ if('caches' in window){
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="22"/></svg>NAP
           </button>
           <button class="tool-btn" id="tool-splice" onclick="setTool('splice')">
-            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="8" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="12" cy="12" rx="6" ry="5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 1.5"/><circle cx="9" cy="9" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="15" cy="9" r="1.8" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="17" cy="12" r="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><ellipse cx="12" cy="18" rx="3.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>Empalme
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6"/></svg>Empalme
           </button>
           <button class="tool-btn" id="tool-label" onclick="setTool('label')">
             <svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Etiqueta
@@ -430,26 +378,8 @@ if('caches' in window){
           <div class="color-swatch" style="background:#ef4444" onclick="setColor('#ef4444',this)" title="Rojo"></div>
           <div class="color-swatch" style="background:#ffffff" onclick="setColor('#ffffff',this)" title="Blanco"></div>
         </div>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <button class="tool-btn" style="flex:1;justify-content:center" onclick="document.getElementById('plano-img-input').click()">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Subir plano
-          </button>
-          <button class="tool-btn" id="btn-undo-plano" onclick="undoPlano()" style="justify-content:center">
-            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
-            Deshacer
-          </button>
-          <input type="file" id="plano-img-input" accept="image/*" style="display:none" onchange="loadPdfImage(this)">
-        </div>
         <div id="plano-canvas-wrap">
           <canvas id="plano-canvas"></canvas>
-        </div>
-        <div id="pdf-img-preview" style="margin-top:8px;display:none">
-          <img id="pdf-img-thumb" style="width:100%;border-radius:8px;border:1px solid var(--border)" src="">
-          <button class="tool-btn" style="width:100%;justify-content:center;margin-top:6px;color:var(--red);border-color:#3f1a1a" onclick="clearPdfImage()">
-            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-            Quitar imagen
-          </button>
         </div>
       </div>
       <div class="card" style="display:flex;gap:8px;flex-wrap:wrap">
@@ -465,26 +395,12 @@ if('caches' in window){
     </div>
 
     <div class="screen" id="screen-export">
-      <div class="card" style="margin-bottom:0">
-        <div class="card-title">Fotos del cierre</div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)">Se incluyen en el PDF</div>
-        <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="agregarFoto(this)">
-        <button class="tool-btn" style="width:100%;justify-content:center" onclick="document.getElementById('foto-input').click()">
-          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Agregar foto
-        </button>
-        <div id="fotos-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
-      </div>
       <div class="card">
         <div class="card-title">Exportar documentación</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button class="export-btn" onclick="exportPDF()">
+        <div class="export-grid">
+          <button class="export-btn" style="grid-column:1/-1" onclick="exportPDF()">
             <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
             Generar PDF
-          </button>
-          <button class="export-btn" onclick="exportJSON()">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2a2 2 0 010 4H8"/><path d="M16 13l2 4-2 4"/><path d="M12 13v8"/></svg>
-            Exportar JSON
           </button>
         </div>
       </div>
@@ -523,166 +439,18 @@ const SLOTS=[
   {id:'S', cx:190,cy:278,r:0, ri:0, label:'Sangría',sang:true},
 ];
 
-let pdfCustomImage=null; // base64 de imagen subida por el usuario
-let planoDefaultSrc = 'plano_fibertrack.jpg'; // src original hardcodeado
-let fotos=[]; // [{id, descripcion, data}]
 let ports=[];
-let splitters=[]; // {id, tipo, label}
-let spid=1;
 // fusionPairs: [{id, cA, fA, cB, fB}]  — cada par = una fusión entre dos fibras de dos cables distintos
 let fusionPairs=[];
 let pid=1, fid=1;
 let leafletMap=null, kmzLayer=null;
 
-const esc=s=>String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
 const fc=i=>FC[i%12];
 const maxP=()=>parseInt(document.getElementById('box-model').value)||5;
-const cap=()=>parseInt(document.getElementById('splice-cap')?.value)||24;
+const cap=()=>parseInt(document.getElementById('splice-cap').value)||24;
 const boxName=()=>document.getElementById('box-name').value||'CE-01';
 const slotLabel=id=>SLOTS.find(s=>s.id===id)?.label||id;
 const portById=id=>ports.find(p=>p.id===id);
-
-// ── STORAGE ──────────────────────────────────────────────────
-const STORE_TECNICO = 'ft_tecnico';
-const STORE_CIERRES = 'ft_cierres';
-
-function getTecnico(){
-  try{ return JSON.parse(localStorage.getItem(STORE_TECNICO))||null; }
-  catch(e){ return null; }
-}
-
-function saveTecnico(t){
-  localStorage.setItem(STORE_TECNICO, JSON.stringify(t));
-}
-
-function getCierres(){
-  try{ return JSON.parse(localStorage.getItem(STORE_CIERRES))||[]; }
-  catch(e){ return []; }
-}
-
-function saveCierres(cierres){
-  localStorage.setItem(STORE_CIERRES, JSON.stringify(cierres));
-}
-
-function getCierreActual(){
-  const id=localStorage.getItem('ft_cierre_actual');
-  if(!id) return null;
-  return getCierres().find(c=>c.id===id)||null;
-}
-
-function genId(){
-  return 'c'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
-}
-
-function saveEstadoActual(){
-  const id=localStorage.getItem('ft_cierre_actual');
-  if(!id) return;
-  const cierres=getCierres();
-  const idx=cierres.findIndex(c=>c.id===id);
-  if(idx===-1) return;
-  cierres[idx].datos={
-    nombre:document.getElementById('box-name').value||'CE-01',
-    ubicacion:document.getElementById('box-loc').value||'',
-    modelo:document.getElementById('box-model').value||'5',
-    capacidad:document.getElementById('splice-cap').value||'24',
-    observaciones:document.getElementById('box-obs').value||'',
-    coordenadas:cierres[idx].datos?.coordenadas||null,
-    ports:JSON.parse(JSON.stringify(ports)),
-    splitters:JSON.parse(JSON.stringify(splitters)),
-    fusionPairs:JSON.parse(JSON.stringify(fusionPairs)),
-    planoElements:JSON.parse(JSON.stringify(planoElements)),
-    pdfCustomImage:pdfCustomImage||null,
-    fotos:JSON.parse(JSON.stringify(fotos)),
-    tecnico:getTecnico(),
-    tipo:getCierreActual()?.datos?.tipo||'cierre',
-    napPuertos:document.getElementById('nap-puertos')?.value||'8',
-    napConector:document.getElementById('nap-conector')?.value||'SC/APC',
-    napPon:document.getElementById('nap-pon')?.value||'',
-    napPotencia:document.getElementById('nap-potencia')?.value||'',
-    fechaModificacion:new Date().toISOString()
-  };
-  saveCierres(cierres);
-}
-
-function cargarCierre(cierre){
-  const d=cierre.datos||{};
-  document.getElementById('box-name').value=d.nombre||'CE-01';
-  document.getElementById('box-loc').value=d.ubicacion||'';
-  document.getElementById('box-model').value=d.modelo||'5';
-  document.getElementById('splice-cap').value=d.capacidad||'24';
-  document.getElementById('box-obs').value=d.observaciones||'';
-  ports=d.ports?JSON.parse(JSON.stringify(d.ports)):[];
-  splitters=d.splitters?JSON.parse(JSON.stringify(d.splitters)):[];
-  fusionPairs=d.fusionPairs?JSON.parse(JSON.stringify(d.fusionPairs)):[];
-  planoElements=d.planoElements?JSON.parse(JSON.stringify(d.planoElements)):[];
-  pdfCustomImage=d.pdfCustomImage||null;
-  fotos=d.fotos?JSON.parse(JSON.stringify(d.fotos)):[];
-  renderFotos();
-  pid=ports.length+1; fid=fusionPairs.length+1; spid=splitters.length+1;
-  if(document.getElementById('nap-puertos')) document.getElementById('nap-puertos').value=d.napPuertos||'8';
-  if(document.getElementById('nap-conector')) document.getElementById('nap-conector').value=d.napConector||'SC/APC';
-  if(document.getElementById('nap-pon')) document.getElementById('nap-pon').value=d.napPon||'';
-  if(document.getElementById('nap-potencia')) document.getElementById('nap-potencia').value=d.napPotencia||'';
-  renderPorts(); renderSplitters(); renderFusions(); updateStats(); // orden importante: ports y splitters antes de fusiones
-  if(pdfCustomImage){
-    document.getElementById('pdf-img-thumb').src=pdfCustomImage;
-    document.getElementById('pdf-img-preview').style.display='block';
-  }
-  onConfig();
-}
-
-function guardarCoordenadas(lat, lng, accuracy){
-  const btn=document.getElementById('btn-gps');
-  const latS=lat.toFixed(6), lngS=lng.toFixed(6);
-  const id=localStorage.getItem('ft_cierre_actual');
-  if(id){
-    const cierres=getCierres();
-    const idx=cierres.findIndex(c=>c.id===id);
-    if(idx!==-1){
-      if(!cierres[idx].datos) cierres[idx].datos={};
-      cierres[idx].datos.coordenadas={lat:parseFloat(latS),lng:parseFloat(lngS),precision:Math.round(accuracy||0)};
-      saveCierres(cierres);
-    }
-  }
-  if(!document.getElementById('box-loc').value){
-    document.getElementById('box-loc').value=latS+', '+lngS;
-  }
-  btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#22c55e;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
-  toast('GPS: '+latS+', '+lngS+' (±'+Math.round(accuracy||0)+'m)');
-}
-function captrarGPS(){
-  const btn=document.getElementById('btn-gps');
-  btn.textContent='...';
-
-  const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
-
-  if(IS_CAP){
-    const Geolocation=window.Capacitor?.Plugins?.Geolocation;
-    if(!Geolocation){ toast('Plugin GPS no disponible'); btn.innerHTML='GPS'; return; }
-    Geolocation.requestPermissions().then(function(perm){
-      if(perm.location==='granted'||perm.coarseLocation==='granted'){
-        return Geolocation.getCurrentPosition({enableHighAccuracy:true,timeout:10000});
-      } else {
-        throw new Error('Permiso denegado');
-      }
-    }).then(function(pos){
-      guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-    }).catch(function(err){
-      toast('GPS: '+err.message);
-      btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
-    });
-  } else {
-    if(!navigator.geolocation){ toast('GPS no disponible'); return; }
-    navigator.geolocation.getCurrentPosition(
-      function(pos){
-        guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-      },
-      function(err){ toast('Error GPS ('+err.code+'): '+err.message); },
-      {enableHighAccuracy:true,timeout:10000}
-    );
-  }
-}
-
 
 function toast(msg){
   const t=document.getElementById('toast');
@@ -692,18 +460,8 @@ function toast(msg){
 
 function onConfig(){
   document.getElementById('top-name').textContent=boxName();
-  const cierreActual=getCierreActual();
-  const esNap=cierreActual?.datos?.tipo==='nap';
-  if(esNap){
-    const puertos=document.getElementById('nap-puertos')?.value||'8';
-    const conector=document.getElementById('nap-conector')?.value||'SC/APC';
-    document.getElementById('top-sub').innerHTML='NAP '+puertos+'P \xb7 '+conector+' <span style="opacity:.45;font-size:9px">v1.3</span>';
-  } else {
-    document.getElementById('top-sub').innerHTML='Dome '+maxP()+'P \xb7 '+cap()+'F <span style="opacity:.45;font-size:9px">v1.3</span>';
-  }
+  document.getElementById('top-sub').textContent=`Dome ${maxP()}P · ${cap()}F`;
   updateStats();
-  const napFields=document.getElementById('nap-fields');
-  if(napFields) napFields.style.display=esNap?'block':'none';
 }
 
 function updateStats(){
@@ -720,11 +478,6 @@ function updateStats(){
 function freeSlots(){return SLOTS.filter(s=>!ports.find(p=>p.slot===s.id));}
 
 function goTab(t){
-  // Advertir si hay una polilínea en construcción al salir del plano
-  if(t!=='plano' && planoPolyPoints && planoPolyPoints.length>=2){
-    toast('Línea en construcción descartada — usá doble clic para terminarla');
-    planoPolyPoints=[];
-  }
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.screen').forEach(e=>e.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
@@ -734,7 +487,6 @@ function goTab(t){
   if(t==='plano'){if(!planoCanvas)initPlano();}
   if(t==='fusiones') renderFusions();
   if(t==='export') renderSummary();
-  saveEstadoActual();
 }
 
 // ── PUERTOS ──────────────────────────────────────────────────
@@ -783,7 +535,7 @@ function renderPorts(){
     const bc=isSang?'badge-sang':p.type==='in'?'badge-in':'badge-out';
     const bl=isSang?'SANG':p.type==='in'?'ENTRADA':'SALIDA';
     return `<div class="port-item${p.open?' open':''}" id="pi-${p.id}">
-      <div class="port-header" onclick="togglePort('${esc(p.id)}')">
+      <div class="port-header" onclick="togglePort('${p.id}')">
         <div class="port-dot" style="background:${p.color}"></div>
         <div class="port-name">${slotLabel(p.slot)} · ${p.name}</div>
         <span class="badge ${bc}">${bl}</span>
@@ -792,37 +544,24 @@ function renderPorts(){
       <div class="port-body">
         <div class="field" style="margin-top:10px">
           <label>Nombre del cable</label>
-          <input type="text" value="${p.name}" oninput="setPField('${esc(p.id)}','name',this.value);document.querySelector('#pi-${p.id} .port-name').textContent=slotLabel('${p.slot}')+' · '+this.value">
+          <input type="text" value="${p.name}" oninput="setPField('${p.id}','name',this.value);document.querySelector('#pi-${p.id} .port-name').textContent=slotLabel('${p.slot}')+' · '+this.value">
         </div>
         <div class="port-grid">
           <div class="field"><label>Puerto asignado</label>
-            <select onchange="setPField('${esc(p.id)}','slot',this.value);renderPorts()">${slotOpts}</select>
+            <select onchange="setPField('${p.id}','slot',this.value);renderPorts()">${slotOpts}</select>
           </div>
-          ${!isSang?`<div class="field"><label>Tipo</label><select onchange="setPField('${esc(p.id)}','type',this.value);renderPorts()">${tOpts}</select></div>`:'<div></div>'}
+          ${!isSang?`<div class="field"><label>Tipo</label><select onchange="setPField('${p.id}','type',this.value);renderPorts()">${tOpts}</select></div>`:'<div></div>'}
           <div class="field"><label>Fibras</label>
-            <select onchange="setPField('${esc(p.id)}','fibers',this.value)">${fOpts}</select>
+            <select onchange="setPField('${p.id}','fibers',this.value)">${fOpts}</select>
           </div>
           <div class="field"><label>Fibras por buffer</label>
-            <select onchange="setPField('${esc(p.id)}','bufferSize',parseInt(this.value))">${bOpts}</select>
+            <select onchange="setPField('${p.id}','bufferSize',parseInt(this.value))">${bOpts}</select>
           </div>
           <div class="field"><label>Color cable</label>
-            <select onchange="setPField('${esc(p.id)}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
-          </div>
-          ${p.slot==='S'?`
-          <div class="field" style="grid-column:1/-1">
-            <label>Lado con potencia</label>
-            <select onchange="setPField('${esc(p.id)}','ladoPotencia',this.value)">
-              <option value="" ${!p.ladoPotencia?'selected':''}>Sin especificar</option>
-              <option value="izquierdo" ${p.ladoPotencia==='izquierdo'?'selected':''}>Izquierdo</option>
-              <option value="derecho" ${p.ladoPotencia==='derecho'?'selected':''}>Derecho</option>
-            </select>
+            <select onchange="setPField('${p.id}','color',this.value);document.querySelector('#pi-${p.id} .port-dot').style.background=this.value">${cOpts}</select>
           </div>
           <div class="field" style="grid-column:1/-1">
-            <label>Referencia de dirección</label>
-            <input type="text" placeholder="Ej: Hacia calle San Martín" value="${p.refDireccion||''}" onchange="setPField('${esc(p.id)}','refDireccion',this.value)">
-          </div>`:''}
-          <div class="field" style="grid-column:1/-1">
-            <button class="del-btn" onclick="removePort('${esc(p.id)}')">
+            <button class="del-btn" onclick="removePort('${p.id}')">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
               Eliminar cable
             </button>
@@ -929,6 +668,8 @@ function renderVistaSummary(){
 }
 
 // ── SPLITTER ─────────────────────────────────────────────────
+let splitters=[]; // {id, tipo, label}
+let spid=1;
 const SPLITTER_TYPES=['1x2','1x4','1x8','1x16'];
 
 function addSplitter(){
@@ -978,43 +719,6 @@ function removeSplitter(id){
   renderSplitters();renderFusions();updateStats();
 }
 
-function editarSplitter(id){
-  const s=splitters.find(function(x){return x.id===id;});
-  if(!s) return;
-  const modal=document.createElement('div');
-  modal.id='splitter-edit-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML='<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px">'
-    +'<div style="font-family:var(--mono);font-size:13px;color:var(--text);font-weight:500">Editar splitter</div>'
-    +'<div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">Tipo de splitter</div>'
-    +'<select id="sp-edit-tipo" style="width:100%;height:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 10px;appearance:none">'
-    +'<option value="1x2"'+(s.tipo==='1x2'?' selected':'')+'>Splitter 1x2</option>'
-    +'<option value="1x4"'+(s.tipo==='1x4'?' selected':'')+'>Splitter 1x4</option>'
-    +'<option value="1x8"'+(s.tipo==='1x8'?' selected':'')+'>Splitter 1x8</option>'
-    +'<option value="1x16"'+(s.tipo==='1x16'?' selected':'')+'>Splitter 1x16</option>'
-    +'</select></div>'
-    +'<div><div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:5px">ID del splitter</div>'
-    +'<input id="sp-edit-label" type="text" value="'+esc(s.label)+'" style="width:100%;height:44px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;padding:0 10px;font-family:var(--mono)"></div>'
-    +'<div style="display:flex;gap:8px">'
-    +'<button onclick="confirmarEditarSplitter(\''+esc(id)+'\')" style="flex:1;height:44px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;font-weight:500">Guardar</button>'
-    +'<button onclick="document.getElementById(\'splitter-edit-modal\').remove()" style="flex:1;height:44px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:14px;cursor:pointer">Cancelar</button>'
-    +'</div></div>';
-  document.body.appendChild(modal);
-  setTimeout(function(){document.getElementById('sp-edit-label')?.focus();},100);
-}
-
-function confirmarEditarSplitter(id){
-  const s=splitters.find(function(x){return x.id===id;});
-  if(!s) return;
-  const tipo=document.getElementById('sp-edit-tipo')?.value||s.tipo;
-  const label=document.getElementById('sp-edit-label')?.value.trim()||s.label;
-  document.getElementById('splitter-edit-modal')?.remove();
-  s.tipo=tipo; s.label=label;
-  renderSplitters(); renderFusions(); updateStats();
-  saveEstadoActual();
-  toast('Splitter actualizado');
-}
-
 function renderSplitters(){
   const el=document.getElementById('splitter-list');
   if(!splitters.length){
@@ -1025,7 +729,7 @@ function renderSplitters(){
     <div class="splitter-card">
       <div class="splitter-header">
         <span class="splitter-title">⊕ ${s.label} — Splitter ${s.tipo}</span>
-        <button class="fus-del" onclick="editarSplitter('${esc(s.id)}')" style="font-size:16px;margin-right:4px">✎</button><button class="fus-del" onclick="removeSplitter('${esc(s.id)}')">×</button>
+        <button class="fus-del" onclick="removeSplitter('${s.id}')">×</button>
       </div>
       <div style="font-size:11px;color:var(--muted);font-family:var(--mono)">
         1 entrada → ${s.tipo.split('x')[1]} salidas
@@ -1037,7 +741,7 @@ function renderSplitters(){
 function addFusionPair(){
   const allSources=[...ports,...splitters.map(s=>({id:s.id,name:s.label,slot:'SPL',fibers:parseInt(s.tipo.split('x')[1]),isSplitter:true,splitterIn:true}))];
   if(allSources.length<2){toast('Necesitás al menos dos cables/splitters');return;}
-  fusionPairs.push({id:'f'+(fid++),cA:allSources[0].id,bufA:0,fA:0,cB:allSources[1].id,bufB:0,fB:0});
+  fusionPairs.push({id:'f'+(fid++),cA:ports[0]?.id||allSources[0].id,bufA:0,fA:0,cB:ports[1]?.id||allSources[1].id,bufB:0,fB:0});
   renderFusions();updateStats();
 }
 
@@ -1315,35 +1019,15 @@ function clearMap(){
 
 // ── EXPORT ───────────────────────────────────────────────────
 function buildSummaryRows(){
-  const cierreActual=getCierreActual();
-  const esNap=cierreActual?.datos?.tipo==='nap';
-  const name=boxName();
-  const loc=document.getElementById('box-loc').value;
-  const obs=document.getElementById('box-obs').value;
-  if(esNap){
-    const puertos=document.getElementById('nap-puertos')?.value||'8';
-    const conector=document.getElementById('nap-conector')?.value||'SC/APC';
-    const pon=document.getElementById('nap-pon')?.value||'-';
-    const potencia=document.getElementById('nap-potencia')?.value||'-';
-    return [
-      ['NAP',name], loc&&['Ubicación',loc],
-      ['Puertos',puertos+'P'], ['Conector',conector],
-      ['PON OLT',pon], ['Potencia',potencia+' dBm'],
-      obs&&['Observaciones',obs],
-    ].filter(Boolean);
-  }
-  const mp=maxP(), cp=cap();
-  const inP=ports.filter(function(p){return p.type==='in';});
-  const outP=ports.filter(function(p){return p.type==='out';});
-  const totalFib=ports.reduce(function(a,p){return a+p.fibers;},0);
-  const sang=ports.find(function(p){return p.slot==='S';});
-  return [
-    ['Caja',name], loc&&['Ubicación',loc],
-    ['Modelo','Dome '+mp+' puertos'], ['Capacidad',cp+'F'],
-    ['Cables entrada',inP.length], ['Cables salida',outP.length],
-    ['Fibras totales',totalFib+'F'], ['Fusiones',fusionPairs.length+'/'+cp],
-    sang&&sang.ladoPotencia?['Potencia lado',sang.ladoPotencia]:null,
-    sang&&sang.refDireccion?['Dirección sangría',sang.refDireccion]:null,
+  const name=boxName(),loc=document.getElementById('box-loc').value,obs=document.getElementById('box-obs').value;
+  const mp=maxP(),cp=cap();
+  const inP=ports.filter(p=>p.type==='in'),outP=ports.filter(p=>p.type==='out');
+  const totalFib=ports.reduce((a,p)=>a+p.fibers,0);
+  return[
+    ['Caja',name],loc&&['Ubicación',loc],
+    ['Modelo',`Dome ${mp} puertos`],['Capacidad',`${cp}F`],
+    ['Cables entrada',inP.length],['Cables salida',outP.length],
+    ['Fibras totales',`${totalFib}F`],['Fusiones',`${fusionPairs.length}/${cp}`],
     obs&&['Observaciones',obs],
   ].filter(Boolean);
 }
@@ -1353,191 +1037,7 @@ function renderSummary(){
     `<div class="summary-row"><span class="summary-key">${k}</span><span class="summary-val">${v}</span></div>`).join('');
 }
 
-function loadPdfImage(input){
-  const file=input.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    pdfCustomImage=e.target.result;
-    const thumb=document.getElementById('pdf-img-thumb');
-    const preview=document.getElementById('pdf-img-preview');
-    if(thumb) thumb.src=pdfCustomImage;
-    if(preview) preview.style.display='block';
-    toast('Imagen cargada para el PDF');
-    // Reemplazar fondo del plano con la nueva imagen
-    planoDefaultSrc=planoDefaultSrc||planoImg.src;
-    planoImgLoaded=false;
-    // Limpiar canvas completamente antes de cargar nueva imagen
-    if(planoCtx&&planoCanvas){
-      planoCtx.clearRect(0,0,planoCanvas.width,planoCanvas.height);
-    }
-    planoImg.onload=null;
-    planoImg.onload=function(){
-      planoImgLoaded=true;
-      if(!planoCanvas||!planoCtx) return;
-      const wrap=document.getElementById('plano-canvas-wrap');
-      if(wrap){
-        const wrapW=wrap.clientWidth||360;
-        planoScale=wrapW/planoImg.width;
-        planoCanvas.width=wrapW;
-        planoCanvas.height=Math.round(planoImg.height*planoScale);
-        planoOffX=0; planoOffY=0;
-        planoElements=[];
-        planoHistory=[];
-        drawPlano();
-      }
-    };
-    planoImg.src=pdfCustomImage;
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearPdfImage(){
-  pdfCustomImage=null;
-  document.getElementById('pdf-img-preview').style.display='none';
-  // Restaurar plano original
-  planoImgLoaded=false;
-  planoImg.onload=function(){
-    planoImgLoaded=true;
-    const wrap=document.getElementById('plano-canvas-wrap');
-    if(wrap&&planoCanvas){
-      const wrapW=wrap.clientWidth||360;
-      planoScale=wrapW/planoImg.width;
-      planoCanvas.width=wrapW;
-      planoCanvas.height=Math.round(planoImg.height*planoScale);
-      planoOffX=0; planoOffY=0;
-      drawPlano();
-    }
-  };
-  planoImg.src=planoDefaultSrc+'?t='+Date.now(); // forzar recarga
-  toast('Imagen eliminada — plano original restaurado');
-}
-
-function agregarFoto(input){
-  const file=input.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const id='f'+Date.now();
-    fotos.push({id,descripcion:file.name,data:e.target.result});
-    renderFotos();
-    saveEstadoActual();
-    toast('Foto agregada');
-  };
-  reader.readAsDataURL(file);
-  input.value='';
-}
-
-function renderFotos(){
-  const grid=document.getElementById('fotos-grid');
-  if(!fotos.length){ grid.innerHTML=''; return; }
-  grid.innerHTML=fotos.map(f=>`
-    <div style="position:relative;width:calc(50% - 4px)">
-      <img src="${f.data}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
-      <button onclick="eliminarFoto('${esc(f.id)}')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:22px;height:22px;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">×</button>
-      <div style="font-size:10px;color:var(--muted);padding:2px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.descripcion.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-    </div>`).join('');
-}
-
-function eliminarFoto(id){
-  fotos=fotos.filter(f=>f.id!==id);
-  renderFotos();
-  saveEstadoActual();
-}
-
-function exportJSON(){
-  const _jsonTipo=getCierreActual()?.datos?.tipo||'cierre';
-  const _esNapJson=_jsonTipo==='nap';
-  const data={
-    version:'1.0',
-    exportado:new Date().toISOString(),
-    tipo:_jsonTipo,
-    caja:Object.assign({
-      nombre:boxName(),
-      ubicacion:document.getElementById('box-loc').value||'',
-      observaciones:document.getElementById('box-obs').value||''
-    }, _esNapJson ? {
-      napPuertos:document.getElementById('nap-puertos')?.value||'8',
-      napConector:document.getElementById('nap-conector')?.value||'SC/APC',
-      napPon:document.getElementById('nap-pon')?.value||'',
-      napPotencia:document.getElementById('nap-potencia')?.value||''
-    } : {
-      modelo:'Dome '+maxP()+'P',
-      capacidad:cap()
-    }),
-    cables:ports.map(function(p){
-      return {
-        id:p.id,
-        slot:slotLabel(p.slot),
-        nombre:p.nombre||p.name,
-        tipo:p.type,
-        fibras:p.fibers,
-        bufferSize:p.bufferSize||12,
-        color:p.color,
-        ladoPotencia:p.ladoPotencia||'',
-        refDireccion:p.refDireccion||''
-      };
-    }),
-    splitters:splitters.map(function(s){
-      return {id:s.id,label:s.label,tipo:s.tipo};
-    }),
-    fotos:fotos.map(function(f){ return {id:f.id,descripcion:f.descripcion}; }),
-    coordenadas:getCierreActual()?.datos?.coordenadas||null,
-    tecnico:getTecnico(),
-    tipoIntervencion:'documentacion',
-    fechaIntervencion:new Date().toISOString().split('T')[0],
-    fusiones:fusionPairs.map(function(f,i){
-      const pA=cableById(f.cA),pB=cableById(f.cB);
-      const bufAColor=pA&&!pA.isSplitter?FC[(f.bufA||0)%12]:null;
-      const fibAColor=FC[(f.fA||0)%12];
-      const bufBColor=pB&&!pB.isSplitter?FC[(f.bufB||0)%12]:null;
-      const fibBColor=FC[(f.fB||0)%12];
-      return {
-        numero:i+1,
-        cableA:{
-          nombre:pA?(pA.isSplitter?'SPL:'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?',
-          buffer:bufAColor?bufAColor.n:'-',
-          fibra:fibAColor.n
-        },
-        cableB:{
-          nombre:pB?(pB.isSplitter?'SPL:'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?',
-          buffer:bufBColor?bufBColor.n:'-',
-          fibra:fibBColor.n
-        }
-      };
-    })
-  };
-  const json=JSON.stringify(data,null,2);
-  const filename=boxName()+'_fibertrack.json';
-  const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
-  if(IS_CAP){
-    try{
-      const b64=btoa(unescape(encodeURIComponent(json)));
-      const {Filesystem,Share}=window.Capacitor.Plugins;
-      Filesystem.writeFile({path:filename,data:b64,directory:'CACHE'}).then(function(r){
-        return Filesystem.getUri({path:filename,directory:'CACHE'});
-      }).then(function(r){
-        Share.share({title:filename,url:r.uri,dialogTitle:'Compartir JSON FiberTrack'});
-        toast('JSON listo para compartir');
-      });
-    } catch(e){ fallbackJSON(json,filename); }
-  } else { fallbackJSON(json,filename); }
-}
-
-function fallbackJSON(json,filename){
-  const a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(json);
-  a.download=filename; a.click();
-  toast('JSON exportado');
-}
-
 async function exportPDF(){
-  // Verificar que hay un cierre activo
-  const cierreId=localStorage.getItem('ft_cierre_actual');
-  if(!cierreId){
-    toast('No hay cierre activo para exportar');
-    return;
-  }
   toast('Generando PDF...');
   if(!window.jspdf){
     await new Promise((res,rej)=>{
@@ -1574,6 +1074,13 @@ async function exportPDF(){
     return btoa(bin);
   }
 
+  // DEBUG: texto de prueba en posición fija
+  doc.setFontSize(12);
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(0,0,0);
+  doc.text('DEBUG: texto negro en y=30', PAD, 30);
+  doc.text('DEBUG: texto negro en y=40', PAD, 40);
+
   // ── PÁGINA 1 ──────────────────────────────────────────────
   doc.setFillColor(15,17,23);
   doc.rect(0,0,W,20,'F');
@@ -1583,164 +1090,151 @@ async function exportPDF(){
   doc.text(new Date().toLocaleString('es-AR'),W-PAD,13,{align:'right'});
 
   let curY=24;
-  const cierreActual=getCierreActual();
-  const esNap=cierreActual?.datos?.tipo==='nap';
 
-  if(esNap){
-    try{
-      const napPuertos=parseInt(cierreActual.datos.napPuertos)||8;
-      const napConector=cierreActual.datos.napConector||'SC/APC';
-      const napPon=cierreActual.datos.napPon||'-';
-      const napPotencia=cierreActual.datos.napPotencia||'-';
-      const cw=760, ch=640;
-      const tmpC=document.createElement('canvas');
-      tmpC.width=cw; tmpC.height=ch;
-      const ctx=tmpC.getContext('2d');
-      ctx.fillStyle='#181c27'; ctx.fillRect(0,0,cw,ch);
-      const bx=120, by=80, bw=520, bh=400;
-      // Cuerpo principal
-      ctx.fillStyle='#1a1f2e'; ctx.strokeStyle='#475569'; ctx.lineWidth=4;
-      ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,16); ctx.fill(); ctx.stroke();
-      // Tapa superior
-      ctx.fillStyle='#0f1520'; ctx.strokeStyle='#334155'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.roundRect(bx,by,bw,80,16); ctx.fill(); ctx.stroke();
-      // Estrias ventilacion
-      ctx.strokeStyle='#1e293b'; ctx.lineWidth=3;
-      for(let v=0;v<11;v++){
-        ctx.beginPath();
-        ctx.moveTo(bx+60+v*38,by+16); ctx.lineTo(bx+60+v*38,by+64); ctx.stroke();
-      }
-      // Label tapa
-      ctx.fillStyle='#94a3b8'; ctx.font='bold 24px monospace';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('NAP  ·  '+napConector, bx+bw/2, by+40);
-      // Bisagras laterales
-      ctx.fillStyle='#334155'; ctx.strokeStyle='#475569'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.roundRect(bx-28,by+100,28,80,6); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.roundRect(bx-28,by+240,28,80,6); ctx.fill(); ctx.stroke();
-      // Puertos en grilla
-      const cols=napPuertos<=4?2:napPuertos<=8?4:napPuertos<=12?6:8;
-      const rows=Math.ceil(napPuertos/cols);
-      const maxGridW=bw-60;
-      const maxGridH=bh-120;
-      const pSize=Math.min(80, Math.floor((maxGridW-(cols-1)*10)/cols), Math.floor((maxGridH-(rows-1)*10)/rows));
-      const pGap=Math.min(20, Math.floor((maxGridW-cols*pSize)/(cols-1)||10));
-      const gridW=cols*(pSize+pGap)-pGap;
-      const gridH=rows*(pSize+pGap)-pGap;
-      const gx=bx+(bw-gridW)/2;
-      const gy=by+100+(bh-80-gridH)/2;
-      for(let i=0;i<napPuertos;i++){
-        const col=i%cols;
-        const row=Math.floor(i/cols);
-        const px=gx+col*(pSize+pGap);
-        const py=gy+row*(pSize+pGap);
-        ctx.fillStyle='#0369a1'; ctx.strokeStyle='#7dd3fc'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.roundRect(px,py,pSize,pSize,8); ctx.fill(); ctx.stroke();
-        ctx.fillStyle='#0284c7';
-        ctx.beginPath(); ctx.arc(px+pSize/2,py+pSize/2-8,16,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#e0f2fe'; ctx.font='bold 20px monospace';
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(String(i+1),px+pSize/2,py+pSize-14);
-      }
-      // Entradas de cable abajo
-      [bx+bw/2-50, bx+bw/2+10].forEach(function(ex){
-        ctx.fillStyle='#0f1520'; ctx.strokeStyle='#475569'; ctx.lineWidth=3;
-        ctx.beginPath(); ctx.roundRect(ex,by+bh,40,55,6); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle='#334155'; ctx.lineWidth=3;
-        ctx.beginPath(); ctx.moveTo(ex+20,by+bh+55); ctx.lineTo(ex+20,by+bh+90); ctx.stroke();
-      });
-      // Info tecnica
-      ctx.fillStyle='#64748b'; ctx.font='22px monospace';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(napPuertos+'P  ·  '+napConector+'  ·  PON: '+napPon+'  ·  Potencia: '+napPotencia+' dBm', cw/2, ch-30);
-      const imgData=tmpC.toDataURL('image/jpeg',0.92);
-      const svgW=W-PAD*2;
-      const svgH=svgW*(ch/cw);
-      doc.addImage(imgData,'JPEG',PAD,curY,svgW,svgH,undefined,'FAST');
-      curY+=svgH+6;
-    } catch(e){ console.error('Error dibujando NAP:',e); curY+=6; }
+  // Resumen datos de la caja
+  var rows=buildSummaryRows();
+  curY+=4;
+  var tblW=W-PAD*2;
+  var cellH=10;
+  var col1W=tblW*0.45;
+  var col2W=tblW-col1W;
+  var col2=PAD+col1W;
 
-  } else {
-    try{
-      renderSVG();
-      const svgEl=document.querySelector('#svg-container svg');
-      if(svgEl){
-        const svgStr=new XMLSerializer().serializeToString(svgEl);
-        const svgBlob=new Blob([svgStr],{type:'image/svg+xml;charset=utf-8'});
-        const svgUrl=URL.createObjectURL(svgBlob);
-        await new Promise(function(resolve){
-          const img=new Image();
-          img.onload=function(){
-            const tmpC=document.createElement('canvas');
-            tmpC.width=800; tmpC.height=800;
-            const ctx=tmpC.getContext('2d');
-            ctx.fillStyle='#181c27'; ctx.fillRect(0,0,800,800);
-            ctx.drawImage(img,0,0,800,800);
-            const imgData=tmpC.toDataURL('image/jpeg',0.92);
-            const svgW=(W-PAD*2)*0.6;
-            const svgH=svgW;
-            doc.addImage(imgData,'JPEG',(W-svgW)/2,curY,svgW,svgH,undefined,'FAST');
-            curY+=svgH+6;
-            URL.revokeObjectURL(svgUrl);
-            resolve();
-          };
-          img.onerror=function(){ resolve(); };
-          img.src=svgUrl;
-        });
-      }
-    } catch(e){ console.error('Error capturando SVG:',e); }
-  }
-
-  // Datos de la caja
-  const rows=buildSummaryRows();
-  const cellH=8;
-  const col1W=(W-PAD*2)/2;
-  doc.setFontSize(11);
+  // Header DATOS DE LA CAJA
+  doc.setFillColor(30,80,160);
+  doc.rect(PAD,curY,tblW,8,'F');
+  doc.setFontSize(12);
   doc.setFont('helvetica','bold');
-  doc.setTextColor(30,80,180);
-  doc.text('DATOS DE LA CAJA',PAD,curY); curY+=6;
+  doc.setTextColor(255,255,255);
+  doc.text('DATOS DE LA CAJA',PAD+3,curY+5.5);
+  curY+=8;
+
   rows.forEach(function(row,i){
     const k=String(row[0]);
     const v=String(row[1]);
-    const cellX=i%2===0?PAD:PAD+col1W;
-    const cellY=Math.floor(i/2)*cellH+curY;
-    doc.setFillColor(i%4<2?238:248,i%4<2?242:250,i%4<2?252:255);
-    doc.rect(cellX,cellY-1,col1W,cellH,'F');
-    doc.setDrawColor(180,190,210);
+    const x=i%2===0?PAD:col2;
+    doc.setFillColor(i%4<2?240:250,i%4<2?242:252,i%4<2?248:255);
+    doc.rect(x,curY-1,col1W,cellH,'F');
+    doc.setDrawColor(160,170,200);
     doc.setLineWidth(0.2);
-    doc.rect(cellX,cellY-1,col1W,cellH,'S');
-    doc.setFontSize(7);
+    doc.rect(x,curY-1,col1W,cellH,'S');
+    doc.setFontSize(8);
     doc.setFont('helvetica','normal');
     doc.setTextColor(80,90,120);
-    doc.text(k,cellX+2,cellY+3);
-    doc.setFontSize(9);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(0,0,0);
-    doc.text(String(v),cellX+col1W-2,cellY+5,{align:'right',maxWidth:col1W-4});
-  });
-  curY+=Math.ceil(rows.length/2)*cellH+4;
-
-  if(splitters.length){
+    doc.text(k,x+2,curY+3);
     doc.setFontSize(11);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(30,80,180);
-    doc.text('SPLITTERS INTERNOS',PAD,curY); curY+=6;
+    doc.setTextColor(0,0,0);
+    doc.text(v,x+col1W-2,curY+5,{align:'right',maxWidth:col1W-4});
+    if(i%2!==0) curY+=cellH;
+  });
+  curY+=5;
+
+  if(splitters.length){
+    // Header SPLITTERS INTERNOS
+    doc.setFillColor(30,80,160);
+    doc.rect(PAD,curY,tblW,8,'F');
+    doc.setFontSize(10);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(255,255,255);
+    doc.text('SPLITTERS INTERNOS',PAD+3,curY+5.5);
+    curY+=8;
+
     splitters.forEach(function(s,i){
-      doc.setFillColor(i%2===0?238:248,i%2===0?242:250,i%2===0?252:255);
-      doc.rect(PAD,curY-1,W-PAD*2,cellH,'F');
+      if(i%2===0){
+        doc.setFillColor(235,238,248);
+      } else {
+        doc.setFillColor(245,248,252);
+      }
+      doc.rect(PAD,curY,tblW,cellH,'F');
       doc.setDrawColor(180,190,210);
       doc.setLineWidth(0.2);
-      doc.rect(PAD,curY-1,W-PAD*2,cellH,'S');
+      doc.rect(PAD,curY,tblW,cellH,'S');
       doc.setFontSize(8);
-      doc.setFont('helvetica','normal');
-      doc.setTextColor(80,90,120);
-      doc.text('SPL: '+s.label,PAD+2,curY+3);
       doc.setFont('helvetica','bold');
+      doc.setTextColor(80,90,110);
+      doc.text(String(s.label),PAD+2,curY+cellH-2);
+      doc.setFont('helvetica','normal');
       doc.setTextColor(0,0,0);
-      doc.text('Splitter '+s.tipo,W-PAD-2,curY+3,{align:'right'});
+      doc.text('Splitter '+String(s.tipo),PAD+col1W+2,curY+cellH-2);
       curY+=cellH;
     });
-    curY+=4;
+    curY+=5;
+  }
+
+  // Diagrama: renderizar en canvas
+  try{
+    const cw=760, ch=690;
+    const tmpC=document.createElement('canvas');
+    tmpC.width=cw; tmpC.height=ch;
+    const ctx=tmpC.getContext('2d');
+    const CX=570, CY=500;
+    const slotMap={};
+    ports.forEach(p=>slotMap[p.slot]=p);
+
+    // Fondo
+    ctx.fillStyle='#181c27'; ctx.fillRect(0,0,cw,ch);
+
+    // Dome exterior
+    ctx.beginPath(); ctx.ellipse(CX,CY,414,390,0,0,Math.PI*2);
+    ctx.fillStyle='#0d1019'; ctx.fill();
+    ctx.strokeStyle='#5a6490'; ctx.lineWidth=6; ctx.stroke();
+
+    // Anillo interior punteado
+    ctx.beginPath(); ctx.ellipse(CX,CY,370,350,0,0,Math.PI*2);
+    ctx.strokeStyle='#3a4468'; ctx.lineWidth=3;
+    ctx.setLineDash([15,12]); ctx.stroke(); ctx.setLineDash([]);
+
+    // Puertos
+    const SPDF=[
+      {id:'P1',cx:474,cy:220,r:55},{id:'P2',cx:666,cy:220,r:55},
+      {id:'P3',cx:240,cy:510,r:55},{id:'P4',cx:900,cy:510,r:55}
+    ];
+    SPDF.forEach(slot=>{
+      const p=slotMap[slot.id];
+      ctx.beginPath(); ctx.arc(slot.cx,slot.cy,slot.r,0,Math.PI*2);
+      if(p){ ctx.fillStyle=p.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
+      else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
+      ctx.fillStyle='#fff'; ctx.font=`bold ${p?22:18}px monospace`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(p?(p.fibers+'F'):slot.id, slot.cx, slot.cy);
+    });
+
+    // Sangría
+    const sang=slotMap['S'];
+    ctx.beginPath(); ctx.ellipse(CX,820,130,80,0,0,Math.PI*2);
+    if(sang){ ctx.fillStyle=sang.color; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=5; ctx.stroke(); }
+    else { ctx.fillStyle='#2a3350'; ctx.fill(); ctx.strokeStyle='#6a75a0'; ctx.lineWidth=3; ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(CX-40,820,30,0,Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(CX+40,820,30,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 20px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(sang?(sang.fibers+'F'):'Sangría', CX, 820);
+
+    // Splitters
+    splitters.forEach((s,i)=>{
+      const sx=CX-80+(i*90), sy=380;
+      ctx.beginPath(); ctx.moveTo(sx,sy-35); ctx.lineTo(sx+40,sy); ctx.lineTo(sx,sy+35); ctx.lineTo(sx-40,sy); ctx.closePath();
+      ctx.fillStyle='#1e1440'; ctx.fill(); ctx.strokeStyle='#8b5cf6'; ctx.lineWidth=4; ctx.stroke();
+      ctx.fillStyle='#a78bfa'; ctx.font='bold 16px monospace'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(s.tipo,sx,sy-6); ctx.font='12px monospace'; ctx.fillText(s.label,sx,sy+12);
+    });
+
+    // Centro
+    ctx.beginPath(); ctx.arc(CX,CY,85,0,Math.PI*2);
+    ctx.fillStyle='#0f131c'; ctx.fill(); ctx.strokeStyle='#3b82f6'; ctx.lineWidth=4; ctx.stroke();
+    ctx.fillStyle='#e8ecf4'; ctx.font=`bold 28px monospace`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(boxName(),CX,CY-14);
+    ctx.fillStyle='#7a85a3'; ctx.font='22px monospace';
+    ctx.fillText(cap()+'F',CX,CY+16);
+
+    const imgData=tmpC.toDataURL('image/jpeg',0.92);
+    const svgW=(W-PAD*2)*0.55;
+    const svgH=svgW*(690/760);
+    doc.addImage(imgData,'JPEG',(W-svgW)/2,curY,svgW,svgH,undefined,'FAST');
+    curY+=svgH+6;
+  } catch(drawErr){
+    alert('Error dibujando dome: '+drawErr.message);
+    curY+=6;
   }
 
   // ── PÁGINA 2 ──────────────────────────────────────────────
@@ -1765,17 +1259,12 @@ async function exportPDF(){
     doc.setTextColor(0,0,0);
     doc.text('Sin fusiones registradas',PAD,curY); curY+=10;
   } else {
-    const cols=[PAD+2, PAD+16, PAD+58, PAD+82, PAD+102, PAD+142, PAD+162];
-    // cols: #, CableA, BufferA, FibraA, CableB, BufferB, FibraB
-
-    doc.setFillColor(20,26,48);
-    doc.rect(PAD,curY-4,W-PAD*2,7,'F');
-    doc.setFontSize(7);
+    // Cabecera
+    doc.setFontSize(8);
     doc.setFont('helvetica','bold');
-    doc.setTextColor(140,155,200);
-    ['#','Cable A','Buf A','Fib A','Cable B','Buf B','Fib B'].forEach(function(h,i){
-      doc.text(h,cols[i],curY);
-    });
+    doc.setTextColor(0,0,0);
+    const cols=[PAD+2, PAD+42, PAD+88, PAD+120, PAD+163];
+    ['#','Cable A','Fibra A','Cable B','Fibra B'].forEach(function(h,i){ doc.text(h,cols[i],curY); });
     curY+=5;
 
     fusionPairs.forEach(function(f,idx){
@@ -1784,58 +1273,38 @@ async function exportPDF(){
       const bufBIdx=f.bufB||0, fibBIdx=f.fB||0;
       const fibAColor=FC[fibAIdx%12];
       const fibBColor=FC[fibBIdx%12];
-      const bufAColor=pA&&!pA.isSplitter?FC[bufAIdx%12]:null;
-      const bufBColor=pB&&!pB.isSplitter?FC[bufBIdx%12]:null;
-      const nameA=pA?(pA.isSplitter?'SPL:'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?';
-      const nameB=pB?(pB.isSplitter?'SPL:'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?';
-      const bufALabel=bufAColor?bufAColor.n:'-';
-      const bufBLabel=bufBColor?bufBColor.n:'-';
+      const bufAColor=pA&&!pA.isSplitter ? FC[bufAIdx%12] : null;
+      const bufBColor=pB&&!pB.isSplitter ? FC[bufBIdx%12] : null;
+      const nameA=pA?(pA.isSplitter?'SPL·'+pA.name:slotLabel(pA.slot)+'·'+pA.name):'?';
+      const nameB=pB?(pB.isSplitter?'SPL·'+pB.name:slotLabel(pB.slot)+'·'+pB.name):'?';
+      const lblA=bufAColor?(bufAColor.n+' · '+fibAColor.n):fibAColor.n;
+      const lblB=bufBColor?(bufBColor.n+' · '+fibBColor.n):fibBColor.n;
 
-      doc.setFillColor(idx%2===0?28:38, idx%2===0?34:44, idx%2===0?52:65);
-      doc.rect(PAD,curY-3.5,W-PAD*2,6,'F');
-
-      // Número con fondo del color de fibra A
-      doc.setFontSize(7);
+      doc.setFontSize(8);
       doc.setFont('helvetica','bold');
       doc.setTextColor(0,0,0);
       doc.text(String(idx+1),cols[0],curY);
 
-      doc.setTextColor(240,242,250);
-      doc.setFont('helvetica','normal');
-      doc.text(nameA,cols[1],curY,{maxWidth:40});
-
-      // Buffer A dot + texto
+      // Dot color fibra A
       const [rA,gA,bA]=hexToRgb(fibAColor.h);
-      const [rbA,gbA,bbA]=hexToRgb(bufAColor?bufAColor.h:'#888888');
-      doc.setFillColor(rbA,gbA,bbA);
-      doc.circle(cols[2]+2,curY-0.5,1.5,'F');
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(240,242,250);
-      doc.text(bufALabel,cols[2]+5,curY,{maxWidth:14});
-
-      // Fibra A dot + texto
       doc.setFillColor(rA,gA,bA);
-      doc.circle(cols[3]+2,curY-0.5,1.5,'F');
-      doc.text(fibAColor.n,cols[3]+5,curY,{maxWidth:14});
-
-      const [rB,gB,bB]=hexToRgb(fibBColor.h);
-
-      doc.setTextColor(240,242,250);
+      doc.circle(cols[1]-4,curY-0.5,2,'F');
       doc.setFont('helvetica','normal');
-      doc.text(nameB,cols[4],curY,{maxWidth:38});
+      doc.setTextColor(0,0,0);
+      doc.text(nameA,cols[1],curY,{maxWidth:43});
 
-      // Buffer B dot + texto
-      const [rbB,gbB,bbB]=hexToRgb(bufBColor?bufBColor.h:'#888888');
-      doc.setFillColor(rbB,gbB,bbB);
-      doc.circle(cols[5]+2,curY-0.5,1.5,'F');
       doc.setFont('helvetica','bold');
-      doc.setTextColor(240,242,250);
-      doc.text(bufBLabel,cols[5]+5,curY,{maxWidth:14});
+      doc.text(lblA,cols[2],curY,{maxWidth:28});
 
-      // Fibra B dot + texto
+      // Dot color fibra B
+      const [rB,gB,bB]=hexToRgb(fibBColor.h);
       doc.setFillColor(rB,gB,bB);
-      doc.circle(cols[6]+2,curY-0.5,1.5,'F');
-      doc.text(fibBColor.n,cols[6]+5,curY,{maxWidth:14});
+      doc.circle(cols[3]-4,curY-0.5,2,'F');
+      doc.setFont('helvetica','normal');
+      doc.text(nameB,cols[3],curY,{maxWidth:40});
+
+      doc.setFont('helvetica','bold');
+      doc.text(lblB,cols[4],curY,{maxWidth:28});
 
       curY+=6;
       if(curY>H-60){ doc.addPage(); curY=20; }
@@ -1843,82 +1312,33 @@ async function exportPDF(){
     curY+=4;
   }
 
-  // Plano / imagen de referencia
-  if(pdfCustomImage){
+  // Plano en alta resolución
+  if(planoCanvas&&planoImgLoaded){
     hline(curY); curY+=5;
-    doc.setFontSize(9);
-    doc.setFont('helvetica','bold');
-    doc.setTextColor(0,60,160);
-    doc.text('IMAGEN DE REFERENCIA',PAD,curY); curY+=4;
+    setH(8,true,[59,130,246]);
+    doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
+
+    // Capturar canvas a mayor resolución
+    const scale=2;
+    const tmpC=document.createElement('canvas');
+    tmpC.width=planoCanvas.width*scale;
+    tmpC.height=planoCanvas.height*scale;
+    const tCtx=tmpC.getContext('2d');
+    tCtx.scale(scale,scale);
+    tCtx.drawImage(planoCanvas,0,0);
+    const planoData=tmpC.toDataURL('image/jpeg',0.92);
+
     const availH=H-curY-PAD-8;
     const availW=W-PAD*2;
-    const tmpImg=new Image();
-    await new Promise(function(res){
-      tmpImg.onload=function(){
-        const ratio=tmpImg.height/tmpImg.width;
-        let pW=availW, pH=availW*ratio;
-        if(pH>availH){pH=availH;pW=availH/ratio;}
-        doc.addImage(pdfCustomImage,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
-        curY+=pH+4;
-        res();
-      };
-      tmpImg.src=pdfCustomImage;
-    });
+    const ratio=planoCanvas.height/planoCanvas.width;
+    let pW=availW,pH=availW*ratio;
+    if(pH>availH){pH=availH;pW=availH/ratio;}
+    doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
+    curY+=pH+4;
   } else {
-    // Intentar cargar el plano si no está inicializado
-    if(!planoImgLoaded && !planoCanvas){
-      initPlano();
-      await new Promise(function(res){ setTimeout(res, 1500); });
-    }
-    if(planoCanvas&&planoImgLoaded){
-      hline(curY); curY+=5;
-      doc.setFontSize(9);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(0,60,160);
-      doc.text('ESTADO DEL PLANO (vista actual)',PAD,curY); curY+=4;
-      const scale=2;
-      const tmpC=document.createElement('canvas');
-      tmpC.width=planoCanvas.width*scale;
-      tmpC.height=planoCanvas.height*scale;
-      const tCtx=tmpC.getContext('2d');
-      tCtx.scale(scale,scale);
-      tCtx.drawImage(planoCanvas,0,0);
-      const planoData=tmpC.toDataURL('image/jpeg',0.92);
-      const availH=H-curY-PAD-8;
-      const availW=W-PAD*2;
-      const ratio=planoCanvas.height/planoCanvas.width;
-      let pW=availW, pH=availW*ratio;
-      if(pH>availH){pH=availH;pW=availH/ratio;}
-      doc.addImage(planoData,'JPEG',PAD,curY,pW,pH,undefined,'FAST');
-      curY+=pH+4;
-    } else {
-      doc.setFontSize(8);
-      doc.setFont('helvetica','italic');
-      doc.setTextColor(150,150,150);
-      doc.text('Sin datos de plano',PAD,curY);
-      curY+=8;
-    }
-  }
-
-  if(fotos.length){
-    if(curY+20<H){
-      doc.setFontSize(9);
-      doc.setFont('helvetica','bold');
-      doc.setTextColor(0,60,160);
-      doc.text('REGISTRO FOTOGRÁFICO',PAD,curY); curY+=6;
-    } else { doc.addPage(); curY=20; }
-    const fotoW=(W-PAD*2-6)/2;
-    let fx=PAD, fy=curY;
-    for(let fi=0;fi<fotos.length;fi++){
-      if(fy+fotoW*0.75>H-PAD){ doc.addPage(); fy=20; fx=PAD; }
-      if(!fotos[fi].data){ fx+=fotoW+6; if(fx>W-PAD){ fx=PAD; fy+=fotoW*0.75+14; } continue; }
-      const _imgType=fotos[fi].data.startsWith('data:image/png')?'PNG':'JPEG';
-      doc.addImage(fotos[fi].data,_imgType,fx,fy,fotoW,fotoW*0.75,undefined,'FAST');
-      doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-      doc.text(fotos[fi].descripcion||'Foto '+(fi+1),fx,fy+fotoW*0.75+4,{maxWidth:fotoW});
-      fx+=fotoW+6;
-      if(fx>W-PAD){ fx=PAD; fy+=fotoW*0.75+14; }
-    }
+    setH(7,false,[122,133,163]);
+    doc.text('Plano no disponible — visitá la pestaña Plano antes de exportar',PAD,curY);
+    curY+=8;
   }
 
   // Footer
@@ -1964,7 +1384,6 @@ let planoScale=1;
 let planoTool='select';
 let planoColor='#3b82f6';
 let planoElements=[];
-let planoHistory=[]; // stack de estados anteriores
 let planoDrawing=false;
 let planoCurrentLine=null;
 let planoPinch={active:false,lastDist:0};
@@ -1973,71 +1392,63 @@ let planoPanStart=null, planoPanOffStart={x:0,y:0};
 // Offset de pan — en coordenadas de pantalla (px del canvas visible)
 let planoOffX=0, planoOffY=0;
 let planoImgLoaded=false;
-let planoInitializing=false;
 // Para input de label sin prompt
 let pendingLabelPos=null;
 
 function initPlano(){
-  if(planoCanvas && planoImgLoaded) return;
-  if(planoInitializing) return;
-  planoInitializing=true;
+  if(planoCanvas) return;
+  planoCanvas = document.getElementById('plano-canvas');
+  planoCtx = planoCanvas.getContext('2d');
 
   function onImgReady(){
     planoImgLoaded=true;
-    planoInitializing=false;
     const wrap=document.getElementById('plano-canvas-wrap');
-    const wrapW=(wrap&&wrap.clientWidth)||360;
+    const wrapW=wrap.clientWidth||360;
     planoScale=wrapW/planoImg.width;
     planoCanvas.width=wrapW;
     planoCanvas.height=Math.round(planoImg.height*planoScale);
     drawPlano();
   }
 
-  if(!planoCanvas){
-    planoCanvas = document.getElementById('plano-canvas');
-    if(!planoCanvas){ planoInitializing=false; return; }
-    planoCtx = planoCanvas.getContext('2d');
-
-    // Mouse
-    planoCanvas.addEventListener('mousedown', e=>planoDown(e.offsetX, e.offsetY));
-    planoCanvas.addEventListener('mousemove', e=>{ if(planoDrawing) planoMove(e.offsetX, e.offsetY); });
-    planoCanvas.addEventListener('mouseup',   e=>planoUp(e.offsetX, e.offsetY));
-
-    // Touch — single finger
-    planoCanvas.addEventListener('touchstart', e=>{
-      e.preventDefault();
-      if(e.touches.length===1){
-        const r=planoCanvas.getBoundingClientRect();
-        planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
-      } else if(e.touches.length===2){
-        planoPinch.active=true;
-        planoPinch.lastDist=touchDist(e.touches);
-      }
-    },{passive:false});
-    planoCanvas.addEventListener('touchmove', e=>{
-      e.preventDefault();
-      if(e.touches.length===1 && planoDrawing){
-        const r=planoCanvas.getBoundingClientRect();
-        planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
-      } else if(e.touches.length===2 && planoPinch.active){
-        const dist=touchDist(e.touches);
-        const factor=dist/planoPinch.lastDist;
-        planoPinch.lastDist=dist;
-        applyZoom(factor);
-      }
-    },{passive:false});
-    planoCanvas.addEventListener('touchend', e=>{
-      e.preventDefault();
-      planoPinch.active=false;
-      if(e.changedTouches.length){
-        const r=planoCanvas.getBoundingClientRect();
-        planoUp(e.changedTouches[0].clientX-r.left, e.changedTouches[0].clientY-r.top);
-      }
-    },{passive:false});
-  }
-
   if(planoImg.complete && planoImg.naturalWidth>0) onImgReady();
   else { planoImg.onload=onImgReady; }
+
+  // Mouse
+  planoCanvas.addEventListener('mousedown', e=>planoDown(e.offsetX, e.offsetY));
+  planoCanvas.addEventListener('mousemove', e=>{ if(planoDrawing) planoMove(e.offsetX, e.offsetY); });
+  planoCanvas.addEventListener('mouseup',   e=>planoUp(e.offsetX, e.offsetY));
+
+  // Touch — single finger
+  planoCanvas.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    if(e.touches.length===1){
+      const r=planoCanvas.getBoundingClientRect();
+      planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
+    } else if(e.touches.length===2){
+      planoPinch.active=true;
+      planoPinch.lastDist=touchDist(e.touches);
+    }
+  },{passive:false});
+  planoCanvas.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    if(e.touches.length===1 && planoDrawing){
+      const r=planoCanvas.getBoundingClientRect();
+      planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
+    } else if(e.touches.length===2 && planoPinch.active){
+      const dist=touchDist(e.touches);
+      const factor=dist/planoPinch.lastDist;
+      planoPinch.lastDist=dist;
+      applyZoom(factor);
+    }
+  },{passive:false});
+  planoCanvas.addEventListener('touchend', e=>{
+    e.preventDefault();
+    planoPinch.active=false;
+    if(e.changedTouches.length){
+      const r=planoCanvas.getBoundingClientRect();
+      planoUp(e.changedTouches[0].clientX-r.left, e.changedTouches[0].clientY-r.top);
+    }
+  },{passive:false});
 }
 
 function touchDist(touches){
@@ -2058,21 +1469,6 @@ function screenToImg(sx, sy){
 let planoPolyPoints=[];
 let planoLastTap=0;
 
-function savePlanoHistory(){
-  planoHistory.push(JSON.parse(JSON.stringify(planoElements)));
-  if(planoHistory.length>30) planoHistory.shift(); // máximo 30 pasos
-}
-
-function undoPlano(){
-  if(!planoHistory.length){ toast('Nada para deshacer'); return; }
-  planoElements=planoHistory.pop();
-  planoCurrentLine=null;
-  planoPolyPoints=[];
-  updateFinishBtn();
-  drawPlano();
-  toast('Deshecho');
-}
-
 function planoDown(sx, sy){
   planoDrawing=true;
   planoPanStart={x:sx, y:sy};
@@ -2087,7 +1483,6 @@ function planoDown(sx, sy){
     const doubleTap=(planoPolyPoints.length>=2 && now-planoLastTap<400);
     if(doubleTap){
       if(planoPolyPoints.length>=4){
-        savePlanoHistory();
         planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
         toast('Traza guardada');
       }
@@ -2109,7 +1504,6 @@ function planoDown(sx, sy){
 
   if(planoTool==='nap'){
     showLabelInput(sx,sy,'NAP-01',function(label){
-      savePlanoHistory();
       planoElements.push({type:'nap',x:pos.x,y:pos.y,color:planoColor,label:label});
       drawPlano();
     });
@@ -2119,7 +1513,6 @@ function planoDown(sx, sy){
 
   if(planoTool==='splice'){
     showLabelInput(sx,sy,'CE-01',function(label){
-      savePlanoHistory();
       planoElements.push({type:'splice',x:pos.x,y:pos.y,color:planoColor,label:label});
       drawPlano();
     });
@@ -2129,7 +1522,7 @@ function planoDown(sx, sy){
 
   if(planoTool==='label'){
     showLabelInput(sx,sy,'Texto...',function(label){
-      if(label){ savePlanoHistory(); planoElements.push({type:'label',x:pos.x,y:pos.y,color:planoColor,label:label}); }
+      if(label) planoElements.push({type:'label',x:pos.x,y:pos.y,color:planoColor,label:label});
       drawPlano();
     });
     planoDrawing=false;
@@ -2138,7 +1531,6 @@ function planoDown(sx, sy){
 
   if(planoTool==='erase'){
     const thr=20/planoScale;
-    savePlanoHistory();
     planoElements=planoElements.filter(function(el){
       if(el.type==='line'){
         for(var i=0;i<el.points.length-2;i+=2){
@@ -2202,115 +1594,59 @@ function drawEl(ctx,el){
     for(let i=2;i<el.points.length;i+=2) ctx.lineTo(el.points[i],el.points[i+1]);
     ctx.stroke();
   } else if(el.type==='nap'){
-    const nw=14/planoScale;
-    const nh=18/planoScale;
+    const r=14/planoScale;
+    const fs=13/planoScale;
     const pad=3/planoScale;
-    const lw2=1.2/planoScale;
-    ctx.save();
-    // Cuerpo rectangular principal
-    ctx.fillStyle='#1a1a1a';
+    ctx.fillStyle=el.color;
     ctx.strokeStyle='#fff';
-    ctx.lineWidth=lw2;
-    ctx.fillRect(el.x-nw*0.5, el.y-nh*0.5, nw, nh);
-    ctx.strokeRect(el.x-nw*0.5, el.y-nh*0.5, nw, nh);
-    // Bisagra lateral izquierda
-    ctx.fillStyle='rgba(255,255,255,0.3)';
-    ctx.fillRect(el.x-nw*0.5-2/planoScale, el.y-nh*0.2, 2/planoScale, nh*0.4);
-    ctx.strokeStyle='rgba(255,255,255,0.6)';
-    ctx.strokeRect(el.x-nw*0.5-2/planoScale, el.y-nh*0.2, 2/planoScale, nh*0.4);
-    // Línea divisoria horizontal (tapa/cuerpo)
-    ctx.strokeStyle='rgba(255,255,255,0.5)';
-    ctx.lineWidth=lw2*0.6;
+    ctx.lineWidth=lw*1.5;
     ctx.beginPath();
-    ctx.moveTo(el.x-nw*0.5, el.y-nh*0.1);
-    ctx.lineTo(el.x+nw*0.5, el.y-nh*0.1);
+    ctx.arc(el.x,el.y,r,0,Math.PI*2);
+    ctx.fill();
     ctx.stroke();
-    // Estrías verticales en la tapa (ventilación)
-    ctx.lineWidth=lw2*0.4;
-    for(var v=-2;v<=2;v++){
-      ctx.beginPath();
-      ctx.moveTo(el.x+nw*0.12*v, el.y-nh*0.5);
-      ctx.lineTo(el.x+nw*0.12*v, el.y-nh*0.1);
-      ctx.stroke();
-    }
-    // Entradas de cable abajo (2 círculos)
-    ctx.fillStyle='rgba(0,0,0,0.5)';
-    ctx.strokeStyle='rgba(255,255,255,0.6)';
-    ctx.lineWidth=lw2*0.5;
-    [-0.25,0.25].forEach(function(o){
-      ctx.beginPath();
-      ctx.arc(el.x+nw*o, el.y+nh*0.5, nw*0.15, 0, Math.PI*2);
-      ctx.fill(); ctx.stroke();
-    });
-    // Letra N
     ctx.fillStyle='#fff';
-    ctx.font='bold '+10/planoScale+'px monospace';
+    ctx.font='bold '+fs+'px monospace';
     ctx.textAlign='center';
     ctx.textBaseline='middle';
-    ctx.fillText('N', el.x, el.y+nh*0.15);
-    // Etiqueta con fondo
-    ctx.font='bold '+11/planoScale+'px monospace';
+    ctx.fillText('N',el.x,el.y);
+    ctx.font='bold '+fs+'px monospace';
     ctx.textAlign='left';
+    ctx.textBaseline='middle';
     const twN=ctx.measureText(el.label).width;
-    const lxN=el.x+nw*0.5+pad;
+    const lxN=el.x+r+pad;
+    const lyN=el.y;
     ctx.fillStyle='rgba(0,0,0,0.75)';
-    ctx.fillRect(lxN-pad, el.y-5/planoScale, twN+pad*2, 11/planoScale);
-    ctx.fillStyle='#fff';
-    ctx.fillText(el.label, lxN, el.y);
-    ctx.restore();
+    ctx.fillRect(lxN-pad, lyN-fs*0.65, twN+pad*2, fs*1.3);
+    ctx.fillStyle='#ffffff';
+    ctx.fillText(el.label,lxN,lyN);
 
   } else if(el.type==='splice'){
-    const rw=10/planoScale;
-    const rh=18/planoScale;
-    const pad=4/planoScale;
-    const lw2=1.2/planoScale;
-    ctx.save();
-    // Cuerpo principal del cilindro
+    const rx=18/planoScale;
+    const ry2=11/planoScale;
+    const fs=12/planoScale;
+    const pad=3/planoScale;
+    ctx.fillStyle=el.color;
+    ctx.strokeStyle='#fff';
+    ctx.lineWidth=lw*1.5;
     ctx.beginPath();
-    ctx.moveTo(el.x-rw, el.y-rh*0.5);
-    ctx.lineTo(el.x-rw, el.y+rh*0.5);
-    ctx.ellipse(el.x, el.y+rh*0.5, rw, rw*0.4, 0, 0, Math.PI);
-    ctx.lineTo(el.x+rw, el.y-rh*0.5);
-    ctx.ellipse(el.x, el.y-rh*0.5, rw, rw*0.4, 0, Math.PI, 0);
-    ctx.closePath();
-    ctx.fillStyle='#1a1a1a'; ctx.fill();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
-    // Tapa superior (elipse)
-    ctx.beginPath();
-    ctx.ellipse(el.x, el.y-rh*0.5, rw, rw*0.4, 0, 0, Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.fill();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
-    // Estrías horizontales
-    ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=lw2*0.5;
-    for(var s=-3;s<=3;s++){
-      const sy=el.y+rh*0.08*s;
-      ctx.beginPath();
-      ctx.moveTo(el.x-rw, sy);
-      ctx.lineTo(el.x+rw, sy);
-      ctx.stroke();
-    }
-    // Base con entradas
-    ctx.beginPath();
-    ctx.ellipse(el.x, el.y+rh*0.5, rw*1.25, rw*0.5, 0, 0, Math.PI*2);
-    ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=lw2; ctx.stroke();
-    // Tubos de entrada (4 puntos)
-    [-0.55,-0.2,0.2,0.55].forEach(function(o){
-      ctx.beginPath();
-      ctx.arc(el.x+rw*o, el.y+rh*0.82, rw*0.18, 0, Math.PI*2);
-      ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fill();
-      ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=lw2*0.5; ctx.stroke();
-    });
-    // Etiqueta con fondo
-    ctx.font='bold '+11/planoScale+'px monospace';
-    ctx.textAlign='left'; ctx.textBaseline='middle';
-    const twS=ctx.measureText(el.label).width;
-    const lxS=el.x+rw*1.4;
-    ctx.fillStyle='rgba(0,0,0,0.75)';
-    ctx.fillRect(lxS-pad, el.y-5/planoScale, twS+pad*2, 11/planoScale);
+    ctx.ellipse(el.x,el.y,rx,ry2,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
     ctx.fillStyle='#fff';
-    ctx.fillText(el.label, lxS, el.y);
-    ctx.restore();
+    ctx.font='bold '+(fs*0.85)+'px monospace';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('CE',el.x,el.y);
+    ctx.font='bold '+fs+'px monospace';
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    const twS=ctx.measureText(el.label).width;
+    const lxS=el.x+rx+pad;
+    const lyS=el.y;
+    ctx.fillStyle='rgba(0,0,0,0.75)';
+    ctx.fillRect(lxS-pad, lyS-fs*0.65, twS+pad*2, fs*1.3);
+    ctx.fillStyle='#ffffff';
+    ctx.fillText(el.label,lxS,lyS);
 
   } else if(el.type==='label'){
     const fs=14/planoScale;
@@ -2354,7 +1690,6 @@ function showLabelInput(sx, sy, placeholder, cb){
 
 function finishLine(){
   if(planoPolyPoints.length>=4){
-    savePlanoHistory();
     planoElements.push({type:'line',points:[...planoPolyPoints],color:planoColor});
     toast('Traza guardada — '+((planoPolyPoints.length/2)-1)+' puntos');
   }
@@ -2413,7 +1748,7 @@ function resetZoom(){
 
 function clearPlano(){
   if(!planoElements.length) return;
-  let ok=false; try{ ok=confirm('¿Borrar todo el dibujo?'); }catch(e){ ok=true; } if(!ok) return;
+  if(!confirm('¿Borrar todo el dibujo?')) return;
   planoElements=[]; drawPlano();
 }
 
@@ -2422,329 +1757,13 @@ function exportPlanoSVG(){
   const w=planoCanvas.width,h=planoCanvas.height;
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><image href="${dataUrl}" width="${w}" height="${h}"/></svg>`;
   const a=document.createElement('a');
-  const blobUrl=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
-  a.href=blobUrl;
+  a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
   a.download='plano_fibertrack.svg'; a.click();
-  setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 1000);
   toast('Plano exportado');
 }
 
-function guardarTecnico(){
-  const nombre=document.getElementById('tec-nombre').value.trim();
-  const legajo=document.getElementById('tec-legajo').value.trim();
-  if(!nombre){ toast('Ingresá tu nombre'); return; }
-  try{
-    saveTecnico({nombre,legajo,desde:new Date().toISOString()});
-  } catch(e){
-    toast('Error al guardar técnico: '+e.message);
-    return;
-  }
-  document.getElementById('screen-tecnico').style.display='none';
-  mostrarLista();
-}
-
-function mostrarLista(){
-  // Asegurar que screen-lista existe en el DOM
-  let sl=document.getElementById('screen-lista');
-  if(!sl){
-    sl=document.createElement('div');
-    sl.id='screen-lista';
-    document.body.appendChild(sl);
-  }
-  sl.style.cssText='display:flex;flex-direction:column;position:fixed;inset:0;z-index:9998;background:#0f1117;height:100vh;';
-
-  // Asegurar header
-  if(!sl.querySelector('.lista-header')){
-    sl.innerHTML='<div class="lista-header" style="background:#181c27;padding:16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2f45">'
-      +'<div><div style="font-size:16px;font-weight:700;color:#e8ecf4;font-family:monospace">FiberTrack</div>'
-      +'<div id="lista-tecnico-label" style="font-size:11px;color:#7a85a3"></div></div>'
-      +'<button onclick="mostrarNuevoCierre()" style="background:#3b82f6;border:none;border-radius:8px;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">+ Nuevo</button>'
-      +'</div>'
-      +'<div id="lista-cierres" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>';
-  }
-
-  const tec=getTecnico();
-  const tecLabel=document.getElementById('lista-tecnico-label');
-  if(tecLabel) tecLabel.textContent=tec?(tec.nombre+(tec.legajo?' · '+tec.legajo:'')):'';
-
-  const lista=document.getElementById('lista-cierres');
-  if(!lista) return;
-
-  const cierres=getCierres();
-  if(!cierres.length){
-    lista.innerHTML='<div style="text-align:center;padding:48px 0;color:#7a85a3;font-family:monospace;font-size:13px">Sin cierres registrados.<br>Tocá &quot;+ Nuevo&quot; para comenzar.</div>';
-  } else {
-    lista.innerHTML=cierres.map(function(c){
-      const esNap=c.datos&&c.datos.tipo==='nap';
-      const badgeColor=esNap?'rgba(139,92,246,0.2)':'rgba(59,130,246,0.2)';
-      const badgeText=esNap?'#a78bfa':'#60a5fa';
-      const badgeLabel=esNap?'NAP':'CE';
-      const nombre=c.datos&&c.datos.nombre?c.datos.nombre:'Sin nombre';
-      const ubicacion=c.datos&&c.datos.ubicacion?c.datos.ubicacion:'Sin ubicación';
-      const fecha=c.datos&&c.datos.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):'';
-      const cables=c.datos&&c.datos.ports?c.datos.ports.length:0;
-      const fusiones=c.datos&&c.datos.fusionPairs?c.datos.fusionPairs.length:0;
-      return '<div style="background:#181c27;border:1px solid #2a2f45;border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">'
-        +'<div onclick="abrirCierre(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer">'
-        +'<div style="display:flex;align-items:center;gap:8px">'
-        +'<div style="font-size:14px;font-weight:600;color:#e8ecf4;font-family:monospace">'+nombre+'</div>'
-        +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:monospace;font-weight:500;background:'+badgeColor+';color:'+badgeText+'">'+badgeLabel+'</span>'
-        +'</div>'
-        +'<div style="font-size:11px;color:#7a85a3;margin-top:2px">'+ubicacion+' · '+fecha+'</div>'
-        +'<div style="font-size:11px;color:#a78bfa;margin-top:2px">'+cables+' cables · '+fusiones+' fusiones</div>'
-        +'</div>'
-        +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:#7a85a3;font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
-        +'</div>';
-    }).join('');
-  }
-
-  const appEl=document.getElementById('app');
-  if(appEl) appEl.style.visibility='hidden';
-}
-
-function mostrarNuevoCierre(){
-  const modal=document.createElement('div');
-  modal.id='nuevo-elemento-modal';
-  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px';
-  modal.innerHTML='<div style="color:#fff;font-size:18px;font-weight:700;font-family:monospace;text-align:center">Nuevo elemento</div>'
-    +'<div style="color:#94a3b8;font-size:13px;font-family:monospace;text-align:center">¿Qué tipo de elemento querés registrar?</div>'
-    +'<div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px">'
-    +'<button onclick="crearElemento(\'cierre\')" style="height:72px;background:var(--bg2);border:1px solid var(--accent);border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace;display:flex;align-items:center;gap:14px;padding:0 20px">'
-    +'<svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--accent);fill:none;stroke-width:1.5;flex-shrink:0"><ellipse cx="12" cy="12" rx="9" ry="8"/><ellipse cx="12" cy="12" rx="6" ry="5" stroke-dasharray="2 1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/><ellipse cx="12" cy="18" rx="3" ry="1.8"/></svg>'
-    +'<div style="text-align:left"><div>Cierre de empalme</div><div style="font-size:11px;color:#94a3b8;font-weight:400;margin-top:2px">Dome · fusiones · splitters</div></div>'
-    +'</button>'
-    +'<button onclick="crearElemento(\'nap\')" style="height:72px;background:var(--bg2);border:1px solid #8b5cf6;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace;display:flex;align-items:center;gap:14px;padding:0 20px">'
-    +'<svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:#8b5cf6;fill:none;stroke-width:1.5;flex-shrink:0"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><circle cx="7" cy="6.5" r="1"/><circle cx="10" cy="6.5" r="1"/><circle cx="6" cy="13" r="1.2"/><circle cx="10" cy="13" r="1.2"/><circle cx="14" cy="13" r="1.2"/><circle cx="18" cy="13" r="1.2"/><circle cx="6" cy="17" r="1.2"/><circle cx="10" cy="17" r="1.2"/><circle cx="14" cy="17" r="1.2"/><circle cx="18" cy="17" r="1.2"/></svg>'
-    +'<div style="text-align:left"><div>NAP</div><div style="font-size:11px;color:#94a3b8;font-weight:400;margin-top:2px">Puertos · conector · PON · potencia</div></div>'
-    +'</button>'
-    +'<button onclick="document.getElementById(\'nuevo-elemento-modal\').remove()" style="height:44px;background:transparent;border:1px solid #475569;border-radius:10px;color:#94a3b8;font-size:14px;cursor:pointer;font-family:monospace">Cancelar</button>'
-    +'</div>';
-  document.body.appendChild(modal);
-}
-
-function crearElemento(tipo){
-  const _nuevoModal=document.getElementById('nuevo-elemento-modal');
-  if(_nuevoModal) _nuevoModal.remove();
-  const id=genId();
-  const cierres=getCierres();
-  const num=String(cierres.length+1).padStart(2,'0');
-  const nombre=tipo==='nap'?('NAP-'+num):('CE-'+num);
-  cierres.unshift({
-    id,
-    tipo:tipo,
-    creadoEn:new Date().toISOString(),
-    datos:{
-      nombre,
-      tipo:tipo,
-      ubicacion:'',
-      fechaModificacion:new Date().toISOString()
-    }
-  });
-  saveCierres(cierres);
-  abrirCierre(id);
-}
-
-function abrirCierre(id){
-  localStorage.setItem('ft_cierre_actual',id);
-  const cierre=getCierres().find(c=>c.id===id);
-  if(cierre) cargarCierre(cierre);
-  const tipo=cierre?.datos?.tipo||'cierre';
-  if(tipo==='nap'){
-    document.getElementById('tab-fusiones').style.display='none';
-    document.getElementById('tab-vista').style.display='none';
-  } else {
-    document.getElementById('tab-fusiones').style.display='';
-    document.getElementById('tab-vista').style.display='';
-  }
-  const screenLista=document.getElementById('screen-lista');
-  const screenTecnico=document.getElementById('screen-tecnico');
-  if(screenLista){ screenLista.style.display='none'; screenLista.style.zIndex=''; }
-  if(screenTecnico) screenTecnico.style.display='none';
-  const appEl=document.getElementById('app');
-  if(appEl){
-    appEl.style.visibility='visible';
-    appEl.style.display='flex';
-    appEl.style.flexDirection='column';
-    appEl.style.height='100vh';
-  }
-  goTab('config');
-}
-
-function eliminarCierre(id){
-  let ok=false; try{ ok=confirm('¿Eliminar este cierre?'); }catch(e){ ok=true; } if(!ok) return;
-  saveCierres(getCierres().filter(c=>c.id!==id));
-  mostrarLista();
-}
-
-function volverALista(){
-  saveEstadoActual();
-  localStorage.removeItem('ft_cierre_actual');
-  ports=[]; splitters=[]; fusionPairs=[]; planoElements=[]; fotos=[];
-  planoPolyPoints=[]; planoHistory=[];
-  pdfCustomImage=null;
-  planoCanvas=null; planoCtx=null; planoImgLoaded=false;
-  planoOffX=0; planoOffY=0;
-  pid=1; fid=1; spid=1;
-  const tabFusiones=document.getElementById('tab-fusiones');
-  const tabVista=document.getElementById('tab-vista');
-  if(tabFusiones) tabFusiones.style.display='';
-  if(tabVista) tabVista.style.display='';
-  const appEl=document.getElementById('app');
-  if(appEl) appEl.style.visibility='hidden';
-  mostrarLista();
-}
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(function(registrations){
-    registrations.forEach(function(r){ r.unregister(); });
-  });
-}
-// Inicialización con persistencia
-(function init(){
-  // Aplicar live update guardado si es más nuevo que el APK instalado
-  if(applyStoredUpdate()) return;
-  // Detectar si acabamos de aplicar un update
-  const pendingUpdateVersion=localStorage.getItem('ft_pending_update_version');
-  if(pendingUpdateVersion){
-    localStorage.removeItem('ft_pending_update_version');
-    setTimeout(function(){
-      toast('✓ App actualizada a v'+pendingUpdateVersion);
-    }, 1500);
-  }
-  // Restaurar último cierre si estaba abierto
-  const lastId=localStorage.getItem('ft_cierre_actual');
-  const tec=getTecnico();
-
-  if(!tec){
-    document.getElementById('app').style.display='none';
-    document.getElementById('screen-tecnico').style.display='flex';
-  } else if(lastId){
-    // Había un cierre abierto — restaurarlo
-    const cierre=getCierres().find(function(c){return c.id===lastId;});
-    if(cierre){
-      cargarCierre(cierre);
-      const appEl=document.getElementById('app');
-      if(appEl){ appEl.style.visibility='visible'; appEl.style.display='flex'; appEl.style.flexDirection='column'; appEl.style.height='100vh'; }
-      const tipo=cierre.datos&&cierre.datos.tipo||'cierre';
-      if(tipo==='nap'){
-        const tf=document.getElementById('tab-fusiones');
-        const tv=document.getElementById('tab-vista');
-        if(tf) tf.style.display='none';
-        if(tv) tv.style.display='none';
-      }
-      goTab('config');
-    } else {
-      document.getElementById('app').style.display='none';
-      mostrarLista();
-    }
-  } else {
-    document.getElementById('app').style.display='none';
-    mostrarLista();
-  }
-  renderPorts(); renderSplitters(); updateStats();
-})();
-
-// ── LIVE UPDATE ──────────────────────────────────────────────
-const LU_MANIFEST='https://bitshitlynx.github.io/fibertruck/update/manifest.json';
-const LU_VERSION_KEY='ft_update_version';
-const LU_HTML_KEY='ft_update_html';
-const LU_BUILD_KEY='ft_update_build';
-const APP_BUILD=20; // build actual del APK, debe coincidir con manifest.json
-
-async function checkForUpdates(){
-  try{
-    // Guardar estado antes de cualquier operación de update
-    saveEstadoActual();
-
-    // Solo si hay internet
-    if(!navigator.onLine) return;
-
-    const res=await fetch(LU_MANIFEST+'?t='+Date.now(),{
-      cache:'no-store',
-      signal:AbortSignal.timeout(8000)
-    });
-    if(!res.ok) return;
-
-    const manifest=await res.json();
-    const remoteBuild=parseInt(manifest.build)||0;
-    const localBuild=parseInt(localStorage.getItem(LU_BUILD_KEY))||APP_BUILD;
-
-    // ¿Hay versión nueva?
-    if(remoteBuild<=localBuild) return;
-
-    // ¿Compatible con este APK?
-    if(APP_BUILD<(parseInt(manifest.minBuild)||0)) return;
-
-    console.log('Update disponible: build '+remoteBuild);
-
-    // Descargar nuevo index.html
-    const htmlRes=await fetch(manifest.url+'?t='+Date.now(),{
-      cache:'no-store',
-      signal:AbortSignal.timeout(30000)
-    });
-    if(!htmlRes.ok) return;
-
-    const html=await htmlRes.text();
-
-    // Validación básica
-    if(html.length<10000||!html.includes('FiberTrack')){
-      console.error('Update inválido — descartado');
-      return;
-    }
-
-    // Guardar en localStorage
-    localStorage.setItem(LU_HTML_KEY, html);
-    localStorage.setItem(LU_BUILD_KEY, String(remoteBuild));
-    localStorage.setItem(LU_VERSION_KEY, manifest.version);
-
-    // Guardar estado antes de mostrar el modal
-    saveEstadoActual();
-
-    // Modal de confirmación
-    const modal=document.createElement('div');
-    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px';
-    modal.innerHTML='<svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:#3b82f6;fill:none;stroke-width:1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
-      +'<div style="color:#fff;font-size:18px;font-weight:700;font-family:monospace;text-align:center">Actualización disponible</div>'
-      +'<div style="color:#94a3b8;font-size:14px;font-family:monospace;text-align:center;max-width:300px">Versión '+manifest.version+' · '+manifest.fecha+'</div>'
-      +'<div style="display:flex;gap:12px;margin-top:8px;width:100%;max-width:300px">'
-      +'<button id="btn-update-now" style="flex:1;height:48px;background:#3b82f6;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace">Actualizar</button>'
-      +'<button id="btn-update-later" style="flex:1;height:48px;background:transparent;border:1px solid #475569;border-radius:10px;color:#94a3b8;font-size:15px;cursor:pointer;font-family:monospace">Ahora no</button>'
-      +'</div>';
-    document.body.appendChild(modal);
-
-    document.getElementById('btn-update-now').onclick=function(){
-      localStorage.setItem('ft_pending_update_version', manifest.version);
-      modal.innerHTML='<div style="color:#fff;font-size:16px;font-weight:700;font-family:monospace;text-align:center">Instalando actualización...</div>'
-        +'<svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:#3b82f6;fill:none;stroke-width:1.5;animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>'
-        +'<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>';
-      setTimeout(function(){ location.reload(true); }, 1500);
-    };
-    document.getElementById('btn-update-later').onclick=function(){
-      modal.remove();
-    };
-
-  } catch(e){
-    console.log('Live update check falló:', e.message);
-  }
-}
-
-// Aplicar versión guardada si es más nueva que el APK
-function applyStoredUpdate(){
-  try{
-    const storedBuild=parseInt(localStorage.getItem(LU_BUILD_KEY))||0;
-    if(storedBuild<=APP_BUILD) return false;
-    const html=localStorage.getItem(LU_HTML_KEY);
-    if(!html||html.length<10000) return false;
-    // Reemplazar el documento actual con el HTML actualizado
-    document.open();
-    document.write(html);
-    document.close();
-    return true;
-  } catch(e){ return false; }
-}
-
-// Verificar updates 3 segundos después de que carga la app
-setTimeout(checkForUpdates, 3000);
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+renderPorts();renderSplitters();updateStats();
 </script>
 </body>
 </html>
