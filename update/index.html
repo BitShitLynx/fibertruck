@@ -1787,10 +1787,10 @@ async function exportPDF(){
       doc.setFillColor(idx%2===0?28:38, idx%2===0?34:44, idx%2===0?52:65);
       doc.rect(PAD,curY-3.5,W-PAD*2,6,'F');
 
-      // Número con fondo del color de fibra A
+      // Número de fusión
       doc.setFontSize(7);
       doc.setFont('helvetica','bold');
-      doc.setTextColor(0,0,0);
+      doc.setTextColor(140,155,200);
       doc.text(String(idx+1),cols[0],curY);
 
       doc.setTextColor(240,242,250);
