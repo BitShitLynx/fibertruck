@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 24,
+  "build": 25,
   "fecha": "2026-05-17",
-  "changelog": "fix: plano doble por onload acumulado",
+  "changelog": "fix: eliminar thumbnail doble bajo canvas, build 25",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
