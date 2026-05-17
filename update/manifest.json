@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 6,
+  "build": 7,
   "fecha": "2026-05-16",
-  "changelog": "Botones PDF y JSON mismo tamaño en exportar",
+  "changelog": "Tipo de elemento NAP vs Cierre, modal de selección, campos específicos NAP",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0

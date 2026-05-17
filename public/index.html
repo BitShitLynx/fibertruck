@@ -300,6 +300,37 @@ if('caches' in window){
           </div>
         </div>
         <div class="field"><label>Observaciones</label><input type="text" id="box-obs" placeholder="Notas opcionales"></div>
+        <div id="nap-fields" style="display:none">
+          <div class="card-title" style="margin-top:12px">Datos de la NAP</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Puertos</label>
+              <select id="nap-puertos" onchange="onConfig()">
+                <option value="4">4 puertos</option>
+                <option value="8" selected>8 puertos</option>
+                <option value="16">16 puertos</option>
+                <option value="24">24 puertos</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Tipo conector</label>
+              <select id="nap-conector" onchange="onConfig()">
+                <option value="SC/APC" selected>SC/APC</option>
+                <option value="SC/UPC">SC/UPC</option>
+                <option value="LC/APC">LC/APC</option>
+                <option value="LC/UPC">LC/UPC</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column:1/-1">
+              <label>PON de la OLT</label>
+              <input id="nap-pon" type="text" placeholder="Ej: OLT-01 / PON-3" oninput="onConfig()">
+            </div>
+            <div class="field" style="grid-column:1/-1">
+              <label>Potencia de entrada (dBm)</label>
+              <input id="nap-potencia" type="number" step="0.1" placeholder="Ej: -18.5" oninput="onConfig()">
+            </div>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">Especificaciones técnicas</div>
@@ -575,6 +606,11 @@ function saveEstadoActual(){
     pdfCustomImage:pdfCustomImage||null,
     fotos:JSON.parse(JSON.stringify(fotos)),
     tecnico:getTecnico(),
+    tipo:getCierreActual()?.datos?.tipo||'cierre',
+    napPuertos:document.getElementById('nap-puertos')?.value||'8',
+    napConector:document.getElementById('nap-conector')?.value||'SC/APC',
+    napPon:document.getElementById('nap-pon')?.value||'',
+    napPotencia:document.getElementById('nap-potencia')?.value||'',
     fechaModificacion:new Date().toISOString()
   };
   saveCierres(cierres);
@@ -595,6 +631,10 @@ function cargarCierre(cierre){
   fotos=d.fotos?JSON.parse(JSON.stringify(d.fotos)):[];
   renderFotos();
   pid=ports.length+1; fid=fusionPairs.length+1; spid=splitters.length+1;
+  if(document.getElementById('nap-puertos')) document.getElementById('nap-puertos').value=d.napPuertos||'8';
+  if(document.getElementById('nap-conector')) document.getElementById('nap-conector').value=d.napConector||'SC/APC';
+  if(document.getElementById('nap-pon')) document.getElementById('nap-pon').value=d.napPon||'';
+  if(document.getElementById('nap-potencia')) document.getElementById('nap-potencia').value=d.napPotencia||'';
   renderPorts(); renderSplitters(); renderFusions(); updateStats(); // orden importante: ports y splitters antes de fusiones
   if(pdfCustomImage){
     document.getElementById('pdf-img-thumb').src=pdfCustomImage;
@@ -666,6 +706,10 @@ function onConfig(){
   document.getElementById('top-name').textContent=boxName();
   document.getElementById('top-sub').textContent=`Dome ${maxP()}P · ${cap()}F`;
   updateStats();
+  const cierreActual=getCierreActual();
+  const esNap=cierreActual?.datos?.tipo==='nap';
+  const napFields=document.getElementById('nap-fields');
+  if(napFields) napFields.style.display=esNap?'block':'none';
 }
 
 function updateStats(){
@@ -2238,23 +2282,59 @@ function mostrarLista(){
   if(!cierres.length){
     lista.innerHTML='<div style="text-align:center;padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px">Sin cierres registrados.<br>Tocá "+ Nuevo" para comenzar.</div>';
   } else {
-    lista.innerHTML=cierres.map(c=>`
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">
-        <div onclick="abrirCierre('${esc(c.id)}')" style="flex:1;cursor:pointer">
-          <div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">${esc(c.datos?.nombre||'Sin nombre')}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${esc(c.datos?.ubicacion||'Sin ubicación')} · ${c.datos?.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):''}</div>
-          <div style="font-size:11px;color:var(--accent2);margin-top:2px">${c.datos?.ports?.length||0} cables · ${c.datos?.fusionPairs?.length||0} fusiones</div>
-        </div>
-        <button onclick="eliminarCierre('${esc(c.id)}')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>
-      </div>`).join('');
+    lista.innerHTML=cierres.map(c=>
+      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center">'
+      +'<div onclick="abrirCierre(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer">'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+      +'<div style="font-size:14px;font-weight:600;color:var(--text);font-family:var(--mono)">'+(c.datos?.nombre||'Sin nombre')+'</div>'
+      +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:var(--mono);font-weight:500;background:'+(c.datos?.tipo==='nap'?'rgba(139,92,246,0.2)':'rgba(59,130,246,0.2)')+';color:'+(c.datos?.tipo==='nap'?'#a78bfa':'#60a5fa')+'">'+(c.datos?.tipo==='nap'?'NAP':'CE')+'</span>'
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+(c.datos?.ubicacion||'Sin ubicación')+' · '+(c.datos?.fechaModificacion?new Date(c.datos.fechaModificacion).toLocaleDateString('es-AR'):'')+' </div>'
+      +'<div style="font-size:11px;color:var(--accent2);margin-top:2px">'+(c.datos?.ports?.length||0)+' cables · '+(c.datos?.fusionPairs?.length||0)+' fusiones</div>'
+      +'</div>'
+      +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
+      +'</div>'
+    ).join('');
   }
   document.getElementById('screen-lista').style.display='flex';
 }
 
 function mostrarNuevoCierre(){
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px';
+  modal.innerHTML='<div style="color:#fff;font-size:18px;font-weight:700;font-family:monospace;text-align:center">Nuevo elemento</div>'
+    +'<div style="color:#94a3b8;font-size:13px;font-family:monospace;text-align:center">¿Qué tipo de elemento querés registrar?</div>'
+    +'<div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px">'
+    +'<button onclick="crearElemento(\'cierre\')" style="height:72px;background:var(--bg2);border:1px solid var(--accent);border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace;display:flex;align-items:center;gap:14px;padding:0 20px">'
+    +'<svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:var(--accent);fill:none;stroke-width:1.5;flex-shrink:0"><ellipse cx="12" cy="12" rx="9" ry="8"/><ellipse cx="12" cy="12" rx="6" ry="5" stroke-dasharray="2 1.5"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/><ellipse cx="12" cy="18" rx="3" ry="1.8"/></svg>'
+    +'<div style="text-align:left"><div>Cierre de empalme</div><div style="font-size:11px;color:#94a3b8;font-weight:400;margin-top:2px">Dome · fusiones · splitters</div></div>'
+    +'</button>'
+    +'<button onclick="crearElemento(\'nap\')" style="height:72px;background:var(--bg2);border:1px solid #8b5cf6;border-radius:12px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace;display:flex;align-items:center;gap:14px;padding:0 20px">'
+    +'<svg viewBox="0 0 24 24" style="width:32px;height:32px;stroke:#8b5cf6;fill:none;stroke-width:1.5;flex-shrink:0"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><circle cx="7" cy="6.5" r="1"/><circle cx="10" cy="6.5" r="1"/><circle cx="6" cy="13" r="1.2"/><circle cx="10" cy="13" r="1.2"/><circle cx="14" cy="13" r="1.2"/><circle cx="18" cy="13" r="1.2"/><circle cx="6" cy="17" r="1.2"/><circle cx="10" cy="17" r="1.2"/><circle cx="14" cy="17" r="1.2"/><circle cx="18" cy="17" r="1.2"/></svg>'
+    +'<div style="text-align:left"><div>NAP</div><div style="font-size:11px;color:#94a3b8;font-weight:400;margin-top:2px">Puertos · conector · PON · potencia</div></div>'
+    +'</button>'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="height:44px;background:transparent;border:1px solid #475569;border-radius:10px;color:#94a3b8;font-size:14px;cursor:pointer;font-family:monospace">Cancelar</button>'
+    +'</div>';
+  document.body.appendChild(modal);
+}
+
+function crearElemento(tipo){
+  document.querySelector('div[style*="position:fixed"][style*="99999"]')?.remove();
   const id=genId();
   const cierres=getCierres();
-  cierres.unshift({id,creadoEn:new Date().toISOString(),datos:{nombre:'CE-'+String(cierres.length+1).padStart(2,'0'),ubicacion:'',fechaModificacion:new Date().toISOString()}});
+  const num=String(cierres.length+1).padStart(2,'0');
+  const nombre=tipo==='nap'?('NAP-'+num):('CE-'+num);
+  cierres.unshift({
+    id,
+    tipo:tipo,
+    creadoEn:new Date().toISOString(),
+    datos:{
+      nombre,
+      tipo:tipo,
+      ubicacion:'',
+      fechaModificacion:new Date().toISOString()
+    }
+  });
   saveCierres(cierres);
   abrirCierre(id);
 }
@@ -2263,6 +2343,14 @@ function abrirCierre(id){
   localStorage.setItem('ft_cierre_actual',id);
   const cierre=getCierres().find(c=>c.id===id);
   if(cierre) cargarCierre(cierre);
+  const tipo=cierre?.datos?.tipo||'cierre';
+  if(tipo==='nap'){
+    document.getElementById('tab-fusiones').style.display='none';
+    document.getElementById('tab-vista').style.display='none';
+  } else {
+    document.getElementById('tab-fusiones').style.display='';
+    document.getElementById('tab-vista').style.display='';
+  }
   document.getElementById('screen-lista').style.display='none';
   document.getElementById('app').style.display='flex';
   goTab('config');
