@@ -1513,6 +1513,12 @@ function fallbackJSON(json,filename){
 }
 
 async function exportPDF(){
+  // Verificar que hay un cierre activo
+  const cierreId=localStorage.getItem('ft_cierre_actual');
+  if(!cierreId){
+    toast('No hay cierre activo para exportar');
+    return;
+  }
   toast('Generando PDF...');
   if(!window.jspdf){
     await new Promise((res,rej)=>{
@@ -2559,15 +2565,37 @@ if('serviceWorker' in navigator){
       toast('✓ App actualizada a v'+pendingUpdateVersion);
     }, 1500);
   }
+  // Restaurar último cierre si estaba abierto
+  const lastId=localStorage.getItem('ft_cierre_actual');
   const tec=getTecnico();
+
   if(!tec){
     document.getElementById('app').style.display='none';
     document.getElementById('screen-tecnico').style.display='flex';
+  } else if(lastId){
+    // Había un cierre abierto — restaurarlo
+    const cierre=getCierres().find(function(c){return c.id===lastId;});
+    if(cierre){
+      cargarCierre(cierre);
+      const appEl=document.getElementById('app');
+      if(appEl){ appEl.style.visibility='visible'; appEl.style.display='flex'; appEl.style.flexDirection='column'; appEl.style.height='100vh'; }
+      const tipo=cierre.datos&&cierre.datos.tipo||'cierre';
+      if(tipo==='nap'){
+        const tf=document.getElementById('tab-fusiones');
+        const tv=document.getElementById('tab-vista');
+        if(tf) tf.style.display='none';
+        if(tv) tv.style.display='none';
+      }
+      goTab('config');
+    } else {
+      document.getElementById('app').style.display='none';
+      mostrarLista();
+    }
   } else {
     document.getElementById('app').style.display='none';
     mostrarLista();
   }
-  renderPorts();renderSplitters();updateStats();
+  renderPorts(); renderSplitters(); updateStats();
 })();
 
 // ── LIVE UPDATE ──────────────────────────────────────────────

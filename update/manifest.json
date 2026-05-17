@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 17,
+  "build": 18,
   "fecha": "2026-05-17",
-  "changelog": "feat: datos caja en PDF restaurados, editar splitter, campos sangría, sin color en número fusión",
+  "changelog": "fix: restaurar cierre activo tras live update, validar cierre en exportPDF",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
