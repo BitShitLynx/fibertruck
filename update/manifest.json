@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 21,
+  "build": 22,
   "fecha": "2026-05-17",
-  "changelog": "fix: QA audit - APP_BUILD, memory leak SVG, crash imagen, exportJSON NAP, subtítulo NAP, tipo imagen PDF, reset plano al volver",
+  "changelog": "fix: QA audit bajos - toast plano incompleto, race condition initPlano, modal ID específico, meta version, selector modal, allSources fusion, CSS duplicados",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
