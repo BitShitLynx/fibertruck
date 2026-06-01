@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 27,
-  "fecha": "2026-05-17",
-  "changelog": "fix: color número fusión en tabla PDF",
+  "build": 28,
+  "fecha": "2026-06-01",
+  "changelog": "design: unificar colores naranja en JS dinámico",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0

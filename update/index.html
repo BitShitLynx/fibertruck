@@ -960,7 +960,7 @@ function renderSVG(){
     const sx=CX-30+(i*36), sy=148;
     return `<polygon points="${sx},${sy-12} ${sx+16},${sy} ${sx},${sy+12} ${sx-16},${sy}"
         fill="#1e1440" stroke="#8b5cf6" stroke-width="1.5"/>
-      <text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="6" font-family="'IBM Plex Mono',monospace" font-weight="500">${s.tipo}</text>
+      <text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="central" fill="var(--accent2)" font-size="6" font-family="'IBM Plex Mono',monospace" font-weight="500">${s.tipo}</text>
       <text x="${sx}" y="${sy+18}" text-anchor="middle" fill="#7c5cbf" font-size="6" font-family="'IBM Plex Mono',monospace">${s.label}</text>`;
   }).join('');
 
@@ -970,7 +970,7 @@ function renderSVG(){
       <ellipse cx="${CX}" cy="${CY}" rx="124" ry="121" fill="none" stroke="#3a4468" stroke-width="1" stroke-dasharray="5 4" opacity="0.6"/>
       ${lines}
       ${splSVG}
-      <circle cx="${CX}" cy="${CY}" r="30" fill="#0f131c" stroke="#3b82f6" stroke-width="1.5" opacity="0.9"/>
+      <circle cx="${CX}" cy="${CY}" r="30" fill="#0f131c" stroke="var(--accent)" stroke-width="1.5" opacity="0.9"/>
       <text x="${CX}" y="${CY-8}" text-anchor="middle" dominant-baseline="central" fill="#e8ecf4" font-size="10" font-family="'IBM Plex Mono',monospace" font-weight="500">${name}</text>
       <text x="${CX}" y="${CY+8}" text-anchor="middle" dominant-baseline="central" fill="#7a85a3" font-size="8" font-family="'IBM Plex Mono',monospace">${cp}F</text>
       ${SLOTS.filter(s=>!s.sang).map(portCircle).join('')}
@@ -1358,7 +1358,7 @@ function renderKML(kmlText,filename){
     const pts=el.textContent.trim().split(/\s+/).map(c=>{
       const[lng,lat]=c.split(',').map(Number);return[lat,lng];
     }).filter(([a,b])=>!isNaN(a)&&!isNaN(b));
-    if(pts.length>1){layers.push(L.polyline(pts,{color:'#3b82f6',weight:3,opacity:.85}));coords.push(...pts);}
+    if(pts.length>1){layers.push(L.polyline(pts,{color:'#ff6b00',weight:3,opacity:.85}));coords.push(...pts);}
   });
 
   kml.querySelectorAll('Placemark').forEach(pm=>{
@@ -2042,7 +2042,7 @@ planoImg.src = PLANO_SRC;
 let planoCanvas=null, planoCtx=null;
 let planoScale=1;
 let planoTool='select';
-let planoColor='#3b82f6';
+let planoColor='#ff6b00';
 let planoElements=[];
 let planoHistory=[]; // stack de estados anteriores
 let planoDrawing=false;
@@ -2538,7 +2538,7 @@ function mostrarLista(){
     sl.innerHTML='<div class="lista-header" style="background:#181c27;padding:16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2a2f45">'
       +'<div><div style="font-size:16px;font-weight:700;color:#e8ecf4;font-family:monospace">FiberTrack</div>'
       +'<div id="lista-tecnico-label" style="font-size:11px;color:#7a85a3"></div></div>'
-      +'<button onclick="mostrarNuevoCierre()" style="background:#3b82f6;border:none;border-radius:8px;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">+ Nuevo</button>'
+      +'<button onclick="mostrarNuevoCierre()" style="background:var(--accent);border:none;border-radius:8px;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">+ Nuevo</button>'
       +'</div>'
       +'<div id="lista-cierres" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px"></div>';
   }
@@ -2557,7 +2557,7 @@ function mostrarLista(){
     lista.innerHTML=cierres.map(function(c){
       const esNap=c.datos&&c.datos.tipo==='nap';
       const badgeColor=esNap?'rgba(139,92,246,0.2)':'rgba(59,130,246,0.2)';
-      const badgeText=esNap?'#a78bfa':'#60a5fa';
+      const badgeText=esNap?'var(--accent2)':'var(--accent)';
       const badgeLabel=esNap?'NAP':'CE';
       const nombre=c.datos&&c.datos.nombre?c.datos.nombre:'Sin nombre';
       const ubicacion=c.datos&&c.datos.ubicacion?c.datos.ubicacion:'Sin ubicación';
@@ -2571,7 +2571,7 @@ function mostrarLista(){
         +'<span style="font-size:10px;padding:2px 7px;border-radius:20px;font-family:monospace;font-weight:500;background:'+badgeColor+';color:'+badgeText+'">'+badgeLabel+'</span>'
         +'</div>'
         +'<div style="font-size:11px;color:#7a85a3;margin-top:2px">'+ubicacion+' · '+fecha+'</div>'
-        +'<div style="font-size:11px;color:#a78bfa;margin-top:2px">'+cables+' cables · '+fusiones+' fusiones</div>'
+        +'<div style="font-size:11px;color:var(--accent2);margin-top:2px">'+cables+' cables · '+fusiones+' fusiones</div>'
         +'</div>'
         +'<button onclick="eliminarCierre(\''+esc(c.id)+'\')" style="background:none;border:none;color:#7a85a3;font-size:22px;cursor:pointer;padding:4px 8px">×</button>'
         +'</div>';
@@ -2780,11 +2780,11 @@ async function checkForUpdates(){
     // Modal de confirmación
     const modal=document.createElement('div');
     modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px';
-    modal.innerHTML='<svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:#3b82f6;fill:none;stroke-width:1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
+    modal.innerHTML='<svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:var(--accent);fill:none;stroke-width:1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>'
       +'<div style="color:#fff;font-size:18px;font-weight:700;font-family:monospace;text-align:center">Actualización disponible</div>'
       +'<div style="color:#94a3b8;font-size:14px;font-family:monospace;text-align:center;max-width:300px">Versión '+manifest.version+' · '+manifest.fecha+'</div>'
       +'<div style="display:flex;gap:12px;margin-top:8px;width:100%;max-width:300px">'
-      +'<button id="btn-update-now" style="flex:1;height:48px;background:#3b82f6;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace">Actualizar</button>'
+      +'<button id="btn-update-now" style="flex:1;height:48px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:monospace">Actualizar</button>'
       +'<button id="btn-update-later" style="flex:1;height:48px;background:transparent;border:1px solid #475569;border-radius:10px;color:#94a3b8;font-size:15px;cursor:pointer;font-family:monospace">Ahora no</button>'
       +'</div>';
     document.body.appendChild(modal);
@@ -2792,7 +2792,7 @@ async function checkForUpdates(){
     document.getElementById('btn-update-now').onclick=function(){
       localStorage.setItem('ft_pending_update_version', manifest.version);
       modal.innerHTML='<div style="color:#fff;font-size:16px;font-weight:700;font-family:monospace;text-align:center">Instalando actualización...</div>'
-        +'<svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:#3b82f6;fill:none;stroke-width:1.5;animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>'
+        +'<svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--accent);fill:none;stroke-width:1.5;animation:spin 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>'
         +'<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>';
       setTimeout(function(){ location.reload(true); }, 1500);
     };
