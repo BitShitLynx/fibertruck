@@ -137,7 +137,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .badge{font-size:10px;padding:3px 8px;border-radius:2px;font-family:var(--mono);font-weight:500;flex-shrink:0;letter-spacing:.04em}
 .badge-in{background:#0d3320;color:#4ade80;border:1px solid #166534}
 .badge-out{background:#2d1c07;color:#fbbf24;border:1px solid #92400e}
-.badge-sang{background:#1a1440;color:#a78bfa;border:1px solid #4c1d95}
+.badge-sang{background:#2a1200;color:#ff6b00;border:1px solid #ff6b00}
 .port-chevron{color:var(--muted);flex-shrink:0;transition:transform .2s}
 .port-chevron svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .port-item.open .port-chevron{transform:rotate(180deg)}
@@ -847,7 +847,7 @@ function setPField(id,field,val){
 function renderPorts(){
   const el=document.getElementById('ports-list');
   if(!ports.length){
-    el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>Sin cables.<br>Tocá "Agregar cable" para empezar.</div>`;
+    el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7"/><circle cx="17" cy="18" r="3"/><path d="M17 15v-3"/></svg>Sin cables.<br>Tocá "Agregar cable" para empezar.</div>`;
     return;
   }
   el.innerHTML=ports.map(p=>{
@@ -2556,7 +2556,7 @@ function mostrarLista(){
   } else {
     lista.innerHTML=cierres.map(function(c){
       const esNap=c.datos&&c.datos.tipo==='nap';
-      const badgeColor=esNap?'rgba(139,92,246,0.2)':'rgba(59,130,246,0.2)';
+      const badgeColor='#2a1200';
       const badgeText=esNap?'var(--accent2)':'var(--accent)';
       const badgeLabel=esNap?'NAP':'CE';
       const nombre=c.datos&&c.datos.nombre?c.datos.nombre:'Sin nombre';

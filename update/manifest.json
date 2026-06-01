@@ -1,8 +1,8 @@
 {
   "version": "1.4",
-  "build": 28,
+  "build": 29,
   "fecha": "2026-06-01",
-  "changelog": "design: unificar colores naranja en JS dinámico",
+  "changelog": "fix: icono puertos y badges lista",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
