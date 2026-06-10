@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="1.3">
+<meta name="version" content="1.5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +23,7 @@
   --bg:#0a0b0d;--bg2:#111318;--bg3:#191c23;
   --border:#1e222e;--border2:#272d3d;
   --text:#dde3ee;--muted:#58607a;
-  --accent:#ff6b00;--accent2:#ff8c33;
+  --accent:#3b82f6;--accent2:#60a5fa;
   --red:#ef4444;--green:#22c55e;
   --mono:'Share Tech Mono',monospace;
   --sans:'Barlow',sans-serif;
@@ -52,7 +52,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   background:var(--accent);
   border-radius:4px;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 12px rgba(255,107,0,.4);
+  box-shadow:0 0 12px rgba(59,130,246,.4);
 }
 .topbar-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .topbar-name{font-family:var(--cond);font-size:17px;font-weight:700;color:var(--text);letter-spacing:.06em;text-transform:uppercase}
@@ -75,7 +75,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 }
 .tab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab.active svg{filter:drop-shadow(0 0 4px rgba(255,107,0,.6))}
+.tab.active svg{filter:drop-shadow(0 0 4px rgba(59,130,246,.6))}
 .tab-badge{
   position:absolute;top:5px;right:calc(50% - 13px);
   background:var(--accent);color:#fff;
@@ -136,8 +136,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .port-name{flex:1;font-size:13px;color:var(--text);font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--cond);letter-spacing:.02em}
 .badge{font-size:10px;padding:3px 8px;border-radius:2px;font-family:var(--mono);font-weight:500;flex-shrink:0;letter-spacing:.04em}
 .badge-in{background:#0d3320;color:#4ade80;border:1px solid #166534}
-.badge-out{background:#2d1c07;color:#fbbf24;border:1px solid #92400e}
-.badge-sang{background:#2a1200;color:#ff6b00;border:1px solid #ff6b00}
+.badge-out{background:#07243a;color:#7dd3fc;border:1px solid #0369a1}
+.badge-sang{background:#0b1e38;color:#3b82f6;border:1px solid #3b82f6}
 .port-chevron{color:var(--muted);flex-shrink:0;transition:transform .2s}
 .port-chevron svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .port-item.open .port-chevron{transform:rotate(180deg)}
@@ -163,7 +163,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   letter-spacing:.08em;text-transform:uppercase;
   cursor:pointer;display:flex;align-items:center;gap:8px;
   transition:all .15s;
-  box-shadow:0 4px 20px rgba(255,107,0,.35);
+  box-shadow:0 4px 20px rgba(59,130,246,.35);
 }
 .fab:active{opacity:.85;transform:scale(.97)}
 .fab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -190,7 +190,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   cursor:pointer;font-family:var(--mono);letter-spacing:.04em;
   transition:all .15s;
 }
-.fus-pair-add:active{background:rgba(255,107,0,.1)}
+.fus-pair-add:active{background:rgba(59,130,246,.1)}
 
 #map-el{height:360px;border-radius:4px;overflow:hidden;border:1px solid var(--border)}
 .map-drop{
@@ -260,12 +260,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   letter-spacing:.04em;
 }
 .tool-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(255,107,0,.08)}
+.tool-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08)}
 .tool-btn:active{opacity:.8}
-.plano-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .zoom-btn{width:36px;height:36px;border-radius:3px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.color-swatch{width:28px;height:28px;border-radius:3px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0}
-.color-swatch.active{border-color:var(--accent)}
 .toast{
   position:fixed;bottom:calc(70px + var(--safe-bottom));left:50%;
   transform:translateX(-50%) translateY(20px);
@@ -319,7 +316,7 @@ if('caches' in window){
       </div>
       <div>
         <div class="topbar-name" id="top-name">CE-01</div>
-        <div class="topbar-sub" id="top-sub">Dome 5P · 24F <span style="opacity:.45;font-size:9px">v1.3</span></div>
+        <div class="topbar-sub" id="top-sub">Dome 5P · 24F <span style="opacity:.45;font-size:9px">v1.5</span></div>
       </div>
     </div>
     <button class="topbar-btn" onclick="goTab('export')" aria-label="Exportar">
@@ -505,17 +502,9 @@ if('caches' in window){
           <button class="tool-btn" id="tool-erase" onclick="setTool('erase')">
             <svg viewBox="0 0 24 24"><polyline points="20 9 20 20 4 20 4 9"/><rect x="2" y="4" width="20" height="5" rx="1"/></svg>Borrar
           </button>
-        </div>
-        <div class="plano-controls" style="margin-bottom:8px">
           <button class="zoom-btn" onclick="zoomPlano(1.2)">+</button>
           <button class="zoom-btn" onclick="zoomPlano(0.8)">−</button>
           <button class="zoom-btn" onclick="resetZoom()" style="font-size:11px;width:auto;padding:0 8px">Reset</button>
-          <div style="flex:1"></div>
-          <div class="color-swatch active" style="background:#3b82f6" onclick="setColor('#3b82f6',this)" title="Azul"></div>
-          <div class="color-swatch" style="background:#22c55e" onclick="setColor('#22c55e',this)" title="Verde"></div>
-          <div class="color-swatch" style="background:#f97316" onclick="setColor('#f97316',this)" title="Naranja"></div>
-          <div class="color-swatch" style="background:#ef4444" onclick="setColor('#ef4444',this)" title="Rojo"></div>
-          <div class="color-swatch" style="background:#ffffff" onclick="setColor('#ffffff',this)" title="Blanco"></div>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <button class="tool-btn" style="flex:1;justify-content:center" onclick="document.getElementById('plano-img-input').click()">
@@ -731,35 +720,70 @@ function guardarCoordenadas(lat, lng, accuracy){
   btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#22c55e;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
   toast('GPS: '+latS+', '+lngS+' (±'+Math.round(accuracy||0)+'m)');
 }
+const GPS_SVG_IDLE='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
 function captrarGPS(){
   const btn=document.getElementById('btn-gps');
   btn.textContent='...';
 
   const IS_CAP=!!(window.Capacitor?.isNativePlatform?.());
+  const TARGET_ACC=8;      // m: si alcanza esta precisión, corta antes
+  const MAX_WAIT=15000;    // ms: tiempo máximo muestreando lecturas
+  const MIN_SAMPLES=3;     // lecturas mínimas antes de cortar por precisión
+  // maximumAge:0 fuerza una lectura GPS fresca y evita el fix cacheado de red (celda/WiFi),
+  // que es la causa habitual del desfasaje de >100m.
+  const opts={enableHighAccuracy:true,timeout:MAX_WAIT,maximumAge:0};
+
+  let best=null,samples=0,done=false,watchId=null,timer=null;
+
+  function stopWatch(){
+    if(watchId==null) return;
+    try{
+      if(IS_CAP) window.Capacitor.Plugins.Geolocation.clearWatch({id:watchId});
+      else navigator.geolocation.clearWatch(watchId);
+    }catch(e){}
+    watchId=null;
+  }
+  function finish(){
+    if(done) return; done=true;
+    clearTimeout(timer); stopWatch();
+    if(best){ guardarCoordenadas(best.lat,best.lng,best.acc); }
+    else { toast('GPS: sin señal, reintentá'); btn.innerHTML=GPS_SVG_IDLE; }
+  }
+  function consider(lat,lng,acc){
+    if(done) return;
+    acc=(acc==null||acc<=0)?9999:acc;
+    samples++;
+    if(!best||acc<best.acc) best={lat:lat,lng:lng,acc:acc};
+    btn.textContent='±'+Math.round(best.acc)+'m';
+    if(samples>=MIN_SAMPLES&&best.acc<=TARGET_ACC) finish();
+  }
 
   if(IS_CAP){
     const Geolocation=window.Capacitor?.Plugins?.Geolocation;
-    if(!Geolocation){ toast('Plugin GPS no disponible'); btn.innerHTML='GPS'; return; }
+    if(!Geolocation){ toast('Plugin GPS no disponible'); btn.innerHTML=GPS_SVG_IDLE; return; }
     Geolocation.requestPermissions().then(function(perm){
       if(perm.location==='granted'||perm.coarseLocation==='granted'){
-        return Geolocation.getCurrentPosition({enableHighAccuracy:true,timeout:10000});
+        timer=setTimeout(finish,MAX_WAIT);
+        return Geolocation.watchPosition(opts,function(pos,err){
+          if(err||!pos) return;
+          consider(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy);
+        });
       } else {
         throw new Error('Permiso denegado');
       }
-    }).then(function(pos){
-      guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-    }).catch(function(err){
+    }).then(function(id){ watchId=id; if(done) stopWatch(); })
+    .catch(function(err){
+      clearTimeout(timer); done=true;
       toast('GPS: '+err.message);
-      btn.innerHTML='<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;vertical-align:middle"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg> GPS';
+      btn.innerHTML=GPS_SVG_IDLE;
     });
   } else {
-    if(!navigator.geolocation){ toast('GPS no disponible'); return; }
-    navigator.geolocation.getCurrentPosition(
-      function(pos){
-        guardarCoordenadas(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-      },
-      function(err){ toast('Error GPS ('+err.code+'): '+err.message); },
-      {enableHighAccuracy:true,timeout:10000}
+    if(!navigator.geolocation){ toast('GPS no disponible'); btn.innerHTML=GPS_SVG_IDLE; return; }
+    timer=setTimeout(finish,MAX_WAIT);
+    watchId=navigator.geolocation.watchPosition(
+      function(pos){ consider(pos.coords.latitude,pos.coords.longitude,pos.coords.accuracy); },
+      function(err){ if(samples===0){ clearTimeout(timer); done=true; stopWatch(); toast('Error GPS ('+err.code+'): '+err.message); btn.innerHTML=GPS_SVG_IDLE; } },
+      opts
     );
   }
 }
@@ -778,9 +802,9 @@ function onConfig(){
   if(esNap){
     const puertos=document.getElementById('nap-puertos')?.value||'8';
     const conector=document.getElementById('nap-conector')?.value||'SC/APC';
-    document.getElementById('top-sub').innerHTML='NAP '+puertos+'P \xb7 '+conector+' <span style="opacity:.45;font-size:9px">v1.3</span>';
+    document.getElementById('top-sub').innerHTML='NAP '+puertos+'P \xb7 '+conector+' <span style="opacity:.45;font-size:9px">v1.5</span>';
   } else {
-    document.getElementById('top-sub').innerHTML='Dome '+maxP()+'P \xb7 '+cap()+'F <span style="opacity:.45;font-size:9px">v1.3</span>';
+    document.getElementById('top-sub').innerHTML='Dome '+maxP()+'P \xb7 '+cap()+'F <span style="opacity:.45;font-size:9px">v1.5</span>';
   }
   updateStats();
   const napFields=document.getElementById('nap-fields');
@@ -1358,7 +1382,7 @@ function renderKML(kmlText,filename){
     const pts=el.textContent.trim().split(/\s+/).map(c=>{
       const[lng,lat]=c.split(',').map(Number);return[lat,lng];
     }).filter(([a,b])=>!isNaN(a)&&!isNaN(b));
-    if(pts.length>1){layers.push(L.polyline(pts,{color:'#ff6b00',weight:3,opacity:.85}));coords.push(...pts);}
+    if(pts.length>1){layers.push(L.polyline(pts,{color:'#3b82f6',weight:3,opacity:.85}));coords.push(...pts);}
   });
 
   kml.querySelectorAll('Placemark').forEach(pm=>{
@@ -1367,7 +1391,7 @@ function renderKML(kmlText,filename){
     if(isNaN(lat)||isNaN(lng))return;
     const name=pm.querySelector('name')?.textContent||'';
     const desc=pm.querySelector('description')?.textContent||'';
-    const m=L.circleMarker([lat,lng],{radius:6,fillColor:'#f97316',color:'#fff',weight:1.5,fillOpacity:1});
+    const m=L.circleMarker([lat,lng],{radius:6,fillColor:'#3b82f6',color:'#fff',weight:1.5,fillOpacity:1});
     if(name) m.bindPopup(`<b>${name}</b>${desc?'<br>'+desc:''}`);
     layers.push(m);coords.push([lat,lng]);
   });
@@ -2042,7 +2066,7 @@ planoImg.src = PLANO_SRC;
 let planoCanvas=null, planoCtx=null;
 let planoScale=1;
 let planoTool='select';
-let planoColor='#ff6b00';
+let planoColor='#3b82f6'; // color fijo del plano (se quitó el selector de colores)
 let planoElements=[];
 let planoHistory=[]; // stack de estados anteriores
 let planoDrawing=false;
@@ -2083,32 +2107,49 @@ function initPlano(){
     planoCanvas.addEventListener('mousemove', e=>{ if(planoDrawing) planoMove(e.offsetX, e.offsetY); });
     planoCanvas.addEventListener('mouseup',   e=>planoUp(e.offsetX, e.offsetY));
 
-    // Touch — single finger
+    // Touch — un dedo = dibujo/pan, dos dedos = pinch-to-zoom
     planoCanvas.addEventListener('touchstart', e=>{
       e.preventDefault();
-      if(e.touches.length===1){
-        const r=planoCanvas.getBoundingClientRect();
-        planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
-      } else if(e.touches.length===2){
+      const r=planoCanvas.getBoundingClientRect();
+      if(e.touches.length===2){
+        // Inicio de pinch: cancelar cualquier trazo/pan de un dedo en curso
+        // y guardar la distancia inicial para calcular el delta incremental.
+        planoDrawing=false;
         planoPinch.active=true;
         planoPinch.lastDist=touchDist(e.touches);
+      } else if(e.touches.length===1 && !planoPinch.active){
+        planoDown(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
       }
     },{passive:false});
     planoCanvas.addEventListener('touchmove', e=>{
       e.preventDefault();
-      if(e.touches.length===1 && planoDrawing){
-        const r=planoCanvas.getBoundingClientRect();
-        planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
-      } else if(e.touches.length===2 && planoPinch.active){
+      const r=planoCanvas.getBoundingClientRect();
+      if(e.touches.length===2 && planoPinch.active){
         const dist=touchDist(e.touches);
-        const factor=dist/planoPinch.lastDist;
+        if(planoPinch.lastDist>0){
+          // Delta incremental respecto del último frame => zoom suave sin saltos
+          const factor=dist/planoPinch.lastDist;
+          // Punto medio entre los dos dedos (coordenadas de pantalla del canvas)
+          const midX=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left;
+          const midY=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top;
+          applyZoomAt(factor, midX, midY);
+        }
         planoPinch.lastDist=dist;
-        applyZoom(factor);
+      } else if(e.touches.length===1 && planoDrawing && !planoPinch.active){
+        planoMove(e.touches[0].clientX-r.left, e.touches[0].clientY-r.top);
       }
     },{passive:false});
     planoCanvas.addEventListener('touchend', e=>{
       e.preventDefault();
-      planoPinch.active=false;
+      if(planoPinch.active){
+        // Terminar el pinch solo al bajar de 2 dedos, sin disparar dibujo
+        if(e.touches.length<2){
+          planoPinch.active=false;
+          planoPinch.lastDist=0;
+          planoDrawing=false;
+        }
+        return;
+      }
       if(e.changedTouches.length){
         const r=planoCanvas.getBoundingClientRect();
         planoUp(e.changedTouches[0].clientX-r.left, e.changedTouches[0].clientY-r.top);
@@ -2464,22 +2505,21 @@ function setTool(t){
   drawPlano();
 }
 
-function setColor(c,el){
-  planoColor=c;
-  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('active'));
-  el.classList.add('active');
-}
-
-function applyZoom(factor){
+function applyZoomAt(factor, px, py){
   const minS=0.1, maxS=5;
   const newS=Math.max(minS,Math.min(maxS,planoScale*factor));
   const actualF=newS/planoScale;
+  if(actualF===1) return; // ya en el límite: sin cambios, evita jitter
   planoScale=newS;
-  // Zoom centrado en el canvas
-  const cx=planoCanvas.width/2, cy=planoCanvas.height/2;
-  planoOffX=cx+(planoOffX-cx)*actualF;
-  planoOffY=cy+(planoOffY-cy)*actualF;
+  // Zoom centrado en (px,py) en coordenadas de pantalla del canvas
+  planoOffX=px+(planoOffX-px)*actualF;
+  planoOffY=py+(planoOffY-py)*actualF;
   drawPlano();
+}
+
+function applyZoom(factor){
+  // Zoom con botones +/−: centrado en el canvas
+  applyZoomAt(factor, planoCanvas.width/2, planoCanvas.height/2);
 }
 
 function zoomPlano(factor){ applyZoom(factor); }
@@ -2556,7 +2596,7 @@ function mostrarLista(){
   } else {
     lista.innerHTML=cierres.map(function(c){
       const esNap=c.datos&&c.datos.tipo==='nap';
-      const badgeColor='#2a1200';
+      const badgeColor='#0b1e38';
       const badgeText=esNap?'var(--accent2)':'var(--accent)';
       const badgeLabel=esNap?'NAP':'CE';
       const nombre=c.datos&&c.datos.nombre?c.datos.nombre:'Sin nombre';
@@ -2726,7 +2766,7 @@ const LU_MANIFEST='https://bitshitlynx.github.io/fibertruck/update/manifest.json
 const LU_VERSION_KEY='ft_update_version';
 const LU_HTML_KEY='ft_update_html';
 const LU_BUILD_KEY='ft_update_build';
-const APP_BUILD=20; // build actual del APK, debe coincidir con manifest.json
+const APP_BUILD=30; // build actual del APK, debe coincidir con manifest.json
 
 async function checkForUpdates(){
   try{

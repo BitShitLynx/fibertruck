@@ -1,8 +1,8 @@
 {
-  "version": "1.4",
-  "build": 29,
-  "fecha": "2026-06-01",
-  "changelog": "fix: icono puertos y badges lista",
+  "version": "1.5",
+  "build": 30,
+  "fecha": "2026-06-09",
+  "changelog": "GPS más preciso · paleta azul · pinch-to-zoom en plano",
   "url": "https://bitshitlynx.github.io/fibertruck/update/index.html",
   "minBuild": 3,
   "checksum_length": 0
